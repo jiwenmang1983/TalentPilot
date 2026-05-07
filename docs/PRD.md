@@ -1,8 +1,8 @@
 # TalentPilot — 产品需求文档 (PRD)
 
-**版本：** v0.2
+**版本：** v0.3
 **日期：** 2026-05-08
-**状态：** 🟡 初稿待确认
+**状态：** 🟡 初稿进行中
 
 ---
 
@@ -171,18 +171,27 @@ HR / 用人经理查看报告，决定后续流程
 
 ### 6.1 技术栈
 
-- 待确认（建议：Python/FastAPI 后端 + Vue3 前端 + MySQL + LLM API）
+| 层级 | 技术 | 说明 |
+| --- | --- | --- |
+| 前端 | Vue 3 + Vite + Ant Design Vue 4 | SPA 单页应用 |
+| 后端 | ASP.NET Core 8 + EF Core | API 服务 |
+| 数据库 | MySQL 8.0 | 关系型数据存储 |
+| 认证 | JWT（本地开发）/ M365 SSO（生产） | 管理员 + HR 登录 |
+| LLM | MiniMax API | 简历匹配语义分析 / AI 面试对话 / 报告生成 |
+| 部署 | 本地部署 | 暂不支持云端 |
 
 ### 6.2 数据表概览
 
-- 职位表（Jobs）
-- 渠道账号表（ChannelAccounts）
-- 发布记录表（PostRecords）
-- 简历表（Resumes）
-- 匹配记录表（MatchRecords）
-- 面试记录表（Interviews）
-- 面试报告表（InterviewReports）
-- 用户表（Users）
+| 表名 | 说明 |
+| --- | --- |
+| Users | 用户表（管理员/HR） |
+| Jobs | 职位表 |
+| ChannelAccounts | 渠道账号表 |
+| PostRecords | 发布记录表 |
+| Resumes | 简历表 |
+| MatchRecords | 匹配记录表 |
+| Interviews | 面试记录表 |
+| InterviewReports | 面试报告表 |
 
 ---
 
