@@ -28,6 +28,77 @@ public class CandidatesController : ControllerBase
         _logService = logService;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse<object>>> GetCandidates(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? keyword = null)
+    {
+        var query = _dbContext.Candidates.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(keyword))
+            query = query.Where(c => c.Name.Contains(keyword) || c.Email.Contains(keyword));
+
+        var total = await query.CountAsync();
+        var items = await query
+            .OrderByDescending(c => c.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(c => new {
+                c.Id,
+                c.Name,
+                c.Email,
+                c.Phone,
+                c.CurrentPosition,
+                c.CurrentCompany,
+                c.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(new ApiResponse<object>(true, "获取成功", new {
+            total,
+            page,
+            pageSize,
+            items
+        }));
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<object>>> GetCandidate(long id)
+    {
+        var candidate = await _dbContext.Candidates.FindAsync(id);
+        if (candidate == null)
+            return NotFound(new ApiResponse<object>(false, "候选人不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", candidate));
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<object>>> CreateCandidate([FromBody] CreateCandidateRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email))
+            return BadRequest(new ApiResponse<object>(false, "邮箱不能为空", null));
+
+        var exists = await _dbContext.Candidates.AnyAsync(c => c.Email == request.Email);
+        if (exists)
+            return BadRequest(new ApiResponse<object>(false, "该邮箱已存在", null));
+
+        var candidate = new Candidate
+        {
+            Name = request.FullName ?? request.Email.Split('@')[0],
+            Email = request.Email,
+            Phone = request.Phone ?? "",
+            CurrentPosition = request.CurrentPosition ?? "",
+            CurrentCompany = request.CurrentCompany ?? "",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.Candidates.Add(candidate);
+        await _dbContext.SaveChangesAsync();
+
+        return Created($"/api/candidates/{candidate.Id}", new ApiResponse<object>(true, "创建成功", new { candidate.Id, candidate.Name }));
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult<ApiResponse<object>>> HardDeleteCandidate(long id)
     {
@@ -158,3 +229,4 @@ public class CandidatesController : ControllerBase
 }
 
 public record RecordConsentRequest(string ConsentType);
+public record CreateCandidateRequest(string? FullName, string Email, string? Phone, string? CurrentPosition, string? CurrentCompany);

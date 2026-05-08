@@ -81,6 +81,30 @@ public class UsersController : ControllerBase
         return Ok(new ApiResponse<object>(true, "获取成功", result));
     }
 
+    [HttpGet("current")]
+    public async Task<ActionResult<ApiResponse<object>>> GetCurrentUser()
+    {
+        var userId = GetCurrentUserId();
+        if (!userId.HasValue)
+            return Unauthorized(new ApiResponse<object>(false, "未登录", null));
+
+        var user = await _dbContext.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Id == userId.Value);
+        if (user == null)
+            return NotFound(new ApiResponse<object>(false, "用户不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", new {
+            user.Id,
+            user.Username,
+            user.Email,
+            user.FullName,
+            user.Phone,
+            RoleKey = user.Role?.RoleKey,
+            DepartmentId = user.DepartmentId
+        }));
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<object>>> GetUser(long id)
     {

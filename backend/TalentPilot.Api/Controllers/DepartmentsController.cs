@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TalentPilot.Api.Data;
 using TalentPilot.Api.Models.DTOs.Auth;
 using TalentPilot.Api.Services;
 
@@ -11,11 +13,13 @@ namespace TalentPilot.Api.Controllers;
 [Authorize(Roles = "admin")]
 public class DepartmentsController : ControllerBase
 {
+    private readonly TalentPilotDbContext _dbContext;
     private readonly DepartmentService _departmentService;
     private readonly OperationLogService _logService;
 
-    public DepartmentsController(DepartmentService departmentService, OperationLogService logService)
+    public DepartmentsController(TalentPilotDbContext dbContext, DepartmentService departmentService, OperationLogService logService)
     {
+        _dbContext = dbContext;
         _departmentService = departmentService;
         _logService = logService;
     }
@@ -25,6 +29,26 @@ public class DepartmentsController : ControllerBase
     {
         var tree = await _departmentService.GetDepartmentTree();
         return Ok(new ApiResponse<object>(true, "获取成功", tree));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse<object>>> GetAllDepartments()
+    {
+        var departments = await _dbContext.Departments
+            .OrderBy(d => d.Level)
+            .ThenBy(d => d.SortOrder)
+            .Select(d => new {
+                d.Id,
+                d.DepartmentName,
+                d.DepartmentKey,
+                d.ParentId,
+                d.Level,
+                d.SortOrder,
+                d.CreatedAt,
+                d.UpdatedAt
+            })
+            .ToListAsync();
+        return Ok(new ApiResponse<object>(true, "获取成功", departments));
     }
 
     [HttpGet("{id}")]
