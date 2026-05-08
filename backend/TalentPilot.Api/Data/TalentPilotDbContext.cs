@@ -21,6 +21,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<ResumeSource> ResumeSources => Set<ResumeSource>();
     public DbSet<Resume> Resumes => Set<Resume>();
     public DbSet<MatchResult> MatchResults => Set<MatchResult>();
+    public DbSet<InterviewInvitation> InterviewInvitations => Set<InterviewInvitation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -153,6 +154,30 @@ public class TalentPilotDbContext : DbContext
         {
             entity.ToTable("MatchResults");
             entity.HasKey(e => e.Id);
+        });
+
+        // InterviewInvitation
+        modelBuilder.Entity<InterviewInvitation>(entity =>
+        {
+            entity.ToTable("InterviewInvitations");
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Candidate)
+                  .WithMany()
+                  .HasForeignKey(e => e.CandidateId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.JobPost)
+                  .WithMany()
+                  .HasForeignKey(e => e.JobPostId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.InvitedByUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.InvitedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.InviteToken).IsUnique();
         });
     }
 }

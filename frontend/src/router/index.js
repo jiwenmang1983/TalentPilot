@@ -79,8 +79,20 @@ const routes = [
         name: 'MatchResultList',
         component: () => import('@/views/recruitment/MatchResultList.vue'),
         meta: { title: '智能匹配', icon: 'TeamOutlined' }
+      },
+      {
+        path: 'recruitment/interviews',
+        name: 'InterviewInvitationList',
+        component: () => import('@/views/recruitment/InterviewInvitationList.vue'),
+        meta: { title: '面试邀约', icon: 'ScheduleOutlined' }
       }
     ]
+  },
+  {
+    path: '/interview/confirm/:token',
+    name: 'CandidateConfirm',
+    component: () => import('@/views/interview/CandidateConfirm.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 
