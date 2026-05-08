@@ -30,9 +30,27 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config
+    console.log('[API Interceptor] Error caught:', error.response?.status, error.response?.data)
+
+    // Skip token refresh logic for login endpoint (user not authenticated yet)
+    const isLoginRequest = originalRequest.url?.includes('/auth/login')
+    console.log('[API Interceptor] isLoginRequest:', isLoginRequest)
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
+
+      // For login requests, don't redirect - let the error propagate to caller
+      if (isLoginRequest) {
+        console.log('[API Interceptor] Login 401 - showing message and rejecting')
+        if (error.response?.data?.message) {
+          console.log('[API Interceptor] Calling message.error:', error.response.data.message)
+          message.error(error.response.data.message)
+        } else {
+          console.log('[API Interceptor] No message in response, using default')
+          message.error('登录失败，用户名或密码错误')
+        }
+        return Promise.reject(error)
+      }
 
       const refreshToken = localStorage.getItem('refreshToken')
       if (refreshToken) {

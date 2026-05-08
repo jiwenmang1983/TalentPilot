@@ -5,7 +5,7 @@ test.describe('部门管理测试', () => {
   test.beforeEach(async ({ page }) => {
     await login(page)
     await page.goto('/departments')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
   })
 
   test('部门树形结构展示', async ({ page }) => {

@@ -18,27 +18,35 @@
 | 5 | Fix-Missing | CC | 缺失端点修复(users/current, departments list, candidates CRUD) | ✅ | 2026-05-08 | 2026-05-08 | commit d598a1e |
 | 6 | T-09~T-15 | CC | Phase 3 前端页面（Vue 3 + Ant Design Vue） | ✅ | 2026-05-08 | 2026-05-08 | commit 99cf3f1 |
 | 7 | API-Test | 小Q | TalentPilot API 15项测试 | ✅ | 2026-05-08 | 2026-05-08 | 15/15 通过 |
-| 8 | T-17 | CC | 前端E2E测试（Playwright）- 4个spec文件已写，待执行 | ✅文件完成 | 2026-05-08 | — | 2026-05-08 11:41 文件完成，测试未执行 |
-| 9 | T-19 | CC | Phase 5: JobPost职位发布功能 | ⏳ 进行中 | 2026-05-08 11:48 | — | cc_phase5.txt，正在创建JobPost/Resume相关文件 |
+| 8 | T-17 | CC | 前端E2E测试（Playwright）- 登录bug修复中 | 🔴 进行中 | 2026-05-08 | — | CORS已修+凭据已修+lock已清；剩余bug: message.error()不显示 |
+||| 9 | T-19 | CC | Phase 5: JobPost职位发布功能 | ✅ | 2026-05-08 11:48 | 2026-05-08 ~12:00 | commit 82c7dc1 ||
+|| 10 | T-20 | CC | 简历采集功能(ResumeCollection)+前端 | ✅ | 2026-05-08 | 2026-05-08 ~12:10 | commit 613446a ||
+|| 11 | T-21 | CC | 简历解析+候选人扩展+CandidateDetail | ✅ | 2026-05-08 | 2026-05-08 ~12:20 | commit 0abd05e ||
+|| 12 | T-22 | CC | 智能匹配(Matching)+前端 | ✅ | 2026-05-08 | 2026-05-08 ~12:30 | commit 9296230 ||
+|| 13 | T-23 | CC | AI面试邀约(InterviewInvitation)+前端 | ⏳ 进行中 | 2026-05-08 12:00 | — | cc_task_t23.txt |
 
 ---
 
 ## CC 实时状态
 
-| 项目 | 值 |
-| --- | --- |
-| tmux session | cc-talentpilot |
-| 状态 | ⏳ Phase 5 T-19 JobPost功能开发中 |
-| 当前任务 | T-19: JobPost/Resume职位发布功能（Phase 5） |
-| 最后活动时间 | 2026-05-08 11:48 |
+|| 项目 | 值 |
+|| --- | --- |
+|| tmux session | cc-talentpilot |
+|| 状态 | ⏳ Phase 5 T-23 InterviewInvitation开发中 |
+|| 当前任务 | T-23: AI面试邀约(InterviewInvitation)+前端 |
+|| 最后活动时间 | 2026-05-08 12:00 |
 
 **CC 任务队列**
 
-| # | 任务 | 状态 | 开始时间 |
-| --- | --- | --- | --- |
-| T-17 | 前端页面E2E测试（Playwright）- 4个spec文件已完成，待执行 | ✅完成 | 2026-05-08 11:41 |
-| T-18 | 集成测试 | 🔴 待执行 | — |
-| T-19 | Phase 5 JobPost职位发布 | ⏳进行中 | 2026-05-08 11:48 |
+|| # | 任务 | 状态 | 开始时间 |
+|| --- | --- | --- | --- |
+|| T-17 | 前端页面E2E测试（Playwright）- 4个spec文件已完成，待执行 | ✅完成 | 2026-05-08 11:41 |
+|| T-18 | 集成测试 | 🔴 待执行 | — |
+|| T-19 | Phase 5 JobPost职位发布 | ✅完成 | 2026-05-08 ~11:50 |
+|| T-20 | 简历采集ResumeCollection | ✅完成 | 2026-05-08 ~12:00 |
+|| T-21 | 简历解析+候选人扩展 | ✅完成 | 2026-05-08 ~12:10 |
+|| T-22 | 智能匹配Matching | ✅完成 | 2026-05-08 ~12:20 |
+|| T-23 | AI面试邀约InterviewInvitation | ⏳进行中 | 2026-05-08 12:00 |
 
 **判断死活：** `tmux has-session -t cc-talentpilot`
 

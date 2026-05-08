@@ -10,19 +10,24 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(username, password) {
     const res = await authApi.login(username, password)
-    if (res.accessToken) {
-      token.value = res.accessToken
-      localStorage.setItem('accessToken', res.accessToken)
-      if (res.refreshToken) {
-        localStorage.setItem('refreshToken', res.refreshToken)
-      }
-      if (res.user) {
-        userInfo.value = res.user
-        localStorage.setItem('userInfo', JSON.stringify(res.user))
-      }
-      return true
+    const accessToken = res.data?.accessToken || res.accessToken
+    const userData = res.data?.user || res.user
+    const refresh = res.data?.refreshToken || res.refreshToken
+    if (!accessToken) {
+      const err = new Error(res.message || res.msg || '登录失败，用户名或密码错误')
+      err.response = { data: { message: err.message } }
+      throw err
     }
-    return false
+    token.value = accessToken
+    localStorage.setItem('accessToken', accessToken)
+    if (refresh) {
+      localStorage.setItem('refreshToken', refresh)
+    }
+    if (userData) {
+      userInfo.value = userData
+      localStorage.setItem('userInfo', JSON.stringify(userData))
+    }
+    return true
   }
 
   async function logout() {

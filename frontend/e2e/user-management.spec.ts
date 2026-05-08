@@ -5,7 +5,7 @@ test.describe('用户管理页面测试', () => {
   test.beforeEach(async ({ page }) => {
     await login(page)
     await page.goto('/users')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
   })
 
   test('用户列表加载（分页）', async ({ page }) => {

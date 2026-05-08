@@ -5,7 +5,7 @@ test.describe('角色权限配置测试', () => {
   test.beforeEach(async ({ page }) => {
     await login(page)
     await page.goto('/roles')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
   })
 
   test('角色列表展示', async ({ page }) => {
@@ -114,7 +114,7 @@ test.describe('角色权限配置测试', () => {
     await page.waitForSelector('.ant-message-success', { timeout: 5000 })
 
     await page.reload()
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
 
     const targetRow = page.locator('.ant-table-tbody tr', { hasText: testRoleName })
     if (await targetRow.isVisible()) {

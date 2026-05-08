@@ -23,10 +23,4 @@ export default defineConfig({
   expect: {
     timeout: 5000,
   },
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
 })

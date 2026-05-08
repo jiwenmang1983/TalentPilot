@@ -74,14 +74,17 @@ const rules = {
 
 async function handleLogin() {
   loading.value = true
+  console.log('[LoginVue] handleLogin started')
   try {
+    console.log('[LoginVue] calling authStore.login')
     await authStore.login(formState.username, formState.password)
+    console.log('[LoginVue] login succeeded')
     message.success('登录成功')
     router.push('/')
   } catch (error) {
-    if (error.response?.data?.message) {
-      message.error(error.response.data.message)
-    }
+    console.log('[LoginVue] error caught:', error?.response?.data?.message || error?.message || error)
+    const errMsg = error?.response?.data?.message || error?.message || '登录失败，请稍后重试'
+    message.error(errMsg)
   } finally {
     loading.value = false
   }
