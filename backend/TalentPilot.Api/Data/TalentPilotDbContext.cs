@@ -15,6 +15,8 @@ public class TalentPilotDbContext : DbContext
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<OperationLog> OperationLogs => Set<OperationLog>();
     public DbSet<UserLoginAttempt> UserLoginAttempts => Set<UserLoginAttempt>();
+    public DbSet<Candidate> Candidates => Set<Candidate>();
+    public DbSet<CandidateConsent> CandidateConsents => Set<CandidateConsent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -100,5 +102,25 @@ public class TalentPilotDbContext : DbContext
         modelBuilder.Entity<Role>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Department>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Candidate>().HasQueryFilter(e => !e.IsDeleted);
+
+        // Candidate
+        modelBuilder.Entity<Candidate>(entity =>
+        {
+            entity.ToTable("Candidates");
+            entity.HasKey(e => e.Id);
+        });
+
+        // CandidateConsent
+        modelBuilder.Entity<CandidateConsent>(entity =>
+        {
+            entity.ToTable("CandidateConsents");
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Candidate)
+                  .WithMany()
+                  .HasForeignKey(e => e.CandidateId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }

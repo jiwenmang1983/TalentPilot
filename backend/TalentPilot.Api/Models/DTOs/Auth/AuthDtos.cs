@@ -27,3 +27,14 @@ public record UpdateUserRequest(string? Email, string? FullName, string? Phone, 
 
 // 重置密码请求
 public record ResetPasswordRequest(string NewPassword);
+
+// 操作日志查询
+public record OperationLogQuery(
+    long? UserId,
+    string? Action,
+    string? EntityType,
+    DateTime? StartDate,
+    DateTime? EndDate,
+    int Page = 1,
+    int PageSize = 20
+);

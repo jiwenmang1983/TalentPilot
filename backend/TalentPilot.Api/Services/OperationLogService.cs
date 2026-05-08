@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using TalentPilot.Api.Data;
+using TalentPilot.Api.Models.DTOs.Auth;
 using TalentPilot.Api.Models.Entities;
 
 namespace TalentPilot.Api.Services;
@@ -31,5 +33,44 @@ public class OperationLogService
 
         _dbContext.OperationLogs.Add(log);
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<(List<OperationLog> Items, int Total)> QueryLogs(OperationLogQuery query)
+    {
+        var queryable = _dbContext.OperationLogs
+            .Include(l => l.User)
+            .AsQueryable();
+
+        if (query.UserId.HasValue)
+            queryable = queryable.Where(l => l.UserId == query.UserId.Value);
+
+        if (!string.IsNullOrEmpty(query.Action))
+            queryable = queryable.Where(l => l.Action.Contains(query.Action));
+
+        if (!string.IsNullOrEmpty(query.EntityType))
+            queryable = queryable.Where(l => l.EntityType.Contains(query.EntityType));
+
+        if (query.StartDate.HasValue)
+            queryable = queryable.Where(l => l.CreatedAt >= query.StartDate.Value);
+
+        if (query.EndDate.HasValue)
+            queryable = queryable.Where(l => l.CreatedAt <= query.EndDate.Value);
+
+        var total = await queryable.CountAsync();
+
+        var items = await queryable
+            .OrderByDescending(l => l.CreatedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync();
+
+        return (items, total);
+    }
+
+    public async Task<OperationLog?> GetLogById(long id)
+    {
+        return await _dbContext.OperationLogs
+            .Include(l => l.User)
+            .FirstOrDefaultAsync(l => l.Id == id);
     }
 }

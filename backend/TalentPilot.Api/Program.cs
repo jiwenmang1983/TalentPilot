@@ -11,6 +11,7 @@ using TalentPilot.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -74,6 +75,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<OperationLogService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<DepartmentService>();
+builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<CandidateConsentService>();
 
 var app = builder.Build();
 
