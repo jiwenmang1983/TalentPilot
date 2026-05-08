@@ -63,6 +63,12 @@ const routes = [
         meta: { title: '简历管理', icon: 'FileTextOutlined' }
       },
       {
+        path: 'resumes/parse',
+        name: 'ResumeParse',
+        component: () => import('@/views/recruitment/ResumeParse.vue'),
+        meta: { title: '简历解析', icon: 'ScanOutlined' }
+      },
+      {
         path: 'candidates',
         name: 'CandidateList',
         component: () => import('@/views/recruitment/CandidateList.vue'),

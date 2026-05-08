@@ -25,6 +25,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<AIInterviewSession> AIInterviewSessions => Set<AIInterviewSession>();
     public DbSet<InterviewReport> InterviewReports => Set<InterviewReport>();
     public DbSet<ConversionFunnel> ConversionFunnels => Set<ConversionFunnel>();
+    public DbSet<ResumeParsedRecord> ResumeParsedRecords => Set<ResumeParsedRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -239,6 +240,13 @@ public class TalentPilotDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.JobPostId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ResumeParsedRecord
+        modelBuilder.Entity<ResumeParsedRecord>(entity =>
+        {
+            entity.ToTable("ResumeParsedRecords");
+            entity.HasKey(e => e.Id);
         });
     }
 }

@@ -12,13 +12,16 @@ public class ResumesController : ControllerBase
 {
     private readonly ResumeCollectionService _resumeService;
     private readonly ResumeParsingService _parsingService;
+    private readonly ILogger<ResumesController> _logger;
 
     public ResumesController(
         ResumeCollectionService resumeService,
-        ResumeParsingService parsingService)
+        ResumeParsingService parsingService,
+        ILogger<ResumesController> logger)
     {
         _resumeService = resumeService;
         _parsingService = parsingService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -112,6 +115,31 @@ public class ResumesController : ControllerBase
         }
         catch (Exception ex)
         {
+            return BadRequest(new ApiResponse<object>(false, $"解析失败: {ex.Message}", null));
+        }
+    }
+
+    [HttpPost("parse")]
+    public async Task<ActionResult<ApiResponse<object>>> ParseResumeText([FromBody] ResumeParseRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.ResumeText))
+        {
+            return BadRequest(new ApiResponse<object>(false, "简历文本不能为空", null));
+        }
+
+        try
+        {
+            var result = await _parsingService.ParseResumeTextAsync(request.ResumeText);
+            if (result == null)
+            {
+                return BadRequest(new ApiResponse<object>(false, "解析失败，请稍后重试", null));
+            }
+
+            return Ok(new ApiResponse<object>(true, "解析成功", result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to parse resume text");
             return BadRequest(new ApiResponse<object>(false, $"解析失败: {ex.Message}", null));
         }
     }

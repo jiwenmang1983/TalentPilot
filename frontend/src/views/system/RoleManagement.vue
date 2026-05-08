@@ -12,7 +12,7 @@
       :data-source="roles"
       :loading="loading"
       row-key="id"
-      :expandable="{ expandedRowKeys, onExpand: handleExpand }"
+      :expandable="{ expandedRowKeys: expandedRowKeys, onExpand: handleExpand }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'isSystem'">
@@ -94,6 +94,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { roleApi, permissionApi } from '@/api'
+import dayjs from 'dayjs'
 
 const roles = ref([])
 const permissions = ref([])
@@ -114,7 +115,7 @@ const columns = [
   { title: '角色代码', dataIndex: 'roleKey', key: 'roleKey' },
   { title: '描述', dataIndex: 'description', key: 'description' },
   { title: '类型', key: 'isSystem', width: 100 },
-  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 },
+  { title: '创建时间', key: 'createdAt', customRender: ({ text }) => text ? dayjs(text).format('YYYY-MM-DD HH:mm') : '-' },
   { title: '操作', key: 'actions', width: 150, fixed: 'right' }
 ]
 
@@ -197,7 +198,7 @@ function openDrawer(record = null) {
     isEdit.value = true
     drawerTitle.value = '编辑角色'
     formState.id = record.id
-    formState.name = record.roleName   // API返回roleName/roleKey
+    formState.name = record.roleName
     formState.code = record.roleKey
     formState.description = record.description
   } else {

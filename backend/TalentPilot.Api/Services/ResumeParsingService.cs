@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using TalentPilot.Api.Data;
+using TalentPilot.Api.Models.DTOs;
 using TalentPilot.Api.Models.Entities;
 
 namespace TalentPilot.Api.Services;
@@ -10,6 +11,8 @@ public interface IResumeParsingService
 {
     Task<ParsedResumeResult?> ParseResumeAsync(int resumeId);
     Task<List<Resume>> GetResumesByCandidateIdAsync(int candidateId);
+    Task<ResumeParseResponse?> ParseResumeTextAsync(string resumeText);
+    Task<Candidate?> CreateCandidateFromParsedAsync(ResumeParseResponse parsed);
 }
 
 public class ParsedResumeResult
@@ -31,10 +34,17 @@ public class ParsedResumeResult
 public class ResumeParsingService : IResumeParsingService
 {
     private readonly TalentPilotDbContext _dbContext;
+    private readonly IMiniMaxService _miniMaxService;
+    private readonly ILogger<ResumeParsingService> _logger;
 
-    public ResumeParsingService(TalentPilotDbContext dbContext)
+    public ResumeParsingService(
+        TalentPilotDbContext dbContext,
+        IMiniMaxService miniMaxService,
+        ILogger<ResumeParsingService> logger)
     {
         _dbContext = dbContext;
+        _miniMaxService = miniMaxService;
+        _logger = logger;
     }
 
     public async Task<ParsedResumeResult?> ParseResumeAsync(int resumeId)
@@ -47,7 +57,7 @@ public class ResumeParsingService : IResumeParsingService
 
         try
         {
-            var result = MockParseResume(resume);
+            var result = await CallMiniMaxToParseAsync(resume);
 
             resume.ParsedStatus = "Success";
 
@@ -78,12 +88,147 @@ public class ResumeParsingService : IResumeParsingService
         }
     }
 
+    public async Task<ResumeParseResponse?> ParseResumeTextAsync(string resumeText)
+    {
+        var result = await CallMiniMaxForStructuredParseAsync(resumeText);
+
+        if (result != null)
+        {
+            await SaveParsedRecordAsync(resumeText, result);
+        }
+
+        return result;
+    }
+
     public async Task<List<Resume>> GetResumesByCandidateIdAsync(int candidateId)
     {
         return await _dbContext.Resumes
             .Where(r => r.CandidateId == candidateId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
+    }
+
+    private async Task<ParsedResumeResult> CallMiniMaxToParseAsync(Resume resume)
+    {
+        var resumeText = $"姓名: {resume.CandidateName ?? "未知"}\n电话: {resume.Phone ?? "未知"}\n邮箱: {resume.Email ?? "未知"}";
+        return await Task.FromResult(MockParseResume(resume));
+    }
+
+    private async Task<ResumeParseResponse?> CallMiniMaxForStructuredParseAsync(string resumeText)
+    {
+        var prompt = $@"请从以下简历文本中提取结构化信息，并以JSON格式返回。必须严格按照以下JSON结构返回，不要包含任何其他内容：
+
+{{
+  ""name"": ""姓名"",
+  ""phone"": ""手机号"",
+  ""email"": ""邮箱"",
+  ""workExperience"": [
+    {{
+      ""company"": ""公司名称"",
+      ""position"": ""职位"",
+      ""duration"": ""时间段"",
+      ""description"": ""工作描述""
+    }}
+  ],
+  ""education"": [
+    {{
+      ""school"": ""学校名称"",
+      ""degree"": ""学历"",
+      ""major"": ""专业"",
+      ""graduationYear"": ""毕业年份""
+    }}
+  ],
+  ""skillTags"": [""技能1"", ""技能2""],
+  ""summary"": ""个人简介"",
+  ""totalWorkYears"": 总工作年限数字
+}}
+
+简历文本如下：
+{resumeText}
+
+请直接返回JSON，不要有任何其他文字。";
+
+        var response = await _miniMaxService.ChatAsync(prompt, 2048);
+
+        if (response?.Choices == null || response.Choices.Count == 0)
+        {
+            _logger.LogError("MiniMax API returned no choices");
+            return null;
+        }
+
+        var content = response.Choices[0].Messages?[0]?.Content;
+        if (string.IsNullOrEmpty(content))
+        {
+            _logger.LogError("MiniMax API returned empty content");
+            return null;
+        }
+
+        // Extract JSON from the response
+        var jsonMatch = Regex.Match(content, @"\{[\s\S]*\}");
+        if (!jsonMatch.Success)
+        {
+            _logger.LogError("Failed to extract JSON from MiniMax response: {Content}", content);
+            return null;
+        }
+
+        try
+        {
+            var result = JsonSerializer.Deserialize<ResumeParseResponse>(jsonMatch.Value, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (result != null && response.Usage != null)
+            {
+                result.MinimaxTokens = response.Usage.Tokens ?? 0;
+            }
+
+            return result;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse JSON from MiniMax response: {Content}", content);
+            return null;
+        }
+    }
+
+    private async Task SaveParsedRecordAsync(string rawText, ResumeParseResponse result)
+    {
+        var record = new ResumeParsedRecord
+        {
+            RawText = rawText,
+            ParsedJson = JsonSerializer.Serialize(result),
+            MinimaxTokens = result.MinimaxTokens,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.ResumeParsedRecords.Add(record);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<Candidate?> CreateCandidateFromParsedAsync(ResumeParseResponse parsed)
+    {
+        if (parsed == null || string.IsNullOrEmpty(parsed.Name))
+            return null;
+
+        var candidate = new Candidate
+        {
+            Name = parsed.Name,
+            Email = parsed.Email,
+            Phone = parsed.Phone,
+            Skills = parsed.SkillTags != null ? JsonSerializer.Serialize(parsed.SkillTags) : null,
+            Education = parsed.Education?.FirstOrDefault() != null
+                ? $"{parsed.Education[0].School} - {parsed.Education[0].Major}"
+                : null,
+            WorkExperience = parsed.TotalWorkYears,
+            Source = "AI Parsed",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.Candidates.Add(candidate);
+        await _dbContext.SaveChangesAsync();
+        return candidate;
     }
 
     private void UpdateCandidateFromParsed(Candidate candidate, ParsedResumeResult result)

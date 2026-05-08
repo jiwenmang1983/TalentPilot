@@ -5,5 +5,7 @@ export const resumeApi = {
   getById: (id) => api.get(`/resumes/${id}`),
   upload: (data) => api.post('/resumes/upload', data),
   mockCollect: (data) => api.post('/resumes/mock-collect', data),
-  parse: (id) => api.post(`/resumes/${id}/parse`)
+  parse: (id) => api.post(`/resumes/${id}/parse`),
+  parseText: (data) => api.post('/resumes/parse', data),
+  createCandidate: (data) => api.post('/candidates', data)
 }

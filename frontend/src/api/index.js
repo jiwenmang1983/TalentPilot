@@ -103,9 +103,8 @@ export const userApi = {
   create: (data) => api.post('/users', data),
   update: (id, data) => api.put(`/users/${id}`, data),
   delete: (id) => api.delete(`/users/${id}`),
-  disable: (id) => api.post(`/users/${id}/disable`),
-  enable: (id) => api.post(`/users/${id}/enable`),
-  resetPassword: (id) => api.post(`/users/${id}/reset-password`)
+  toggleActive: (id) => api.post(`/users/${id}/toggle-active`),
+  resetPassword: (id, newPassword) => api.post(`/users/${id}/reset-password`, { newPassword })
 }
 
 export const roleApi = {

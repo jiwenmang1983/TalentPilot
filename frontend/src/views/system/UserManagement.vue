@@ -19,18 +19,18 @@
           @change="handleSearch"
         >
           <a-select-option v-for="role in roles" :key="role.id" :value="role.id">
-            {{ role.roleName }}
+            {{ role.RoleName }}
           </a-select-option>
         </a-select>
         <a-select
-          v-model:value="filterStatus"
+          v-model:value="filterIsActive"
           placeholder="状态"
           style="width: 120px"
           allow-clear
           @change="handleSearch"
         >
-          <a-select-option value="active">启用</a-select-option>
-          <a-select-option value="disabled">禁用</a-select-option>
+          <a-select-option :value="true">启用</a-select-option>
+          <a-select-option :value="false">禁用</a-select-option>
         </a-select>
         <a-button type="primary" @click="handleSearch">
           <template #icon><SearchOutlined /></template>
@@ -53,12 +53,15 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'status'">
-          <a-tag :color="record.status === 'active' ? 'green' : 'red'">
-            {{ record.status === 'active' ? '启用' : '禁用' }}
+          <a-tag :color="record.isActive ? 'green' : 'red'">
+            {{ record.isActive ? '启用' : '禁用' }}
           </a-tag>
         </template>
         <template v-else-if="column.key === 'roleName'">
-          <a-tag>{{ record.roleName }}</a-tag>
+          <a-tag>{{ record.roleName || '—' }}</a-tag>
+        </template>
+        <template v-else-if="column.key === 'department'">
+          <span>{{ record.departmentName || '—' }}</span>
         </template>
         <template v-else-if="column.key === 'actions'">
           <a-space>
@@ -68,10 +71,10 @@
             <a-button
               type="link"
               size="small"
-              :style="{ color: record.status === 'active' ? '#ff4d4f' : '#52c41a' }"
+              :style="{ color: record.isActive ? '#ff4d4f' : '#52c41a' }"
               @click="toggleStatus(record)"
             >
-              {{ record.status === 'active' ? '禁用' : '启用' }}
+              {{ record.isActive ? '禁用' : '启用' }}
             </a-button>
             <a-button type="link" size="small" danger @click="resetPassword(record)">
               重置密码
@@ -134,10 +137,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { userApi, roleApi, departmentApi } from '@/api'
+import dayjs from 'dayjs'
 
 const users = ref([])
 const roles = ref([])
@@ -151,7 +155,7 @@ const submitLoading = ref(false)
 
 const searchKeyword = ref('')
 const filterRole = ref(null)
-const filterStatus = ref(null)
+const filterIsActive = ref(null)
 
 const pagination = reactive({
   current: 1,
@@ -166,9 +170,9 @@ const columns = [
   { title: '用户名', dataIndex: 'username', key: 'username' },
   { title: '邮箱', dataIndex: 'email', key: 'email' },
   { title: '角色', key: 'roleName' },
-  { title: '部门', dataIndex: 'departmentName', key: 'department' },
+  { title: '部门', key: 'department' },
   { title: '状态', key: 'status', width: 100 },
-  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 },
+  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, customRender: ({ text }) => text ? dayjs(text).format('YYYY-MM-DD HH:mm') : '—' },
   { title: '操作', key: 'actions', width: 220, fixed: 'right' }
 ]
 
@@ -205,13 +209,17 @@ async function fetchUsers() {
     const params = {
       page: pagination.current,
       pageSize: pagination.pageSize,
-      keyword: searchKeyword.value || undefined,
       roleId: filterRole.value || undefined,
-      status: filterStatus.value || undefined
+      isActive: filterIsActive.value !== null ? filterIsActive.value : undefined
+    }
+    if (searchKeyword.value) {
+      // Simple search via username or email - backend doesn't have search yet, but we can filter client-side
+      params.keyword = searchKeyword.value
     }
     const res = await userApi.list(params)
-    users.value = res.data?.items || res.items || []
-    pagination.total = res.data?.total || res.total || 0
+    const data = res.data || res
+    users.value = data.items || data.Items || []
+    pagination.total = data.total || data.Total || 0
   } catch (e) {
     message.error('获取用户列表失败')
   } finally {
@@ -320,10 +328,10 @@ async function toggleStatus(record) {
     content: `确定要${action}用户 ${record.username} 吗？`,
     onOk: async () => {
       try {
-        if (record.status === 'active') {
-          await userApi.disable(record.id)
+        if (record.isActive) {
+          await userApi.toggleActive(record.id)
         } else {
-          await userApi.enable(record.id)
+          await userApi.toggleActive(record.id)
         }
         message.success(`${action}成功`)
         fetchUsers()

@@ -72,7 +72,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // Register services
+builder.Services.AddHttpClient("MiniMax", client =>
+{
+    client.BaseAddress = new Uri("https://api.minimaxi.com/anthropic");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddSingleton<IMiniMaxService, MiniMaxService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<OperationLogService>();
 builder.Services.AddScoped<RoleService>();
