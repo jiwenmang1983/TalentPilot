@@ -9,10 +9,10 @@
 | 项目 | 值 |
 | --- | --- |
 | tmux session | cc-talentpilot |
-| 状态 | 🟡 T-02 进行中 |
+| 状态 | 🟡 T-03 进行中（Users/Departments/Roles API） |
 | 当前分支 | main |
-| 当前任务 | T-02 Auth 认证 API（JWT/登录/Refresh/Users CRUD） |
-| 最后活动时间 | 2026-05-08 09:22 |
+| 当前任务 | T-03 用户管理 API（用户CRUD/部门树/角色权限） |
+| 最后活动时间 | 2026-05-08 09:35 |
 
 **CC 任务队列**
 
