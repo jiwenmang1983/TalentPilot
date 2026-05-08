@@ -85,6 +85,7 @@ builder.Services.AddScoped<ResumeParsingService>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddScoped<AIInterviewSessionService>();
 builder.Services.AddScoped<InterviewReportService>();
+builder.Services.AddScoped<ConversionFunnelService>();
 
 var app = builder.Build();
 

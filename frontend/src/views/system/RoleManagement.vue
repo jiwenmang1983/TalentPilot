@@ -110,8 +110,8 @@ const selectedPermissions = reactive({})
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-  { title: '角色名称', dataIndex: 'name', key: 'name' },
-  { title: '角色代码', dataIndex: 'code', key: 'code' },
+  { title: '角色名称', dataIndex: 'roleName', key: 'roleName' },
+  { title: '角色代码', dataIndex: 'roleKey', key: 'roleKey' },
   { title: '描述', dataIndex: 'description', key: 'description' },
   { title: '类型', key: 'isSystem', width: 100 },
   { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 },
@@ -197,8 +197,8 @@ function openDrawer(record = null) {
     isEdit.value = true
     drawerTitle.value = '编辑角色'
     formState.id = record.id
-    formState.name = record.name
-    formState.code = record.code
+    formState.name = record.roleName   // API返回roleName/roleKey
+    formState.code = record.roleKey
     formState.description = record.description
   } else {
     isEdit.value = false
@@ -220,14 +220,14 @@ async function handleSubmit() {
 
     if (isEdit.value) {
       await roleApi.update(formState.id, {
-        name: formState.name,
+        roleName: formState.name,       // name → roleName
         description: formState.description
       })
       message.success('更新成功')
     } else {
       await roleApi.create({
-        name: formState.name,
-        code: formState.code,
+        roleName: formState.name,       // name → roleName
+        roleKey: formState.code,        // code → roleKey
         description: formState.description
       })
       message.success('创建成功')
@@ -247,7 +247,7 @@ async function handleSubmit() {
 async function handleDelete(record) {
   Modal.confirm({
     title: '确认删除',
-    content: `确定要删除角色 ${record.name} 吗？`,
+    content: `确定要删除角色 ${record.roleName} 吗？`,
     onOk: async () => {
       try {
         await roleApi.delete(record.id)

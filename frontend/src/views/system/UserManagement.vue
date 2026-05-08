@@ -19,7 +19,7 @@
           @change="handleSearch"
         >
           <a-select-option v-for="role in roles" :key="role.id" :value="role.id">
-            {{ role.name }}
+            {{ role.roleName }}
           </a-select-option>
         </a-select>
         <a-select
@@ -57,10 +57,8 @@
             {{ record.status === 'active' ? '启用' : '禁用' }}
           </a-tag>
         </template>
-        <template v-else-if="column.key === 'roles'">
-          <a-tag v-for="role in record.roles" :key="role.id">
-            {{ role.name }}
-          </a-tag>
+        <template v-else-if="column.key === 'roleName'">
+          <a-tag>{{ record.roleName }}</a-tag>
         </template>
         <template v-else-if="column.key === 'actions'">
           <a-space>
@@ -104,14 +102,13 @@
         <a-form-item label="密码" name="password" v-if="!isEdit">
           <a-input-password v-model:value="formState.password" placeholder="请输入密码" />
         </a-form-item>
-        <a-form-item label="角色" name="roleIds">
+        <a-form-item label="角色" name="roleId">
           <a-select
-            v-model:value="formState.roleIds"
-            mode="multiple"
+            v-model:value="formState.roleId"
             placeholder="请选择角色"
           >
             <a-select-option v-for="role in roles" :key="role.id" :value="role.id">
-              {{ role.name }}
+              {{ role.roleName }}
             </a-select-option>
           </a-select>
         </a-form-item>
@@ -168,8 +165,8 @@ const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
   { title: '用户名', dataIndex: 'username', key: 'username' },
   { title: '邮箱', dataIndex: 'email', key: 'email' },
-  { title: '角色', key: 'roles' },
-  { title: '部门', dataIndex: ['department', 'name'], key: 'department' },
+  { title: '角色', key: 'roleName' },
+  { title: '部门', dataIndex: 'departmentName', key: 'department' },
   { title: '状态', key: 'status', width: 100 },
   { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 },
   { title: '操作', key: 'actions', width: 220, fixed: 'right' }
@@ -180,7 +177,7 @@ const formState = reactive({
   username: '',
   email: '',
   password: '',
-  roleIds: [],
+  roleId: null,   // API用RoleId单数
   departmentId: null
 })
 
@@ -197,7 +194,7 @@ function transformTree(nodes) {
   if (!nodes) return []
   return nodes.map(node => ({
     value: node.id,
-    label: node.name,
+    label: node.departmentName,   // API返回departmentName
     children: transformTree(node.children)
   }))
 }
@@ -258,7 +255,7 @@ function openDrawer(record = null) {
     formState.id = record.id
     formState.username = record.username
     formState.email = record.email
-    formState.roleIds = record.roles?.map(r => r.id) || []
+    formState.roleId = record.roleId || null   // API返回单roleId
     formState.departmentId = record.departmentId
     delete formRules.password
   } else {
@@ -269,7 +266,7 @@ function openDrawer(record = null) {
       username: '',
       email: '',
       password: '',
-      roleIds: [],
+      roleId: null,   // 单选角色
       departmentId: null
     })
     formRules.password = [{ required: true, message: '请输入密码', trigger: 'blur' }]
@@ -289,9 +286,8 @@ async function handleSubmit() {
 
     if (isEdit.value) {
       await userApi.update(formState.id, {
-        username: formState.username,
         email: formState.email,
-        roleIds: formState.roleIds,
+        roleId: formState.roleId,   // API用RoleId单数
         departmentId: formState.departmentId
       })
       message.success('更新成功')
@@ -300,7 +296,7 @@ async function handleSubmit() {
         username: formState.username,
         email: formState.email,
         password: formState.password,
-        roleIds: formState.roleIds,
+        roleId: formState.roleId,   // API用RoleId单数
         departmentId: formState.departmentId
       })
       message.success('创建成功')

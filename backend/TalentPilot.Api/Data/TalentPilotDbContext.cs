@@ -24,6 +24,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<InterviewInvitation> InterviewInvitations => Set<InterviewInvitation>();
     public DbSet<AIInterviewSession> AIInterviewSessions => Set<AIInterviewSession>();
     public DbSet<InterviewReport> InterviewReports => Set<InterviewReport>();
+    public DbSet<ConversionFunnel> ConversionFunnels => Set<ConversionFunnel>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -221,6 +222,18 @@ public class TalentPilotDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.CandidateId)
                   .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.JobPost)
+                  .WithMany()
+                  .HasForeignKey(e => e.JobPostId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ConversionFunnel
+        modelBuilder.Entity<ConversionFunnel>(entity =>
+        {
+            entity.ToTable("ConversionFunnels");
+            entity.HasKey(e => e.Id);
 
             entity.HasOne(e => e.JobPost)
                   .WithMany()

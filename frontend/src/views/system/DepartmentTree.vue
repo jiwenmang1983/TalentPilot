@@ -118,7 +118,7 @@ function transformToTree(nodes, excludeId = null) {
     .filter(n => n.id !== excludeId)
     .map(node => ({
       key: node.id,
-      title: node.name,
+      title: node.departmentName,   // API返回departmentName
       children: transformToTree(node.children, excludeId)
     }))
 }
@@ -174,8 +174,8 @@ function openDrawer(mode, deptId = null) {
     fetchDepartmentById(deptId).then(dept => {
       if (dept) {
         formState.id = dept.id
-        formState.name = dept.name
-        formState.code = dept.code
+        formState.name = dept.departmentName   // API返回departmentName/departmentKey
+        formState.code = dept.departmentKey
         formState.parentId = dept.parentId
         formState.description = dept.description || ''
       }
@@ -203,18 +203,16 @@ async function handleSubmit() {
 
     if (drawerMode.value === 'edit' && formState.id) {
       await departmentApi.update(formState.id, {
-        name: formState.name,
-        code: formState.code,
-        parentId: formState.parentId,
-        description: formState.description
+        departmentName: formState.name,  // name → departmentName
+        sortOrder: 0
       })
       message.success('更新成功')
     } else {
       await departmentApi.create({
-        name: formState.name,
-        code: formState.code,
-        parentId: formState.parentId,
-        description: formState.description
+        departmentName: formState.name,  // name → departmentName
+        departmentKey: formState.code,   // code → departmentKey
+        parentId: formState.parentId ?? null,
+        sortOrder: 0
       })
       message.success('创建成功')
     }
