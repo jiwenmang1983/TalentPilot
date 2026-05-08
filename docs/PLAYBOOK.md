@@ -18,7 +18,7 @@
 | TESTCASE.md | 测试用例库 + Q-XXX 状态表 | 小P | 每测试完成时 |
 | ISSUE_LOG.md | Bug / 逻辑缺口 / API 问题追踪 | 小P | 发现时立即 |
 | PLAYBOOK.md | 本文件，协作规则 | 小P | 规则变更时 |
-| HERMES_TASKS.md | 任务委派追踪 + 调度器状态记录 | 小P | 任务委派/完成/取消时 |
+| SESSION_TRACKER.md | CC/小Q 任务委派总账 + 实时状态追踪 | 小P | 每次委派/状态变化时 |
 
 
 **优先级原则：PRD.md 是所有开发任务的唯一规格来源。其他文档不得与 PRD.md 冲突，冲突时以 PRD.md 为准。**
@@ -40,7 +40,7 @@
   → ISSUE_LOG.md  新增Bug记录（如有）
 
 跟 Mark 聊天后
-  → 识别涉及哪些文档（PRD/WBS/TESTCASE/ISSUE_LOG/PLAYBOOK/HERMES_TASKS）
+  → 识别涉及哪些文档（PRD/WBS/TESTCASE/ISSUE_LOG/PLAYBOOK/SESSION_TRACKER/HERMES_TASKS）
   → 有变更立即更新，不等下一次
 ```
 
@@ -52,7 +52,7 @@
 | WBS.md T-XXX | PRD.md 相关章节 / TESTCASE.md Q-XXX |
 | TESTCASE.md TC-XXXX | WBS.md 测试关联 |
 | ISSUE_LOG.md Issue状态变更 | TESTCASE.md 对应测试状态（验证结果同步） |
-| HERMES_TASKS.md 任务状态变更 | WBS.md / TESTCASE.md/ISSUE_LOG.md |
+| SESSION_TRACKER.md 任务委派更新 | WBS.md / 小Q Session行 / CC任务队列 |
 | 任何文档 | 发现前面章节有冲突也一并修正 |
 
 ---
@@ -60,7 +60,6 @@
 ## 二、角色与分工
 
 ### 2.1 角色定义
-
 ```
 Mark（吉文）  → 指挥官，最终审批人，所有重大决策
 小P（Hermes） → 产品经理 + 调度员，修文档 / 拆需求 / 派任务 / 验收
@@ -69,7 +68,6 @@ CC              → 编码开发，小P委派后执行
 ```
 
 ### 2.2 分工边界（强制，不跨域）
-
 ```
 小P 不做                         CC/小Q 不做
 ────────────────────────         ────────────────────────
@@ -80,6 +78,74 @@ CC              → 编码开发，小P委派后执行
 
 核心原则：小P 修文档派任务，CC/小Q 执行，不交叉混乱。
 ```
+
+---
+
+## 二.5 SESSION_TRACKER.md 使用规范
+
+### 2.5.1 用途（合并了原 HERMES_TASKS.md）
+SESSION_TRACKER.md 是**任务委派总账 + Agent 实时状态**的统一入口：
+- **任务委派总账**：所有委派给 CC/小Q 的任务完整历史（替代原 HERMES_TASKS）
+- **实时状态**：CC tmux 会话状态、小Q SQLite Session、API 运行状态
+- 确保：任何人都能一眼看出谁在干什么、任务不丢、上下文不断
+
+### 2.5.2 CC 状态追踪
+
+| 字段 | 填写规则 |
+| --- | --- |
+| tmux session | 固定 `cc-talentpilot`，不换 |
+| 状态 | 🟢 空闲 / 🟡 进行中 / 🔴 已中断 |
+| 当前任务 | 当前执行的任务ID（如 T-09） |
+| 最后活动时间 | 每次发任务/收到结果时更新 |
+
+**判断死活：**
+```bash
+tmux has-session -t cc-talentpilot
+# 0 = 活着，1 = 已终止
+```
+
+**任务队列状态：**
+- 🔴 未开始 → 🟡 进行中 → ✅ 完成
+- 每次委派新任务时更新对应行
+
+### 2.5.3 小Q Session 追踪
+
+| 字段 | 填写规则 |
+| --- | --- |
+| TOPIC | 当前测试/分析的主题 |
+| SESSION_ID | slh-bot 返回的 session ID（续接必需） |
+| LAST_UPDATED | 每次 resume 后更新 |
+| 状态 | 🟢 活跃 / 🟡 待续接 / ⚫ 已结束 |
+
+**续接规则：**
+- 同一 topic → 必须带 `--resume SESSION_ID`
+- 新 topic → 开新 session，登记进表格
+- 超过 24h 未用 → stale，开新 session
+
+**SESSION_ID 获取：**
+```bash
+RESULT=$(hermes -p slh-bot chat -q "..." --max-turns 5 2>&1)
+SESSION_ID=$(echo "$RESULT" | grep "^Session:" | awk '{print $2}')
+```
+
+### 2.5.4 更新时机（强制）
+
+```
+委派 CC 任务      → 更新 CC 状态行（🟡 进行中）
+CC 任务完成       → 更新 CC 状态（🟢 空闲）+ 任务队列（✅）
+委派小Q 对话     → 新增 Session 行（🟡）
+小Q 对话完成/放弃 → 更新 Session 状态（⚫）
+发现 Agent 崩溃   → 记录中断时间 + 原因 + 恢复计划
+```
+
+### 2.5.5 API 服务状态
+
+| 字段 | 填写规则 |
+| --- | --- |
+| 端口 | 当前运行端口（如 5010） |
+| 状态 | 🟢 运行中 / 🔴 已停止 |
+| 最后验证 | 每次测试后更新 |
+| Git commit | 最新 commit SHA |
 
 ---
 
