@@ -44,7 +44,7 @@
 
 ---
 
-## 系统运行状态（重启后实时）
+## 系统运行状态
 
 | 服务 | PID | 端口 | 状态 |
 |---|---|---|---|
@@ -53,29 +53,20 @@
 | MySQL | — | 3306 | ✅ Running |
 
 **admin 密码：** `TalentPilot2026`（无感叹号）
-**最新 commit：** `e4111b9` → `2a6dde7`（WBS v1.2 + SESSION_STATE 更新，push 待完成）
 
-**重启后启动命令：**
+**重启后拉起命令：**
 ```bash
 # MySQL（一般自动启动）
-mysql -h 127.0.0.1 -u root -p'Sandvik2026!' -e "SELECT 1" 2>/dev/null && echo "MySQL OK"
+mysql -h 127.0.0.1 -u root -p'Sandvik2026!' -e "SELECT 1" && echo "OK"
 
-# 后端 API（端口5010）
+# 后端 API
 cd /mnt/d/Git/TalentPilot/backend/TalentPilot.Api
 dotnet run --urls=http://0.0.0.0:5010 &
 
-# 前端（端口5173）
+# 前端
 cd /mnt/d/Git/TalentPilot/frontend
 node_modules/.bin/vite --host 0.0.0.0 --port 5173 &
-
-# 验证
-curl -s http://localhost:5010/api/health || echo "API未响应"
 ```
-
-**快速验证登录：**
-- URL：http://localhost:5173
-- 用户名：`admin`
-- 密码：`TalentPilot2026!`
 
 ## ⚠️ 重大变更记录
 
