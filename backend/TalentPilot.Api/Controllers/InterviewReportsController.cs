@@ -67,7 +67,7 @@ public class InterviewReportsController : ControllerBase
     }
 
     [HttpGet("session/{sessionId}")]
-    public async Task<ActionResult<ApiResponse<object>>> GetReportBySession(long sessionId)
+    public async Task<ActionResult<ApiResponse<object>>> GetReportBySession(int sessionId)
     {
         var report = await _reportService.GetBySessionIdAsync(sessionId);
         if (report == null)
@@ -78,7 +78,7 @@ public class InterviewReportsController : ControllerBase
 
     [HttpPost("generate/{sessionId}")]
     [Authorize(Roles = "admin,hr")]
-    public async Task<ActionResult<ApiResponse<object>>> GenerateReport(long sessionId)
+    public async Task<ActionResult<ApiResponse<object>>> GenerateReport(int sessionId)
     {
         try
         {

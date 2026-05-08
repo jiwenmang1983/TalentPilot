@@ -8,13 +8,13 @@ namespace TalentPilot.Api.Services;
 public interface IInterviewReportService
 {
     Task<InterviewReport?> GetByIdAsync(int id);
-    Task<InterviewReport?> GetBySessionIdAsync(long sessionId);
+    Task<InterviewReport?> GetBySessionIdAsync(int sessionId);
     Task<(List<InterviewReport> Items, int Total)> GetAllAsync(
         long? candidateId, int? jobPostId, string? recommendation,
         decimal? minScore, decimal? maxScore,
         DateTime? dateFrom, DateTime? dateTo,
         int page, int pageSize);
-    Task<InterviewReport> GenerateReportAsync(long sessionId);
+    Task<InterviewReport> GenerateReportAsync(int sessionId);
     Task<InterviewReport?> UpdateHrNotesAsync(int id, string hrNotes);
 }
 
@@ -36,7 +36,7 @@ public class InterviewReportService : IInterviewReportService
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
-    public async Task<InterviewReport?> GetBySessionIdAsync(long sessionId)
+    public async Task<InterviewReport?> GetBySessionIdAsync(int sessionId)
     {
         return await _dbContext.InterviewReports
             .Include(r => r.Candidate)
@@ -87,7 +87,7 @@ public class InterviewReportService : IInterviewReportService
         return (items, total);
     }
 
-    public async Task<InterviewReport> GenerateReportAsync(long sessionId)
+    public async Task<InterviewReport> GenerateReportAsync(int sessionId)
     {
         // Check if report already exists
         var existing = await GetBySessionIdAsync(sessionId);

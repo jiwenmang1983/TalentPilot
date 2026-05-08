@@ -11,7 +11,7 @@ public class InterviewReport
     public int Id { get; set; }
 
     [Column("AIInterviewSessionId")]
-    public long AIInterviewSessionId { get; set; }
+    public int AIInterviewSessionId { get; set; }
 
     [Column("CandidateId")]
     public long CandidateId { get; set; }

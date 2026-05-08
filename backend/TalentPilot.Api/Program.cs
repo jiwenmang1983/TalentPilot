@@ -84,6 +84,7 @@ builder.Services.AddScoped<ResumeCollectionService>();
 builder.Services.AddScoped<ResumeParsingService>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddScoped<AIInterviewSessionService>();
+builder.Services.AddScoped<InterviewReportService>();
 
 var app = builder.Build();
 
