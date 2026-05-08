@@ -56,6 +56,9 @@ public class Candidate
     [Column("Source")]
     public string? Source { get; set; }
 
+    [Column("Skills")]
+    public string? Skills { get; set; }
+
     [MaxLength(2000)]
     [Column("Remark")]
     public string? Remark { get; set; }

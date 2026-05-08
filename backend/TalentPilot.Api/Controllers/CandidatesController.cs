@@ -11,32 +11,39 @@ namespace TalentPilot.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "admin")]
+[Authorize(Roles = "admin,hr")]
 public class CandidatesController : ControllerBase
 {
     private readonly TalentPilotDbContext _dbContext;
     private readonly CandidateConsentService _consentService;
     private readonly OperationLogService _logService;
+    private readonly ResumeParsingService _parsingService;
 
     public CandidatesController(
         TalentPilotDbContext dbContext,
         CandidateConsentService consentService,
-        OperationLogService logService)
+        OperationLogService logService,
+        ResumeParsingService parsingService)
     {
         _dbContext = dbContext;
         _consentService = consentService;
         _logService = logService;
+        _parsingService = parsingService;
     }
 
     [HttpGet]
     public async Task<ActionResult<ApiResponse<object>>> GetCandidates(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
-        [FromQuery] string? keyword = null)
+        [FromQuery] string? keyword = null,
+        [FromQuery] string? phone = null,
+        [FromQuery] int? jobPostId = null)
     {
         var query = _dbContext.Candidates.AsQueryable();
         if (!string.IsNullOrWhiteSpace(keyword))
             query = query.Where(c => c.Name.Contains(keyword) || c.Email.Contains(keyword));
+        if (!string.IsNullOrWhiteSpace(phone))
+            query = query.Where(c => c.Phone != null && c.Phone.Contains(phone));
 
         var total = await query.CountAsync();
         var items = await query
@@ -48,8 +55,12 @@ public class CandidatesController : ControllerBase
                 c.Name,
                 c.Email,
                 c.Phone,
+                c.Skills,
+                c.WorkExperience,
+                c.Education,
                 c.CurrentPosition,
                 c.CurrentCompany,
+                c.ExpectedSalary,
                 c.CreatedAt
             })
             .ToListAsync();
@@ -148,6 +159,7 @@ public class CandidatesController : ControllerBase
             candidate.CurrentCompany,
             candidate.WorkExperience,
             candidate.ExpectedSalary,
+            candidate.Skills,
             candidate.ResumeUrl,
             candidate.Source,
             candidate.Remark,
@@ -215,6 +227,20 @@ public class CandidatesController : ControllerBase
         }
 
         return Ok(new ApiResponse<object>(true, "撤销成功", null));
+    }
+
+    [HttpGet("{id}/resumes")]
+    public async Task<ActionResult<ApiResponse<object>>> GetCandidateResumes(long id)
+    {
+        var candidate = await _dbContext.Candidates.FindAsync(id);
+        if (candidate == null)
+        {
+            return NotFound(new ApiResponse<object>(false, "候选人不存在", null));
+        }
+
+        var resumes = await _parsingService.GetResumesByCandidateIdAsync((int)id);
+
+        return Ok(new ApiResponse<object>(true, "获取成功", resumes));
     }
 
     private long? GetCurrentUserId()
