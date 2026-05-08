@@ -83,8 +83,29 @@ builder.Services.AddScoped<JobPostService>();
 builder.Services.AddScoped<ResumeCollectionService>();
 builder.Services.AddScoped<ResumeParsingService>();
 builder.Services.AddScoped<MatchingService>();
+builder.Services.AddScoped<AIInterviewSessionService>();
 
 var app = builder.Build();
+
+// CORS middleware - FIRST, before any other middleware
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers.Origin.ToString();
+    if (origin.StartsWith("http://localhost:517") || origin.StartsWith("http://127.0.0.1:517"))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization,X-Requested-With";
+        context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+    }
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.CompleteAsync();
+        return;
+    }
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

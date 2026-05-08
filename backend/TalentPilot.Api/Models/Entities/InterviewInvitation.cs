@@ -11,13 +11,13 @@ public class InterviewInvitation
     public int Id { get; set; }
 
     [Column("CandidateId")]
-    public int CandidateId { get; set; }
+    public long CandidateId { get; set; }
 
     [Column("JobPostId")]
     public int JobPostId { get; set; }
 
     [Column("InvitedByUserId")]
-    public int InvitedByUserId { get; set; }
+    public long InvitedByUserId { get; set; }
 
     [Column("InterviewTime")]
     public DateTime? InterviewTime { get; set; }

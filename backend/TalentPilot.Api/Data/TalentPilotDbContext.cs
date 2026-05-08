@@ -22,6 +22,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<Resume> Resumes => Set<Resume>();
     public DbSet<MatchResult> MatchResults => Set<MatchResult>();
     public DbSet<InterviewInvitation> InterviewInvitations => Set<InterviewInvitation>();
+    public DbSet<AIInterviewSession> AIInterviewSessions => Set<AIInterviewSession>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -178,6 +179,30 @@ public class TalentPilotDbContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => e.InviteToken).IsUnique();
+        });
+
+        // AIInterviewSession
+        modelBuilder.Entity<AIInterviewSession>(entity =>
+        {
+            entity.ToTable("AIInterviewSessions");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.SessionToken).IsUnique();
+            entity.HasIndex(e => e.Status);
+
+            entity.HasOne(e => e.InterviewInvitation)
+                  .WithMany()
+                  .HasForeignKey(e => e.InterviewInvitationId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Candidate)
+                  .WithMany()
+                  .HasForeignKey(e => e.CandidateId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.JobPost)
+                  .WithMany()
+                  .HasForeignKey(e => e.JobPostId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
