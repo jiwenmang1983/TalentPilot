@@ -26,8 +26,9 @@
 | 13 | T-22 | CC | 智能匹配Matching | ✅ | 9296230 |
 | 14 | T-23 | CC | AI面试邀约InterviewInvitation | ✅ | e8e6706 |
 | 15 | T-24 后端 | CC | AIInterviewSession后端 | ✅ | c372717 后端全通 |
-| 16 | T-24 前端 | CC | 会话列表页+候选人答题页 | 🟡 进行中 | cc_t24_frontend.txt |
-| 17 | T-25 | CC | AI面试报告InterviewReport | 🔴 待开发 | — |
+| 16 | T-24 前端 | CC | 会话列表页+候选人答题页 | ✅ | 960ad8ee |
+| 17 | T-25 | CC | AI面试报告InterviewReport | ✅ | c1b1a02 |
+| 18 | T-26 | CC | 招聘效果分析ConversionFunnel | 🔴 待开发 | — |
 
 ---
 
@@ -63,11 +64,11 @@ c372717 feat: T-24 AI面试会话后端
 ## 关键路径 & 依赖
 
 ```
-T-24前端(cc running)
+T-25 AI面试报告 ✅ (c1b1a02)
     ↓
-T-25 AI面试报告(待CC)
+T-26 招聘效果分析ConversionFunnel(待CC)
     ↓
-完整Phase5完成 → PR → Mark验收
+Phase 5全部完成 → PR → Mark验收
 ```
 
 ---
