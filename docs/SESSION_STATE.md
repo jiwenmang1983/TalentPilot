@@ -3,7 +3,7 @@
 > 重启前小P保存，系统恢复后按此文件快速拉起服务
 
 **保存时间：** 2026-05-08
-**最新 commit：** `cccb732`（已 push，working tree clean）
+**最新 commit：** `e4111b9`（SESSION_TRACKER v0.6 重启保存版，已 push）
 
 ---
 
@@ -15,13 +15,15 @@
 
 ---
 
-## 运行中进程（重启前）
+## 运行中进程（重启后实时）
 
 | 服务 | PID | 端口 | 说明 |
 |------|-----|------|------|
-| .NET API | 201970 | 5010 | TalentPilot Backend |
-| Vite 前端 | 203483 | 5173 | TalentPilot Frontend |
-| MySQL | — | 3306 | sandvik_forecast 数据库（root/Sandvik2026!）|
+| .NET API | 623 | 5010 | TalentPilot Backend |
+| Vite 前端 | 665 | 5173 | TalentPilot Frontend |
+| MySQL | — | 3306 | talentpilot 数据库（root/Sandvik2026!）|
+
+**状态确认时间：** 2026-05-08 重启后
 
 ---
 
@@ -59,7 +61,7 @@ curl -s http://localhost:5173 | head -5 || echo "前端未响应"
 - TalentNexus 目录已删除（`/mnt/d/Git/TalentNexus` 已清理）
 - TalentPilot 是唯一项目，不是 TalentNexus
 - MySQL 连接：`Server=127.0.0.1;Port=3306;Database=talentpilot;User=root;Password=Sandvik2026!`
-- admin 默认密码：`TalentPilot2026!`
+**admin 默认密码：** `TalentPilot2026`（无感叹号）
 - CC tmux session：`cc-sandvik`（需手动检查/重启）
 
 ---
