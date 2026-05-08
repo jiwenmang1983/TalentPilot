@@ -15,10 +15,9 @@
 | --- | --- | --- | --- |
 | PRD.md | 产品需求唯一真相源 | 小P | 需求变更时 |
 | WBS.md | 开发任务分解 + 状态追踪 | 小P | 每任务完成时 |
-| TESTCASE.md | 测试用例库 + Q-XXX 状态表 | 小P | 每测试完成时 |
-| ISSUE_LOG.md | Bug / 逻辑缺口 / API 问题追踪 | 小P | 发现时立即 |
+| TESTCASE.md | 测试用例库 + 测试状态表 | 小P | 每测试完成时 |
 | PLAYBOOK.md | 本文件，协作规则 | 小P | 规则变更时 |
-| SESSION_TRACKER.md | CC/小Q 任务委派总账 + 实时状态追踪 | 小P | 每次委派/状态变化时 |
+| SESSION_TRACKER.md | CC 任务委派总账 + 实时状态追踪 | 小P | 每次委派/状态变化时 |
 
 
 **优先级原则：PRD.md 是所有开发任务的唯一规格来源。其他文档不得与 PRD.md 冲突，冲突时以 PRD.md 为准。**
@@ -32,15 +31,13 @@
 开发任务完成（CC）
   → WBS.md  T-XXX  🔄→✅
   → PRD.md  同步确认的逻辑（如有）
-  → ISSUE_LOG.md  新增Bug记录（如有）
 
-测试任务完成（小Q）
-  → TESTCASE.md  Q-XXX  🔄→✅/❌
+测试任务完成（小P）
+  → TESTCASE.md  ✅/❌
   → WBS.md       测试列更新
-  → ISSUE_LOG.md  新增Bug记录（如有）
 
 跟 Mark 聊天后
-  → 识别涉及哪些文档（PRD/WBS/TESTCASE/ISSUE_LOG/PLAYBOOK/SESSION_TRACKER/HERMES_TASKS）
+  → 识别涉及哪些文档（PRD/WBS/TESTCASE/SESSION_TRACKER/PLAYBOOK）
   → 有变更立即更新，不等下一次
 ```
 
@@ -48,11 +45,10 @@
 
 | 本次修改 | 需同步检查 |
 | --- | --- |
-| PRD.md §X | TESTCASE.md / WBS.md / ISSUE_LOG.md |
-| WBS.md T-XXX | PRD.md 相关章节 / TESTCASE.md Q-XXX |
-| TESTCASE.md TC-XXXX | WBS.md 测试关联 |
-| ISSUE_LOG.md Issue状态变更 | TESTCASE.md 对应测试状态（验证结果同步） |
-| SESSION_TRACKER.md 任务委派更新 | WBS.md / 小Q Session行 / CC任务队列 |
+| PRD.md §X | TESTCASE.md / WBS.md |
+| WBS.md T-XXX | PRD.md 相关章节 / TESTCASE.md |
+| TESTCASE.md | WBS.md 测试关联 |
+| SESSION_TRACKER.md 任务委派更新 | WBS.md / CC任务队列 |
 | 任何文档 | 发现前面章节有冲突也一并修正 |
 
 ---
