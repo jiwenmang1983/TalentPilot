@@ -79,6 +79,10 @@ builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<CandidateConsentService>();
+builder.Services.AddScoped<JobPostService>();
+builder.Services.AddScoped<ResumeCollectionService>();
+builder.Services.AddScoped<ResumeParsingService>();
+builder.Services.AddScoped<MatchingService>();
 
 var app = builder.Build();
 

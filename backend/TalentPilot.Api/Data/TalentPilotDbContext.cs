@@ -17,6 +17,10 @@ public class TalentPilotDbContext : DbContext
     public DbSet<UserLoginAttempt> UserLoginAttempts => Set<UserLoginAttempt>();
     public DbSet<Candidate> Candidates => Set<Candidate>();
     public DbSet<CandidateConsent> CandidateConsents => Set<CandidateConsent>();
+    public DbSet<JobPost> JobPosts => Set<JobPost>();
+    public DbSet<ResumeSource> ResumeSources => Set<ResumeSource>();
+    public DbSet<Resume> Resumes => Set<Resume>();
+    public DbSet<MatchResult> MatchResults => Set<MatchResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -121,6 +125,34 @@ public class TalentPilotDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.CandidateId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // JobPost
+        modelBuilder.Entity<JobPost>(entity =>
+        {
+            entity.ToTable("JobPosts");
+            entity.HasKey(e => e.Id);
+        });
+
+        // ResumeSource
+        modelBuilder.Entity<ResumeSource>(entity =>
+        {
+            entity.ToTable("ResumeSources");
+            entity.HasKey(e => e.Id);
+        });
+
+        // Resume
+        modelBuilder.Entity<Resume>(entity =>
+        {
+            entity.ToTable("Resumes");
+            entity.HasKey(e => e.Id);
+        });
+
+        // MatchResult
+        modelBuilder.Entity<MatchResult>(entity =>
+        {
+            entity.ToTable("MatchResults");
+            entity.HasKey(e => e.Id);
         });
     }
 }
