@@ -2,8 +2,8 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-**版本：** v0.5
-**更新：** 2026-05-08 17:10
+**版本：** v0.6（重启前保存版）
+**更新：** 2026-05-08（重启前完整状态保存）
 
 ---
 
@@ -38,18 +38,48 @@
 ## CC 实时状态
 
 **tmux session：** `cc-sandvik`
-**当前任务：** 空闲（所有Phase 5任务已完成）
-**最新commit：** `f577836` — fix: 修复前后端字段名不匹配导致部门/角色/用户创建失败
+**当前任务：** 🟢 空闲（所有 Phase 5 任务已完成，等待新指令）
+**最新commit：** `cccb732` — "docs: TESTCASE v0.5 - E2E核心功能标记通过(14/20)"
+**重启后 tmux 恢复：** `tmux kill-session -t cc-sandvik 2>/dev/null; tmux new-session -d -s cc-sandvik`
 
 ---
 
-## 系统运行状态
+## 系统运行状态（重启前）
 
 | 服务 | 端口 | PID | 状态 |
 |---|---|---|---|
-| API (.NET) | localhost:5010 | 181699 | ✅ Running |
-| 前端 (Vite) | localhost:5173 | 194102 | ✅ Running（已重启热更新生效） |
+| API (.NET) | localhost:5010 | 201970 | ✅ Running |
+| 前端 (Vite) | localhost:5173 | 203483 | ✅ Running（已重启热更新生效） |
 | MySQL | 127.0.0.1:3306 | — | ✅ Running |
+
+**重启后启动命令：**
+```bash
+# MySQL（一般自动启动）
+mysql -h 127.0.0.1 -u root -p'Sandvik2026!' -e "SELECT 1" 2>/dev/null && echo "MySQL OK"
+
+# 后端 API（端口5010）
+cd /mnt/d/Git/TalentPilot/backend/TalentPilot.Api
+dotnet run --urls=http://0.0.0.0:5010 &
+
+# 前端（端口5173）
+cd /mnt/d/Git/TalentPilot/frontend
+node_modules/.bin/vite --host 0.0.0.0 --port 5173 &
+
+# 验证
+curl -s http://localhost:5010/api/health || echo "API未响应"
+```
+
+**快速验证登录：**
+- URL：http://localhost:5173
+- 用户名：`admin`
+- 密码：`TalentPilot2026!`
+
+## ⚠️ 重大变更记录
+
+| 日期 | 变更内容 |
+|------|---------|
+| 2026-05-08 | TalentNexus 目录已删除（已废弃），TalentPilot 是唯一项目 |
+| 2026-05-08 | TalentPilot Phase 5 全部完成（T-19~T-26 ✅），T-17 E2E 核心功能通过（14/20 ✅） |
 
 ---
 
