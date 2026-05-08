@@ -13,7 +13,7 @@
 
 | 阶段 | 任务数 | 状态 |
 |---|---|---|
-| Phase 1: 数据库设计 | 1 | 🟡 开发中 |
+| Phase 1: 数据库设计 | 1 | 🟢 已完成 |
 | Phase 2: 后端 API | 7 | 🔴 待开发 |
 | Phase 3: 前端页面 | 7 | 🔴 待开发 |
 | Phase 4: E2E 测试 | 3 | 🔴 待开发 |
@@ -27,8 +27,8 @@
   - 设计并创建所有系统管理相关表结构
   - 表: Users / Roles / RolePermissions / Departments / OperationLogs / UserLoginAttempts
   - MySQL 建表脚本
-  - EF Core Entity 配置
-  - 状态: 🟡 开发中
+  - EF Core Entity 配置（7个类 + DbContext）
+  - 状态: 🟢 已完成 (d4fe835)
 
 ---
 
