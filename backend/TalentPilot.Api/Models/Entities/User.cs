@@ -62,6 +62,13 @@ public class User
     [Column("IsDeleted")]
     public bool IsDeleted { get; set; }
 
+    [MaxLength(500)]
+    [Column("RefreshToken")]
+    public string? RefreshToken { get; set; }
+
+    [Column("RefreshTokenExpiryTime")]
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
     [ForeignKey("DepartmentId")]
     public virtual Department? Department { get; set; }
 

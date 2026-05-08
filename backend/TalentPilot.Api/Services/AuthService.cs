@@ -29,8 +29,9 @@ public class AuthService
             .Include(u => u.Department)
             .FirstOrDefaultAsync(u => u.Username == request.Username);
 
+        var userIdForQuery = user == null ? 0 : user.Id;
         var failedAttempts = await _dbContext.UserLoginAttempts
-            .Where(a => a.UserId == (user?.Id ?? 0) && a.AttemptResult == "FAILED")
+            .Where(a => a.UserId == userIdForQuery && a.AttemptResult == "FAILED")
             .Where(a => a.CreatedAt > DateTime.UtcNow.AddMinutes(-LockoutMinutes))
             .CountAsync();
 
@@ -114,7 +115,7 @@ public class AuthService
             user.FullName ?? "",
             user.Role?.RoleKey ?? "",
             accessToken,
-            user.RefreshToken,
+            user.RefreshToken!,
             expiresAt
         );
 
