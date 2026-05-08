@@ -11,7 +11,7 @@ namespace TalentPilot.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "admin")]
 public class CandidatesController : ControllerBase
 {
     private readonly TalentPilotDbContext _dbContext;

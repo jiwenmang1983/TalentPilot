@@ -7,7 +7,7 @@ namespace TalentPilot.Api.Controllers;
 
 [ApiController]
 [Route("api/operation-logs")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "admin")]
 public class OperationLogsController : ControllerBase
 {
     private readonly OperationLogService _logService;

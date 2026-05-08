@@ -18,7 +18,7 @@ public class PermissionsController : ControllerBase
     }
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public ActionResult<ApiResponse<object>> GetAllPermissions()
     {
         var permissions = _permissionService.GetAllPermissions();
@@ -31,7 +31,7 @@ public class PermissionsController : ControllerBase
     }
 
     [HttpGet("user/{userId}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<ApiResponse<object>>> GetUserPermissions(long userId)
     {
         var permissions = await _permissionService.GetUserPermissions(userId);

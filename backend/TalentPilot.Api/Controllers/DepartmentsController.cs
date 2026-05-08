@@ -8,7 +8,7 @@ namespace TalentPilot.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "admin")]
 public class DepartmentsController : ControllerBase
 {
     private readonly DepartmentService _departmentService;
