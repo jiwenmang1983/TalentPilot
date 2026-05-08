@@ -67,7 +67,12 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   UserOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  BankOutlined,
+  TeamOutlined,
+  SafetyOutlined,
+  ApartmentOutlined,
+  FileTextOutlined
 } from '@ant-design/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAppStore } from '@/stores/app'
@@ -84,10 +89,20 @@ const selectedKeys = ref([route.name])
 const userInfo = ref(null)
 
 const menuItems = computed(() => {
-  return appStore.menuData.map(item => ({
-    key: item.path || item.name,
-    label: item.title || item.name,
-    icon: item.icon ? () => h(resolveComponent(item.icon.replace(/Outlined$/, 'Outlined'))) : null
+  const menus = appStore.menuData.length > 0 ? appStore.menuData : [
+    { key: 'users', label: '用户管理', icon: 'UserOutlined' },
+    { key: 'roles', label: '角色管理', icon: 'SafetyOutlined' },
+    { key: 'departments', label: '部门管理', icon: 'ApartmentOutlined' },
+    { key: 'logs', label: '操作日志', icon: 'FileTextOutlined' },
+    { key: 'jobposts', label: '职位管理', icon: 'BankOutlined' },
+    { key: 'resumes', label: '简历管理', icon: 'FileTextOutlined' },
+    { key: 'candidates', label: '候选人管理', icon: 'TeamOutlined' },
+    { key: 'matches', label: '智能匹配', icon: 'TeamOutlined' }
+  ]
+  return menus.map(item => ({
+    key: item.path || item.key,
+    label: item.title || item.label,
+    icon: item.icon ? () => h(resolveComponent(item.icon)) : null
   }))
 })
 

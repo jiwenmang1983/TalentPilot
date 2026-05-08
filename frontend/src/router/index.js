@@ -37,6 +37,48 @@ const routes = [
         name: 'OperationLogs',
         component: () => import('@/views/system/OperationLogs.vue'),
         meta: { title: '操作日志', icon: 'FileTextOutlined' }
+      },
+      {
+        path: 'jobposts',
+        name: 'JobPostList',
+        component: () => import('@/views/recruitment/JobPostList.vue'),
+        meta: { title: '职位管理', icon: 'BankOutlined' }
+      },
+      {
+        path: 'jobposts/new',
+        name: 'JobPostCreate',
+        component: () => import('@/views/recruitment/JobPostForm.vue'),
+        meta: { title: '新建职位', icon: 'BankOutlined' }
+      },
+      {
+        path: 'jobposts/:id',
+        name: 'JobPostEdit',
+        component: () => import('@/views/recruitment/JobPostForm.vue'),
+        meta: { title: '编辑职位', icon: 'BankOutlined' }
+      },
+      {
+        path: 'resumes',
+        name: 'ResumeList',
+        component: () => import('@/views/recruitment/ResumeList.vue'),
+        meta: { title: '简历管理', icon: 'FileTextOutlined' }
+      },
+      {
+        path: 'candidates',
+        name: 'CandidateList',
+        component: () => import('@/views/recruitment/CandidateList.vue'),
+        meta: { title: '候选人管理', icon: 'TeamOutlined' }
+      },
+      {
+        path: 'candidates/:id',
+        name: 'CandidateDetail',
+        component: () => import('@/views/recruitment/CandidateDetail.vue'),
+        meta: { title: '候选人详情', icon: 'TeamOutlined' }
+      },
+      {
+        path: 'matches',
+        name: 'MatchResultList',
+        component: () => import('@/views/recruitment/MatchResultList.vue'),
+        meta: { title: '智能匹配', icon: 'TeamOutlined' }
       }
     ]
   }
