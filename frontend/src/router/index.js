@@ -91,6 +91,12 @@ const routes = [
         name: 'InterviewSessions',
         component: () => import('@/views/interview/InterviewSessions.vue'),
         meta: { title: 'AI面试会话', icon: 'VideoCameraOutlined' }
+      },
+      {
+        path: 'interview/reports',
+        name: 'InterviewReports',
+        component: () => import('@/views/interview/InterviewReports.vue'),
+        meta: { title: '面试报告', icon: 'FileTextOutlined' }
       }
     ]
   },

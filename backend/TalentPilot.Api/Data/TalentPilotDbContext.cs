@@ -23,6 +23,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<MatchResult> MatchResults => Set<MatchResult>();
     public DbSet<InterviewInvitation> InterviewInvitations => Set<InterviewInvitation>();
     public DbSet<AIInterviewSession> AIInterviewSessions => Set<AIInterviewSession>();
+    public DbSet<InterviewReport> InterviewReports => Set<InterviewReport>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -192,6 +193,28 @@ public class TalentPilotDbContext : DbContext
             entity.HasOne(e => e.InterviewInvitation)
                   .WithMany()
                   .HasForeignKey(e => e.InterviewInvitationId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Candidate)
+                  .WithMany()
+                  .HasForeignKey(e => e.CandidateId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.JobPost)
+                  .WithMany()
+                  .HasForeignKey(e => e.JobPostId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // InterviewReport
+        modelBuilder.Entity<InterviewReport>(entity =>
+        {
+            entity.ToTable("InterviewReports");
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.AIInterviewSession)
+                  .WithMany()
+                  .HasForeignKey(e => e.AIInterviewSessionId)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Candidate)

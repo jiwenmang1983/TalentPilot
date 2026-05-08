@@ -22,6 +22,93 @@ namespace TalentPilot.Api.Data.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.AIInterviewSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AiComments")
+                        .HasColumnType("longtext")
+                        .HasColumnName("AiComments");
+
+                    b.Property<long>("CandidateId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CandidateId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("int")
+                        .HasColumnName("DurationSeconds");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("EndTime");
+
+                    b.Property<int>("InterviewInvitationId")
+                        .HasColumnType("int")
+                        .HasColumnName("InterviewInvitationId");
+
+                    b.Property<int>("JobPostId")
+                        .HasColumnType("int")
+                        .HasColumnName("JobPostId");
+
+                    b.Property<string>("OverallScore")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("OverallScore");
+
+                    b.Property<string>("RecordingUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("RecordingUrl");
+
+                    b.Property<string>("SessionToken")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("SessionToken");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("StartTime");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Transcript")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Transcript");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedAt");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CandidateId");
+
+                    b.HasIndex("InterviewInvitationId");
+
+                    b.HasIndex("JobPostId");
+
+                    b.HasIndex("SessionToken")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("AIInterviewSessions", (string)null);
+                });
+
             modelBuilder.Entity("TalentPilot.Api.Models.Entities.Candidate", b =>
                 {
                     b.Property<long>("Id")
@@ -92,6 +179,10 @@ namespace TalentPilot.Api.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("ResumeUrl");
+
+                    b.Property<string>("Skills")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Skills");
 
                     b.Property<string>("Source")
                         .HasMaxLength(50)
@@ -206,6 +297,207 @@ namespace TalentPilot.Api.Data.Migrations
                     b.ToTable("Departments", (string)null);
                 });
 
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.InterviewInvitation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CandidateId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("CandidateId");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("ConfirmedAt");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<DateTime?>("InterviewTime")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("InterviewTime");
+
+                    b.Property<DateTime?>("InviteSentAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("InviteSentAt");
+
+                    b.Property<string>("InviteToken")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("InviteToken");
+
+                    b.Property<long>("InvitedByUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("InvitedByUserId");
+
+                    b.Property<int>("JobPostId")
+                        .HasColumnType("int")
+                        .HasColumnName("JobPostId");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Notes");
+
+                    b.Property<DateTime?>("RefusedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("RefusedAt");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("Status");
+
+                    b.Property<DateTime>("TimeSlotEnd")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("TimeSlotEnd");
+
+                    b.Property<DateTime>("TimeSlotStart")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("TimeSlotStart");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CandidateId");
+
+                    b.HasIndex("InviteToken")
+                        .IsUnique();
+
+                    b.HasIndex("InvitedByUserId");
+
+                    b.HasIndex("JobPostId");
+
+                    b.ToTable("InterviewInvitations", (string)null);
+                });
+
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.JobPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Department");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Description");
+
+                    b.Property<string>("Education")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("Education");
+
+                    b.Property<string>("Experience")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("Experience");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("Requirements")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Requirements");
+
+                    b.Property<decimal?>("SalaryMax")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("SalaryMax");
+
+                    b.Property<decimal?>("SalaryMin")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("SalaryMin");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("Title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedAt");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("JobPosts", (string)null);
+                });
+
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.MatchResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<int>("JobPostId")
+                        .HasColumnType("int")
+                        .HasColumnName("JobPostId");
+
+                    b.Property<string>("MatchedSkills")
+                        .HasColumnType("longtext")
+                        .HasColumnName("MatchedSkills");
+
+                    b.Property<string>("MissingSkills")
+                        .HasColumnType("longtext")
+                        .HasColumnName("MissingSkills");
+
+                    b.Property<int>("ResumeId")
+                        .HasColumnType("int")
+                        .HasColumnName("ResumeId");
+
+                    b.Property<decimal>("Score")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("Score");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("Status");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Summary");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MatchResults", (string)null);
+                });
+
             modelBuilder.Entity("TalentPilot.Api.Models.Entities.OperationLog", b =>
                 {
                     b.Property<long>("Id")
@@ -259,6 +551,100 @@ namespace TalentPilot.Api.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("OperationLogs", (string)null);
+                });
+
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.Resume", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CandidateId")
+                        .HasColumnType("int")
+                        .HasColumnName("CandidateId");
+
+                    b.Property<string>("CandidateName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("CandidateName");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Email");
+
+                    b.Property<string>("ParsedStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("ParsedStatus");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("Phone");
+
+                    b.Property<string>("RawFilePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("RawFilePath");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("Source");
+
+                    b.Property<int?>("SourceJobPostId")
+                        .HasColumnType("int")
+                        .HasColumnName("SourceJobPostId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Resumes", (string)null);
+                });
+
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.ResumeSource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("Channel");
+
+                    b.Property<string>("Config")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Config");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedAt");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<DateTime?>("LastSyncAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("LastSyncAt");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ResumeSources", (string)null);
                 });
 
             modelBuilder.Entity("TalentPilot.Api.Models.Entities.Role", b =>
@@ -481,6 +867,33 @@ namespace TalentPilot.Api.Data.Migrations
                     b.ToTable("UserLoginAttempts", (string)null);
                 });
 
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.AIInterviewSession", b =>
+                {
+                    b.HasOne("TalentPilot.Api.Models.Entities.Candidate", "Candidate")
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TalentPilot.Api.Models.Entities.InterviewInvitation", "InterviewInvitation")
+                        .WithMany()
+                        .HasForeignKey("InterviewInvitationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TalentPilot.Api.Models.Entities.JobPost", "JobPost")
+                        .WithMany()
+                        .HasForeignKey("JobPostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("InterviewInvitation");
+
+                    b.Navigation("JobPost");
+                });
+
             modelBuilder.Entity("TalentPilot.Api.Models.Entities.CandidateConsent", b =>
                 {
                     b.HasOne("TalentPilot.Api.Models.Entities.Candidate", "Candidate")
@@ -500,6 +913,33 @@ namespace TalentPilot.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("TalentPilot.Api.Models.Entities.InterviewInvitation", b =>
+                {
+                    b.HasOne("TalentPilot.Api.Models.Entities.Candidate", "Candidate")
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TalentPilot.Api.Models.Entities.User", "InvitedByUser")
+                        .WithMany()
+                        .HasForeignKey("InvitedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TalentPilot.Api.Models.Entities.JobPost", "JobPost")
+                        .WithMany()
+                        .HasForeignKey("JobPostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("InvitedByUser");
+
+                    b.Navigation("JobPost");
                 });
 
             modelBuilder.Entity("TalentPilot.Api.Models.Entities.OperationLog", b =>
