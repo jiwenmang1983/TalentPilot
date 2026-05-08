@@ -1,17 +1,18 @@
 <template>
-  <div class="login-wrapper">
-    <div class="login-card">
-      <h1 class="login-brand">TalentPilot</h1>
-      <p class="login-tagline">AI面试官</p>
+  <div class="login-page">
+    <a-card class="login-card" :bordered="false">
+      <div class="login-brand">
+        <h1>TalentPilot</h1>
+        <p>AI 智能招聘平台</p>
+      </div>
 
       <a-form
         :model="formState"
         :rules="rules"
         @finish="handleLogin"
         layout="vertical"
-        class="login-form"
       >
-        <a-form-item name="username">
+        <a-form-item label="用户名" name="username">
           <a-input
             v-model:value="formState.username"
             placeholder="请输入用户名"
@@ -23,7 +24,7 @@
           </a-input>
         </a-form-item>
 
-        <a-form-item name="password">
+        <a-form-item label="密码" name="password">
           <a-input
             v-model:value="formState.password"
             :type="showPassword ? 'text' : 'password'"
@@ -34,16 +35,22 @@
               <LockOutlined />
             </template>
             <template #suffix>
-              <span class="password-toggle" @click="showPassword = !showPassword">
-                <EyeOutlined v-if="showPassword" />
-                <EyeInvisibleOutlined v-else />
-              </span>
+              <EyeOutlined
+                v-if="showPassword"
+                @click="showPassword = !showPassword"
+                style="cursor: pointer; color: #8c8c8c"
+              />
+              <EyeInvisibleOutlined
+                v-else
+                @click="showPassword = !showPassword"
+                style="cursor: pointer; color: #8c8c8c"
+              />
             </template>
           </a-input>
         </a-form-item>
 
-        <div class="form-footer">
-          <a href="#" class="forgot-link">忘记密码？</a>
+        <div class="forgot-password">
+          <a href="#">忘记密码？</a>
         </div>
 
         <a-button
@@ -52,14 +59,13 @@
           size="large"
           block
           :loading="loading"
-          class="login-btn"
         >
-          登录
+          登 录
         </a-button>
       </a-form>
 
-      <div class="login-footer">© 2026 TalentPilot 版权所有</div>
-    </div>
+      <div class="login-copyright">© 2026 TalentPilot 版权所有</div>
+    </a-card>
   </div>
 </template>
 
@@ -101,88 +107,56 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-.login-wrapper {
+.login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e8f0fe 0%, #d4e4ff 40%, #e8f0fe 100%);
+  background: #f0f2f5;
 }
 
 .login-card {
   width: 420px;
-  padding: 40px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 24px rgba(102, 126, 234, 0.12);
 }
 
 .login-brand {
-  font-size: 26px;
-  font-weight: 700;
-  color: #1a1a2e;
   text-align: center;
-  margin-bottom: 4px;
+  padding: 8px 0 24px;
 }
 
-.login-tagline {
+.login-brand h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0 0 4px;
+}
+
+.login-brand p {
   font-size: 14px;
-  color: #8c8ca1;
-  text-align: center;
-  margin-bottom: 24px;
+  color: #8c8c8c;
+  margin: 0;
 }
 
-.login-form {
-  /* empty */
-}
-
-.form-footer {
+.forgot-password {
   text-align: right;
   margin-bottom: 16px;
 }
 
-.forgot-link {
-  font-size: 12px;
-  color: #1677ff;
-  text-decoration: none;
-}
-
-.forgot-link:hover {
-  text-decoration: underline;
-}
-
-.login-btn {
-  height: 40px;
-  border-radius: 4px;
-  transition: box-shadow 0.3s;
-}
-
-.login-btn:hover {
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.35);
-}
-
-.password-toggle {
-  cursor: pointer;
-  color: #8c8ca1;
-  display: flex;
-  align-items: center;
-}
-
-.password-toggle:hover {
+.forgot-password a {
+  font-size: 14px;
   color: #1677ff;
 }
 
-.login-footer {
+.login-copyright {
   text-align: center;
   font-size: 12px;
-  color: #b8b8d0;
+  color: #bfbfbf;
   margin-top: 24px;
 }
 
 @media (max-width: 480px) {
   .login-card {
-    width: 90vw;
-    padding: 24px;
+    width: calc(100vw - 32px);
   }
 }
 </style>
