@@ -85,6 +85,12 @@ const routes = [
         name: 'InterviewInvitationList',
         component: () => import('@/views/recruitment/InterviewInvitationList.vue'),
         meta: { title: '面试邀约', icon: 'ScheduleOutlined' }
+      },
+      {
+        path: 'interview/sessions',
+        name: 'InterviewSessions',
+        component: () => import('@/views/interview/InterviewSessions.vue'),
+        meta: { title: 'AI面试会话', icon: 'VideoCameraOutlined' }
       }
     ]
   },
@@ -92,6 +98,12 @@ const routes = [
     path: '/interview/confirm/:token',
     name: 'CandidateConfirm',
     component: () => import('@/views/interview/CandidateConfirm.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/interview/candidate',
+    name: 'CandidateInterview',
+    component: () => import('@/views/interview/CandidateInterview.vue'),
     meta: { requiresAuth: false }
   }
 ]

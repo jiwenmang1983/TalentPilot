@@ -19,6 +19,7 @@ public class PermissionService
         "job_positions:manage",
         "candidates:read", "candidates:create", "candidates:update", "candidates:delete",
         "interviews:manage",
+        "interview.sessions:read",
         "reports:view"
     };
 
@@ -99,7 +100,12 @@ public class PermissionService
 
         if (permissions.Any(p => p == "interviews:manage"))
         {
-            recruitChildren.Add(new MenuNode("interviews", "面试管理", "CalendarOutlined", "/interviews", new List<MenuNode>()));
+            recruitChildren.Add(new MenuNode("interviews", "面试邀约", "ScheduleOutlined", "/recruitment/interviews", new List<MenuNode>()));
+        }
+
+        if (permissions.Any(p => p == "interview.sessions:read"))
+        {
+            recruitChildren.Add(new MenuNode("ai-interview-sessions", "AI面试会话", "VideoCameraOutlined", "/interview/sessions", new List<MenuNode>()));
         }
 
         if (recruitChildren.Count > 0)
