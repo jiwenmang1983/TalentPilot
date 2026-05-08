@@ -31,16 +31,17 @@
 | 18 | T-26 | CC | 招聘效果分析ConversionFunnel | ✅ | f724df5 |
 | 19 | 登录页重构 | CC | Ant Design Vue官方UI重调 | ✅ | e87d19d |
 | 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 |
-| 21 | Phase 6 | — | 性能优化+安全审查+文档 | 🔄 进行中 | — |
+| 21 | T-27 | CC | AI简历解析接入MiniMax LLM（T-27后端+前端+建表） | 🔄 进行中 | — |
+| 22 | Phase 6 | — | AI增强+工程保障 | 🔴 规划中 | T-28~T-34 |
 
 ---
 
 ## CC 实时状态
 
-**tmux session：** `cc-sandvik`
-**当前任务：** 🟢 空闲（所有 Phase 5 任务已完成，等待新指令）
-**最新commit：** `cccb732` — "docs: TESTCASE v0.5 - E2E核心功能标记通过(14/20)"
-**重启后 tmux 恢复：** `tmux kill-session -t cc-sandvik 2>/dev/null; tmux new-session -d -s cc-sandvik`
+**tmux session：** `cc-talentpilot`（本次新建）
+**当前任务：** 🔄 T-27 AI简历解析接入MiniMax LLM（进行中）
+**最新commit：** `c6f5749` — "docs: 删除ISSUE_LOG.md，PLAYBOOK简化联动修改规则"
+**T-27 tmux 恢复：** `tmux kill-session -t cc-talentpilot 2>/dev/null; tmux new-session -d -s cc-talentpilot`
 
 ---
 
