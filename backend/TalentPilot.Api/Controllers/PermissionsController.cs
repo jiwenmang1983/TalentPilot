@@ -6,6 +6,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// Permissions
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class PermissionsController : ControllerBase

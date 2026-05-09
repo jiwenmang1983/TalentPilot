@@ -8,6 +8,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// Departments
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "admin")]
@@ -32,6 +35,8 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetAllDepartments()
     {
         var departments = await _dbContext.Departments
@@ -99,6 +104,8 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> CreateDepartment([FromBody] CreateDepartmentRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.DepartmentName) || string.IsNullOrWhiteSpace(request.DepartmentKey))

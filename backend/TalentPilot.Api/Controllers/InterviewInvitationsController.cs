@@ -7,9 +7,13 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// 面试邀请管理接口
+/// </summary>
 [ApiController]
 [Route("api/interview-invitations")]
 [Authorize(Roles = "admin,hr")]
+[Produces("application/json")]
 public class InterviewInvitationsController : ControllerBase
 {
     private readonly InterviewInvitationService _invitationService;
@@ -19,8 +23,18 @@ public class InterviewInvitationsController : ControllerBase
         _invitationService = invitationService;
     }
 
+    /// <summary>
+    /// 获取面试邀请列表（分页）
+    /// </summary>
+    /// <param name="status">邀请状态筛选：pending/sent/confirmed/refused/cancelled</param>
+    /// <param name="page">页码，默认1</param>
+    /// <param name="pageSize">每页数量，默认20</param>
+    /// <returns>邀请列表</returns>
     [HttpGet]
     [Authorize(Roles = "admin,hr,hiring_manager")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<object>>> GetInvitations(
         [FromQuery] string? status = null,
         [FromQuery] int page = 1,
@@ -55,8 +69,17 @@ public class InterviewInvitationsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// 获取单个面试邀请详情
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <returns>邀请详情</returns>
     [HttpGet("{id}")]
     [Authorize(Roles = "admin,hr,hiring_manager")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ApiResponse<object>>> GetInvitation(int id)
     {
         var invitation = await _invitationService.GetByIdAsync(id);
@@ -83,8 +106,15 @@ public class InterviewInvitationsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// 通过Token获取面试邀请（候选人端，无需登录）
+    /// </summary>
+    /// <param name="token">邀请Token</param>
+    /// <returns>邀请详情</returns>
     [HttpGet("by-token/{token}")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ApiResponse<object>>> GetInvitationByToken(string token)
     {
         var invitation = await _invitationService.GetByTokenAsync(token);
@@ -107,7 +137,15 @@ public class InterviewInvitationsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// 创建面试邀请
+    /// </summary>
+    /// <param name="request">创建邀请请求</param>
+    /// <returns>新创建的邀请</returns>
     [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> CreateInvitation([FromBody] CreateInterviewInvitationRequest request)
     {
         if (request.CandidateId <= 0)
@@ -128,7 +166,16 @@ public class InterviewInvitationsController : ControllerBase
         return Created($"/api/interview-invitations/{result.Id}", new ApiResponse<object>(true, "创建成功", result));
     }
 
+    /// <summary>
+    /// 更新面试邀请
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <param name="request">更新请求</param>
+    /// <returns>更新结果</returns>
     [HttpPut("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> UpdateInvitation(int id, [FromBody] UpdateInterviewInvitationRequest request)
     {
         var invitation = await _invitationService.UpdateAsync(id, request);
@@ -138,7 +185,15 @@ public class InterviewInvitationsController : ControllerBase
         return Ok(new ApiResponse<object>(true, "更新成功", new { invitation.Id }));
     }
 
+    /// <summary>
+    /// 删除面试邀请
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <returns>删除结果</returns>
     [HttpDelete("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> DeleteInvitation(int id)
     {
         var success = await _invitationService.DeleteAsync(id);
@@ -148,7 +203,15 @@ public class InterviewInvitationsController : ControllerBase
         return Ok(new ApiResponse<object>(true, "删除成功", null));
     }
 
+    /// <summary>
+    /// 发送面试邀请（生成链接并发送）
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <returns>发送结果</returns>
     [HttpPost("{id}/send")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> SendInvitation(int id)
     {
         var invitation = await _invitationService.SendInviteAsync(id);
@@ -163,8 +226,16 @@ public class InterviewInvitationsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// 候选人确认参加面试
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <param name="request">确认请求（可选：调整面试时间）</param>
+    /// <returns>确认结果</returns>
     [HttpPost("{id}/confirm")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ApiResponse<object>>> ConfirmInvitation(int id, [FromBody] InvitationConfirmRequest? request)
     {
         var invitation = await _invitationService.ConfirmAsync(id, request?.InterviewTime);
@@ -179,8 +250,15 @@ public class InterviewInvitationsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// 候选人拒绝面试邀请
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <returns>拒绝结果</returns>
     [HttpPost("{id}/refuse")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ApiResponse<object>>> RefuseInvitation(int id)
     {
         var invitation = await _invitationService.RefuseAsync(id);
@@ -195,7 +273,15 @@ public class InterviewInvitationsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// HR/管理员取消面试邀请
+    /// </summary>
+    /// <param name="id">邀请ID</param>
+    /// <returns>取消结果</returns>
     [HttpPost("{id}/cancel")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> CancelInvitation(int id)
     {
         var invitation = await _invitationService.CancelAsync(id);

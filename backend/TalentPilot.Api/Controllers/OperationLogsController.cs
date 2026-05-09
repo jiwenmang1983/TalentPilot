@@ -5,6 +5,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// OperationLogs
+/// </summary>
 [ApiController]
 [Route("api/operation-logs")]
 [Authorize(Roles = "admin")]
@@ -18,6 +21,8 @@ public class OperationLogsController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetLogs(
         [FromQuery] long? userId = null,
         [FromQuery] string? action = null,

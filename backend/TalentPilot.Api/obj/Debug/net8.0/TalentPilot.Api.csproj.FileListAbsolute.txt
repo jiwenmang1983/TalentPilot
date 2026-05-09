@@ -113,3 +113,5 @@
 /mnt/d/Git/TalentPilot/backend/TalentPilot.Api/obj/Debug/net8.0/TalentPilot.Api.pdb
 /mnt/d/Git/TalentPilot/backend/TalentPilot.Api/obj/Debug/net8.0/TalentPilot.Api.genruntimeconfig.cache
 /mnt/d/Git/TalentPilot/backend/TalentPilot.Api/obj/Debug/net8.0/ref/TalentPilot.Api.dll
+/mnt/d/Git/TalentPilot/backend/TalentPilot.Api/bin/Debug/net8.0/TalentPilot.Api.xml
+/mnt/d/Git/TalentPilot/backend/TalentPilot.Api/obj/Debug/net8.0/TalentPilot.Api.xml

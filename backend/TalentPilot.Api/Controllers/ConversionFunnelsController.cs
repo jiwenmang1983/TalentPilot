@@ -5,6 +5,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// ConversionFunnels
+/// </summary>
 [ApiController]
 [Route("api/conversion-funnels")]
 [Authorize(Roles = "admin,hr")]
@@ -18,6 +21,8 @@ public class ConversionFunnelsController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<object>> GetAll(
         [FromQuery] int? jobPostId = null,
         [FromQuery] DateTime? dateFrom = null,

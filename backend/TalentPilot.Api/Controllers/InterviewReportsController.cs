@@ -6,6 +6,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// InterviewReports
+/// </summary>
 [ApiController]
 [Route("api/interview-reports")]
 [Authorize(Roles = "admin,hr")]
@@ -21,6 +24,8 @@ public class InterviewReportsController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetReports(
         [FromQuery] long? candidateId = null,
         [FromQuery] int? jobPostId = null,

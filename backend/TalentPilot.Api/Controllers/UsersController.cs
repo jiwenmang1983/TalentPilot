@@ -9,6 +9,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// Users
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "admin")]
@@ -26,6 +29,8 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetUsers(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
@@ -142,6 +147,8 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> CreateUser([FromBody] CreateUserRequest request)
     {
         if (await _dbContext.Users.AnyAsync(u => u.Username == request.Username))

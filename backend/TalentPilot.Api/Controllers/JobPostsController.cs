@@ -6,6 +6,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// JobPosts
+/// </summary>
 [ApiController]
 [Route("api/jobposts")]
 [Authorize(Roles = "admin,hr")]
@@ -23,6 +26,8 @@ public class JobPostsController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetJobPosts(
         [FromQuery] string? status = null,
         [FromQuery] int page = 1,
@@ -65,6 +70,8 @@ public class JobPostsController : ControllerBase
     }
 
     [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> CreateJobPost([FromBody] CreateJobPostRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Title))

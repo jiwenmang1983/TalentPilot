@@ -5,6 +5,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// Matches
+/// </summary>
 [ApiController]
 [Route("api/matches")]
 [Authorize(Roles = "admin,hr")]
@@ -18,6 +21,8 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetMatches(
         [FromQuery] int? jobPostId = null,
         [FromQuery] int page = 1,

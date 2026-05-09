@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TalentPilot.Api</name>
+    </assembly>
+    <members>
+        <member name="T:TalentPilot.Api.Controllers.AIInterviewSessionsController">
+            <summary>
+            AIInterviewSessions
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.AuthController">
+            <summary>
+            Auth
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.CandidatesController">
+            <summary>
+            Candidates
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.ConversionFunnelsController">
+            <summary>
+            ConversionFunnels
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.DepartmentsController">
+            <summary>
+            Departments
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.InterviewInvitationsController">
+            <summary>
+            面试邀请管理接口
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.GetInvitations(System.String,System.Int32,System.Int32)">
+            <summary>
+            获取面试邀请列表（分页）
+            </summary>
+            <param name="status">邀请状态筛选：pending/sent/confirmed/refused/cancelled</param>
+            <param name="page">页码，默认1</param>
+            <param name="pageSize">每页数量，默认20</param>
+            <returns>邀请列表</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.GetInvitation(System.Int32)">
+            <summary>
+            获取单个面试邀请详情
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>邀请详情</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.GetInvitationByToken(System.String)">
+            <summary>
+            通过Token获取面试邀请（候选人端，无需登录）
+            </summary>
+            <param name="token">邀请Token</param>
+            <returns>邀请详情</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.CreateInvitation(TalentPilot.Api.Models.DTOs.CreateInterviewInvitationRequest)">
+            <summary>
+            创建面试邀请
+            </summary>
+            <param name="request">创建邀请请求</param>
+            <returns>新创建的邀请</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.UpdateInvitation(System.Int32,TalentPilot.Api.Models.DTOs.UpdateInterviewInvitationRequest)">
+            <summary>
+            更新面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <param name="request">更新请求</param>
+            <returns>更新结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.DeleteInvitation(System.Int32)">
+            <summary>
+            删除面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>删除结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.SendInvitation(System.Int32)">
+            <summary>
+            发送面试邀请（生成链接并发送）
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>发送结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.ConfirmInvitation(System.Int32,TalentPilot.Api.Controllers.InvitationConfirmRequest)">
+            <summary>
+            候选人确认参加面试
+            </summary>
+            <param name="id">邀请ID</param>
+            <param name="request">确认请求（可选：调整面试时间）</param>
+            <returns>确认结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.RefuseInvitation(System.Int32)">
+            <summary>
+            候选人拒绝面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>拒绝结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.CancelInvitation(System.Int32)">
+            <summary>
+            HR/管理员取消面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>取消结果</returns>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.InterviewReportsController">
+            <summary>
+            InterviewReports
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.JobPostsController">
+            <summary>
+            JobPosts
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.MatchesController">
+            <summary>
+            Matches
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.OperationLogsController">
+            <summary>
+            OperationLogs
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.PermissionsController">
+            <summary>
+            Permissions
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.ResumesController">
+            <summary>
+            Resumes
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.RolesController">
+            <summary>
+            Roles
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.UsersController">
+            <summary>
+            Users
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Data.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

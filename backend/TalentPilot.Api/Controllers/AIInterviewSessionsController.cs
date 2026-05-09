@@ -7,6 +7,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// AIInterviewSessions
+/// </summary>
 [ApiController]
 [Route("api/ai-interview-sessions")]
 public class AIInterviewSessionsController : ControllerBase
@@ -21,6 +24,8 @@ public class AIInterviewSessionsController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize(Roles = "admin,hr")]
     public async Task<ActionResult<ApiResponse<object>>> GetSessions(
         [FromQuery] string? status = null,
@@ -123,6 +128,8 @@ public class AIInterviewSessionsController : ControllerBase
     }
 
     [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize(Roles = "admin,hr")]
     public async Task<ActionResult<ApiResponse<object>>> CreateSession([FromBody] CreateAIInterviewSessionRequest request)
     {

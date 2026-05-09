@@ -9,6 +9,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// Candidates
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "admin,hr")]
@@ -32,6 +35,8 @@ public class CandidatesController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetCandidates(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -84,6 +89,8 @@ public class CandidatesController : ControllerBase
     }
 
     [HttpPost]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> CreateCandidate([FromBody] CreateCandidateRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))

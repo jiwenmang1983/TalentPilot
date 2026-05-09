@@ -5,6 +5,9 @@ using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
+/// <summary>
+/// Resumes
+/// </summary>
 [ApiController]
 [Route("api/resumes")]
 [Authorize(Roles = "admin,hr")]
@@ -25,6 +28,8 @@ public class ResumesController : ControllerBase
     }
 
     [HttpGet]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetResumes(
         [FromQuery] string? source = null,
         [FromQuery] int page = 1,
