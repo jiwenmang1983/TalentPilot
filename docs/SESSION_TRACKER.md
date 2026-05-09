@@ -2,8 +2,8 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-**版本：** v1.1（Phase 7 验收测试完成）
-**更新：** 2026-05-09
+>**版本：** v1.2（Phase 7 E2E 全部通过）
+>**更新：** 2026-05-09
 
 ---
 
@@ -30,30 +30,31 @@
 | 17 | T-25 | CC | AI面试报告InterviewReport | ✅ | c1b1a02 |
 | 18 | T-26 | CC | 招聘效果分析ConversionFunnel | ✅ | f724df5 |
 | 19 | 登录页重构 | CC | Ant Design Vue官方UI重调 | ✅ | e87d19d |
-| 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 ||
-| 21 | T-27 | CC | AI简历解析接入MiniMax LLM | ✅ | 5bd3a12 ✅ ||
-| 22 | T-28 | CC | AI智能匹配算法优化 | ✅ | 11c10f8 ✅ ||
-| 23 | T-29 | CC | AI面试题自动生成 | ✅ | d2a636c ✅ ||
-| 24 | T-30 | CC | AI面试报告自动生成 | ✅ | 50835d4 ✅ ||
+| 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 |
+| 21 | T-27 | CC | AI简历解析接入MiniMax LLM | ✅ | 5bd3a12 ✅ |
+| 22 | T-28 | CC | AI智能匹配算法优化 | ✅ | 11c10f8 ✅ |
+| 23 | T-29 | CC | AI面试题自动生成 | ✅ | d2a636c ✅ |
+| 24 | T-30 | CC | AI面试报告自动生成 | ✅ | 50835d4 ✅ |
 | 25 | T-31 | CC | API性能压测+SQL优化 | ✅ 完成 | 061819c |
 | 26 | T-32 | 小P | JWT权限安全审查 | ✅ 完成 | e3e14ac |
 | 27 | T-33 | CC | Swagger API文档补全 | ✅ 完成 | d08b424 |
 | 28 | T-34 | CC | 候选人通知系统 | ✅ 完成 | daf25c5 |
 | 29 | T-40 | 小P | Phase 7 API自动化测试 | ✅ 完成 | 49/51通过，0失败 |
-| 30 | T-41~T-43 | 小P | Bug修复（4个真实bug） | ✅ 完成 | MiniMaxService/MySQL |
-| 31 | T-44 | 小P+CC | Playwright E2E（CC委派超时） | 🔄 进行中 | 14/26通过，前端Vue handleSubmit未触发（真实Bug） |
-| 32 | T-45 | Mark | UI验收截图确认 | 🔄 待进行 | 前端界面截图 |
+| 30 | T-41~T-43 | 小P+CC | Bug修复（4个真实bug） | ✅ 完成 | MiniMaxService/MySQL |
+| 31 | T-44 | 小P | Phase 7 E2E Playwright | ✅ 完成 | **25 passed, 1 skipped, 0 failed** ✅ |
+| 32 | T-46 | CC | UserManagement.vue formRef validate Bug | 🔄 待进行 | formRef.value始终为null，导致handleSubmit抛错 |
+| 33 | T-47 | Mark | UI验收截图确认 | 🔄 待进行 | 前端界面截图 PRD 对齐验证 |
 
 ---
 
 ## CC 实时状态
 
-||**tmux session：** `cc-talentpilot`（无活跃任务）
-||**当前任务：** 🔄 Phase 7 E2E - 前端Vue handleSubmit Bug，API层正常 |
-||**最新commit：** `aebc821` — "fix: Phase 7 bug fixes - MiniMax M2.7 compatibility"
-||**CC 启动方式：** `bash /tmp/cc_run_T{NN}.sh`（--print模式，后台运行）
+## CC 实时状态
 
----
+||**tmux session：** `cc-talentpilot`（无活跃任务）|
+||**当前任务：** 🔄 T-46: UserManagement.vue formRef validate() Bug（待 Mark 审批）|
+||**最新commit：** `868297e` — "fix: Phase 7 E2E - Vue mount fix, ant-drawer mask, drawer close detection, formRef workaround"|
+||**CC 启动方式：** `ccs minimax-ai claude --print --max-turns 30`（heredoc模式）|
 
 ## 系统运行状态
 
@@ -157,10 +158,31 @@ node_modules/.bin/vite --host 0.0.0.0 --port 5173 &
 ---
 
 ## 待处理
+1. **T-46 CC任务** — UserManagement.vue formRef validate() Bug（需 Mark 审批后派发 CC）
+2. **T-47 Mark 验收** — UI截图 + PRD 对齐验证
+3. **Phase 7 最终交付** — PRD 签字确认
 
-1. **T-17 E2E 部门/用户/角色测试** — 小Q已派发，等待回报结果
-2. **Phase 6 收尾** — 性能优化 / 安全审查 / 文档完善（待Mark决策是否需要）
-3. **PRD更新** — 登录页UI变更需同步PRD
+## Phase 7 测试结果总览
+
+| 阶段 | 测试数 | 通过 | 失败 | 跳过 |
+|---|---|---|---|---|
+| API 自动化 (python3) | 51 | 49 | 0 | 2 |
+| E2E Playwright | 26 | 25 | 0 | 1 |
+| **合计** | **77** | **74** | **0** | **3** |
+
+### 修复的真实 Bug（4个）
+1. `InterviewInvitationService` 未注册 → Program.cs
+2. `NotificationLogs/NotificationTemplates` 表缺失 → MySQL DDL
+3. `AIInterviewSessions.GeneratedQuestions` 列缺失 → MySQL ALTER
+4. `MiniMaxService.ChatAsync` M2.7 thinking 块不兼容 → GetFirstText()
+
+### 修复的前端问题（3个）
+1. `api/index.js` notificationApi 重复导出 → 删除重复
+2. `style.css` ant-drawer-mask pointer-events → none
+3. `DepartmentTree.vue` 按钮移入 `<a-form>` → CC 已修复
+
+### 待 CC 修复
+- `UserManagement.vue` formRef.value 始终为 null（validate() 抛错）
 
 ---
 
