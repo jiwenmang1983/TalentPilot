@@ -42,7 +42,7 @@
 | 29 | T-40 | 小P | Phase 7 API自动化测试 | ✅ 完成 | 49/51通过，0失败 |
 | 30 | T-41~T-43 | 小P+CC | Bug修复（4个真实bug） | ✅ 完成 | MiniMaxService/MySQL |
 | 31 | T-44 | 小P | Phase 7 E2E Playwright | ✅ 完成 | **25 passed, 1 skipped, 0 failed** ✅ |
-| 32 | T-46 | CC | UserManagement.vue formRef validate Bug | 🔄 待进行 | formRef.value始终为null，导致handleSubmit抛错 |
+| 32 | T-46 | 小P | UserManagement.vue formRef nextTick()修复 | ✅ 完成 | a481824 - nextTick() before validate() |
 | 33 | T-47 | Mark | UI验收截图确认 | 🔄 待进行 | 前端界面截图 PRD 对齐验证 |
 
 ---
