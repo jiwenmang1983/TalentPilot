@@ -16,10 +16,14 @@ public interface IMatchingService
 public class MatchingService : IMatchingService
 {
     private readonly TalentPilotDbContext _dbContext;
+    private readonly IMiniMaxService _miniMaxService;
+    private readonly ILogger<MatchingService> _logger;
 
-    public MatchingService(TalentPilotDbContext dbContext)
+    public MatchingService(TalentPilotDbContext dbContext, IMiniMaxService miniMaxService, ILogger<MatchingService> logger)
     {
         _dbContext = dbContext;
+        _miniMaxService = miniMaxService;
+        _logger = logger;
     }
 
     public async Task<MatchResult?> CalculateMatchAsync(int resumeId, int jobPostId)
@@ -30,42 +34,96 @@ public class MatchingService : IMatchingService
         if (resume == null || jobPost == null)
             return null;
 
+        var candidate = resume.CandidateId.HasValue
+            ? await _dbContext.Candidates.FindAsync(resume.CandidateId)
+            : null;
+
         // Check if already matched
         var existing = await _dbContext.MatchResults
             .FirstOrDefaultAsync(m => m.ResumeId == resumeId && m.JobPostId == jobPostId);
 
-        // Calculate match score based on skills
-        var resumeSkills = ParseSkills(resume.CandidateId.HasValue
-            ? (await _dbContext.Candidates.FindAsync(resume.CandidateId))?.Skills
-            : null);
+        // Build prompt for MiniMax LLM
+        var prompt = BuildMatchPrompt(candidate, resume, jobPost);
 
+        // Call MiniMax LLM
+        var llmResponse = await _miniMaxService.ChatAsync(prompt, 1024);
+
+        decimal score;
+        string skillMatch = "";
+        string experienceMatch = "";
+        string salaryMatch = "";
+        string reason = "";
         var matchedSkills = new List<string>();
         var missingSkills = new List<string>();
 
-        // Simple keyword matching simulation
-        var jobKeywords = ExtractKeywords(jobPost.Requirements ?? "");
-        foreach (var keyword in jobKeywords)
+        if (llmResponse?.Content != null && llmResponse.Content.Count > 0)
         {
-            if (resumeSkills.Any(s => s.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+            var responseText = llmResponse.Content[0].Text ?? "";
+            try
             {
-                matchedSkills.Add(keyword);
+                // Try to parse JSON from response
+                var jsonMatch = System.Text.RegularExpressions.Regex.Match(responseText, @"\{[\s\S]*\}");
+                if (jsonMatch.Success)
+                {
+                    var jsonDoc = JsonDocument.Parse(jsonMatch.Value);
+                    var root = jsonDoc.RootElement;
+
+                    if (root.TryGetProperty("score", out var scoreElement))
+                        score = scoreElement.GetDecimal();
+                    else
+                        score = 50;
+
+                    if (root.TryGetProperty("skillMatch", out var skillMatchElement))
+                        skillMatch = skillMatchElement.GetString() ?? "";
+                    if (root.TryGetProperty("experienceMatch", out var expMatchElement))
+                        experienceMatch = expMatchElement.GetString() ?? "";
+                    if (root.TryGetProperty("salaryMatch", out var salaryMatchElement))
+                        salaryMatch = salaryMatchElement.GetString() ?? "";
+                    if (root.TryGetProperty("reason", out var reasonElement))
+                        reason = reasonElement.GetString() ?? "";
+
+                    // Extract skills from skillMatch if present
+                    var skillKeywords = new[] { "Java", "Python", "Go", "JavaScript", "TypeScript", "React", "Vue", "Angular",
+                        "Spring", "Django", "Node.js", "Docker", "Kubernetes", "AWS", "Azure", "MySQL", "Redis",
+                        "Machine Learning", "TensorFlow", "Agile", "Scrum" };
+                    foreach (var kw in skillKeywords)
+                    {
+                        if (skillMatch.Contains(kw, StringComparison.OrdinalIgnoreCase) &&
+                            !matchedSkills.Contains(kw, StringComparer.OrdinalIgnoreCase))
+                            matchedSkills.Add(kw);
+                    }
+                }
+                else
+                {
+                    score = 50;
+                    reason = responseText.Length > 500 ? responseText[..500] : responseText;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                missingSkills.Add(keyword);
+                _logger.LogWarning(ex, "Failed to parse LLM response as JSON, using default score");
+                score = 50;
+                reason = responseText.Length > 500 ? responseText[..500] : responseText;
             }
         }
+        else
+        {
+            score = 50;
+            reason = "LLM调用未返回有效响应，使用默认分数";
+        }
 
-        var score = jobKeywords.Count > 0
-            ? (decimal)matchedSkills.Count / jobKeywords.Count * 100
-            : 70; // Default score if no keywords
+        var summary = $"{candidate?.Name ?? resume.CandidateName ?? "候选人"}与职位【{jobPost.Title}】匹配度{Math.Round(score, 0)}%\n" +
+                     $"技能匹配: {skillMatch}\n" +
+                     $"经验匹配: {experienceMatch}\n" +
+                     $"薪资匹配: {salaryMatch}\n" +
+                     $"综合评价: {reason}";
 
         if (existing != null)
         {
             existing.Score = Math.Round(score, 2);
             existing.MatchedSkills = JsonSerializer.Serialize(matchedSkills);
             existing.MissingSkills = JsonSerializer.Serialize(missingSkills);
-            existing.Summary = GenerateSummary(resume.CandidateName ?? "候选人", matchedSkills, missingSkills, score);
+            existing.Summary = summary;
             existing.CreatedAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
             return existing;
@@ -78,7 +136,7 @@ public class MatchingService : IMatchingService
             Score = Math.Round(score, 2),
             MatchedSkills = JsonSerializer.Serialize(matchedSkills),
             MissingSkills = JsonSerializer.Serialize(missingSkills),
-            Summary = GenerateSummary(resume.CandidateName ?? "候选人", matchedSkills, missingSkills, score),
+            Summary = summary,
             Status = "Pending",
             CreatedAt = DateTime.UtcNow
         };
@@ -86,6 +144,52 @@ public class MatchingService : IMatchingService
         _dbContext.MatchResults.Add(result);
         await _dbContext.SaveChangesAsync();
         return result;
+    }
+
+    private static string BuildMatchPrompt(Candidate? candidate, Resume resume, JobPost jobPost)
+    {
+        var candidateName = candidate?.Name ?? resume.CandidateName ?? "未知";
+        var skills = candidate?.Skills ?? "未提供";
+        var education = candidate?.Education ?? "未提供";
+        var workExperience = candidate?.WorkExperience?.ToString() ?? "未提供";
+        var currentPosition = candidate?.CurrentPosition ?? "未提供";
+        var currentCompany = candidate?.CurrentCompany ?? "未提供";
+        var expectedSalary = candidate?.ExpectedSalary?.ToString() ?? "未提供";
+        var jobTitle = jobPost.Title ?? "未知职位";
+        var requirements = jobPost.Requirements ?? "未提供";
+        var salaryMin = jobPost.SalaryMin?.ToString() ?? "未指定";
+        var salaryMax = jobPost.SalaryMax?.ToString() ?? "未指定";
+        var experience = jobPost.Experience ?? "未指定";
+        var jobEducation = jobPost.Education ?? "未指定";
+
+        return $@"你是一个专业的招聘匹配系统。请分析以下候选人与职位的匹配程度。
+
+【职位信息】
+职位名称: {jobTitle}
+职位要求: {requirements}
+薪资范围: {salaryMin} - {salaryMax}
+经验要求: {experience}
+学历要求: {jobEducation}
+
+【候选人信息】
+姓名: {candidateName}
+当前职位: {currentPosition}
+当前公司: {currentCompany}
+工作年限: {workExperience}
+学历: {education}
+技能: {skills}
+期望薪资: {expectedSalary}
+
+请返回JSON格式的匹配结果:
+{{
+    ""score"": 0-100的匹配分数,
+    ""skillMatch"": ""技能匹配分析"",
+    ""experienceMatch"": ""经验匹配分析"",
+    ""salaryMatch"": ""薪资匹配分析"",
+    ""reason"": ""综合评价""
+}}
+
+只返回JSON，不要有其他内容。";
     }
 
     public async Task<List<MatchResult>> BatchMatchAsync(int jobPostId)
