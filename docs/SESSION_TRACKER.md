@@ -41,7 +41,7 @@
 | 28 | T-34 | CC | 候选人通知系统 | ✅ 完成 | daf25c5 |
 | 29 | T-40 | 小P | Phase 7 API自动化测试 | ✅ 完成 | 49/51通过，0失败 |
 | 30 | T-41~T-43 | 小P | Bug修复（4个真实bug） | ✅ 完成 | MiniMaxService/MySQL |
-| 31 | T-44 | 小P+CC | Playwright E2E（CCS委派超时，MiniMax限额） | 🔄 进行中 | 16/26通过，9个需调整等待时间 |
+| 31 | T-44 | 小P+CC | Playwright E2E（CC委派超时） | 🔄 进行中 | 14/26通过，前端Vue handleSubmit未触发（真实Bug） |
 | 32 | T-45 | Mark | UI验收截图确认 | 🔄 待进行 | 前端界面截图 |
 
 ---
@@ -49,7 +49,7 @@
 ## CC 实时状态
 
 ||**tmux session：** `cc-talentpilot`（无活跃任务）
-||**当前任务：** ✅ Phase 7 API自动化测试完成（49/51），等待 T-44 Playwright E2E
+||**当前任务：** 🔄 Phase 7 E2E - 前端Vue handleSubmit Bug，API层正常 |
 ||**最新commit：** `aebc821` — "fix: Phase 7 bug fixes - MiniMax M2.7 compatibility"
 ||**CC 启动方式：** `bash /tmp/cc_run_T{NN}.sh`（--print模式，后台运行）
 
