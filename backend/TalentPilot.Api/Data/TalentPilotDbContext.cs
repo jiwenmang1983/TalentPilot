@@ -29,6 +29,8 @@ public class TalentPilotDbContext : DbContext
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
     public DbSet<ChannelCredential> ChannelCredentials => Set<ChannelCredential>();
     public DbSet<JobChannelContent> JobChannelContents => Set<JobChannelContent>();
+    public DbSet<JobDistributionTask> JobDistributionTasks => Set<JobDistributionTask>();
+    public DbSet<JobDistributionLog> JobDistributionLogs => Set<JobDistributionLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -281,10 +283,40 @@ public class TalentPilotDbContext : DbContext
             entity.HasIndex(e => new { e.JobPostId, e.ChannelType });
             entity.HasIndex(e => e.Status);
 
+        entity.HasOne(e => e.JobPost)
+              .WithMany()
+              .HasForeignKey(e => e.JobPostId)
+              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // JobDistributionTask
+        modelBuilder.Entity<JobDistributionTask>(entity =>
+        {
+            entity.ToTable("JobDistributionTasks");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.JobPostId, e.ChannelType });
+            entity.HasIndex(e => e.TaskStatus);
+            entity.HasIndex(e => e.ScheduledAt);
+
             entity.HasOne(e => e.JobPost)
                   .WithMany()
                   .HasForeignKey(e => e.JobPostId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // JobDistributionLog
+        modelBuilder.Entity<JobDistributionLog>(entity =>
+        {
+            entity.ToTable("JobDistributionLogs");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.TaskId);
+            entity.Property(e => e.Message).HasMaxLength(1000);
+            entity.Property(e => e.Details).HasColumnType("text");
+
+            entity.HasOne(e => e.Task)
+                  .WithMany(t => t.Logs)
+                  .HasForeignKey(e => e.TaskId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

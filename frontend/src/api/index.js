@@ -139,5 +139,6 @@ export const operationLogApi = {
 export { notificationApi } from './notification'
 export { channelApi } from './channel'
 export { jobChannelContentApi } from './jobChannelContent'
+export { jobDistributionApi } from './jobDistribution'
 
 export default api

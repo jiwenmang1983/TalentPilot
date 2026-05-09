@@ -28,6 +28,10 @@
           <template #icon><AimOutlined /></template>
           AI内容适配
         </a-button>
+        <a-button @click="openDistDrawer">
+          <template #icon><SendOutlined /></template>
+          渠道分发
+        </a-button>
         <a-button type="primary" @click="$router.push('/jobposts/new')">
           <template #icon><PlusOutlined /></template>
           新建职位
@@ -177,15 +181,71 @@
         </div>
       </a-space>
     </a-modal>
+
+    <!-- Distribution Drawer -->
+    <a-drawer
+      v-model:open="distDrawerVisible"
+      :title="`渠道分发 - ${distJobPost?.title || ''}`"
+      width="600"
+      @close="closeDistDrawer"
+    >
+      <a-space direction="vertical" style="width: 100%" :size="16">
+        <a-alert type="info" show-icon>
+          <template #message>选择分发渠道</template>
+          <template #description>选择要发布的渠道，支持立即发布和定时发布</template>
+        </a-alert>
+        <a-checkbox-group v-model:value="distSelectedChannels" :options="channelOptions" />
+        <a-divider />
+        <div>
+          <label style="display: block; margin-bottom: 8px">发布时间</label>
+          <a-radio-group v-model:value="distPublishMode">
+            <a-radio value="immediate">立即发布</a-radio>
+            <a-radio value="schedule">定时发布</a-radio>
+          </a-radio-group>
+          <a-date-picker
+            v-if="distPublishMode === 'schedule'"
+            show-time
+            v-model:value="distScheduleTime"
+            format="YYYY-MM-DD HH:mm"
+            style="width: 100%; margin-top: 8px"
+            placeholder="选择定时时间"
+          />
+        </div>
+        <a-divider />
+        <a-button type="primary" :disabled="distSelectedChannels.length === 0" :loading="distLoading" @click="startDistribution">
+          开始分发
+        </a-button>
+        <a-divider />
+        <div v-if="distTasks.length > 0">
+          <h4>分发任务</h4>
+          <a-table
+            :columns="distTaskColumns"
+            :dataSource="distTasks"
+            :pagination="false"
+            rowKey="id"
+            size="small"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'channelType'">{{ getChannelName(record.channelType) }}</template>
+              <template v-else-if="column.key === 'status'">
+                <a-tag :color="getDistStatusColor(record.status)">{{ getDistStatusText(record.status) }}</a-tag>
+              </template>
+              <template v-else-if="column.key === 'scheduledAt'">{{ record.scheduledAt ? formatDate(record.scheduledAt) : '-' }}</template>
+            </template>
+          </a-table>
+        </div>
+      </a-space>
+    </a-drawer>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { PlusOutlined, AimOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, AimOutlined, ReloadOutlined, SendOutlined } from '@ant-design/icons-vue'
 import { jobPostApi } from '@/api/jobpost'
 import { jobChannelContentApi } from '@/api/jobChannelContent'
+import { jobDistributionApi } from '@/api/jobDistribution'
 import { message } from 'ant-design-vue'
 
 const router = useRouter()
@@ -229,6 +289,23 @@ const editVisible = ref(false)
 const editRecord = ref(null)
 const editForm = ref({ adaptedTitle: '', adaptedContent: '' })
 const savingEdit = ref(false)
+
+const distDrawerVisible = ref(false)
+const distJobPost = ref(null)
+const distLoading = ref(false)
+const distSelectedChannels = ref([])
+const distScheduleTime = ref(null)
+const distTasks = ref([])
+const distLoadingTasks = ref(false)
+
+const distPublishMode = ref('immediate')
+
+const distTaskColumns = [
+  { title: '渠道', key: 'channelType', width: 100 },
+  { title: '状态', key: 'status', width: 80 },
+  { title: '计划时间', key: 'scheduledAt', width: 150 },
+  { title: '执行时间', key: 'executedAt', width: 150 }
+]
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 60 },
@@ -428,6 +505,74 @@ async function saveEdit() {
   } finally {
     savingEdit.value = false
   }
+}
+
+function openDistDrawer() {
+  if (!selectedJobPost.value) {
+    message.warning('请先选择要分发的职位')
+    return
+  }
+  distJobPost.value = selectedJobPost.value
+  distSelectedChannels.value = []
+  distScheduleTime.value = null
+  distPublishMode.value = 'immediate'
+  distTasks.value = []
+  distDrawerVisible.value = true
+  loadDistTasks()
+}
+
+function closeDistDrawer() {
+  distDrawerVisible.value = false
+  distJobPost.value = null
+  distSelectedChannels.value = []
+  distScheduleTime.value = null
+  distTasks.value = []
+}
+
+async function loadDistTasks() {
+  if (!distJobPost.value) return
+  distLoadingTasks.value = true
+  try {
+    const res = await jobDistributionApi.getByJob(distJobPost.value.id)
+    distTasks.value = res.data || []
+  } catch (e) {
+    console.error(e)
+  } finally {
+    distLoadingTasks.value = false
+  }
+}
+
+async function startDistribution() {
+  if (!distJobPost.value || distSelectedChannels.value.length === 0) return
+  distLoading.value = true
+  try {
+    const scheduledAt = distPublishMode.value === 'schedule' && distScheduleTime.value
+      ? distScheduleTime.value.format('YYYY-MM-DDTHH:mm:ss')
+      : null
+    await jobDistributionApi.trigger(distJobPost.value.id, distSelectedChannels.value, scheduledAt)
+    message.success('分发任务已创建')
+    await loadDistTasks()
+  } catch (e) {
+    console.error(e)
+    message.error('分发失败')
+  } finally {
+    distLoading.value = false
+  }
+}
+
+function getDistStatusColor(status) {
+  const colors = { pending: 'default', running: 'processing', succeed: 'success', failed: 'error', cancelled: 'default' }
+  return colors[status] || 'default'
+}
+
+function getDistStatusText(status) {
+  const texts = { pending: '等待中', running: '执行中', succeed: '已成功', failed: '失败', cancelled: '已取消' }
+  return texts[status] || status
+}
+
+function formatDate(dt) {
+  if (!dt) return '-'
+  return new Date(dt).toLocaleString('zh-CN')
 }
 
 onMounted(() => {

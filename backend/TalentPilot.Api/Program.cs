@@ -106,6 +106,8 @@ builder.Services.AddScoped<InterviewInvitationService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ChannelCredentialService>();
 builder.Services.AddScoped<ContentAdaptationService>();
+builder.Services.AddScoped<JobDistributionService>();
+builder.Services.AddHostedService<JobDistributionBackgroundService>();
 
 var app = builder.Build();
 

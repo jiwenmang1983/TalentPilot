@@ -81,7 +81,7 @@ test.describe('登录流程测试', () => {
     await page.waitForLoadState('domcontentloaded')
 
     await expect(page.locator('h1')).toContainText('TalentPilot')
-    await expect(page.locator('.login-subtitle')).toContainText('人才管理系统')
+    await expect(page.locator('.subtitle')).toContainText('TalentPilot')
     await expect(page.getByPlaceholder('请输入用户名')).toBeVisible()
     await expect(page.getByPlaceholder('请输入密码')).toBeVisible()
     await expect(page.locator('button[type="submit"]')).toBeVisible()

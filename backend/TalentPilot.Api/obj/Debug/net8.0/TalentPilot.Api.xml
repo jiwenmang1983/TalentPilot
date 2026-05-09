@@ -113,6 +113,21 @@
             InterviewReports
             </summary>
         </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.GetAllByJobPostId(System.Int32)">
+            <summary>获取职位所有渠道适配内容</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.GetByChannelType(System.Int32,System.String)">
+            <summary>按渠道类型获取适配内容</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.AdaptContent(TalentPilot.Api.Models.Entities.AdaptContentRequest)">
+            <summary>触发职位内容适配到各渠道</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.Update(System.Int32,TalentPilot.Api.Models.Entities.UpdateContentRequest)">
+            <summary>更新适配内容（手动编辑）</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.Delete(System.Int32)">
+            <summary>删除适配内容</summary>
+        </member>
         <member name="T:TalentPilot.Api.Controllers.JobPostsController">
             <summary>
             JobPosts
@@ -196,6 +211,12 @@
         </member>
         <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Services.MiniMaxMessageResponse.GetFirstText">
+            <summary>
+            Extracts the actual text from the response, skipping MiniMax M2.7 thinking blocks.
+            M2.7 returns content blocks where block[0] is type=thinking (no Text field) and block[1+] is type=text.
+            </summary>
         </member>
     </members>
 </doc>
