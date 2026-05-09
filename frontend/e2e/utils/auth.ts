@@ -14,7 +14,8 @@ export async function login(page: Page, username: string = TEST_USERNAME, passwo
   await page.getByPlaceholder('请输入密码').fill(password)
   await page.locator('button[type="submit"]').click()
 
-  await page.waitForURL('**/users', { timeout: 15000 })
+  // 登录后 router.push('/') → / → redirect /dashboard
+  await page.waitForURL('**/dashboard', { timeout: 15000 })
 }
 
 export async function logout(page: Page): Promise<void> {

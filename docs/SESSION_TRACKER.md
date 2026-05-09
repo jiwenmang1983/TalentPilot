@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-**版本：** v1.0（UI SFT风格改造 + 服务重启）
+**版本：** v1.1（Phase 7 验收测试完成）
 **更新：** 2026-05-09
 
 ---
@@ -39,14 +39,18 @@
 | 26 | T-32 | 小P | JWT权限安全审查 | ✅ 完成 | e3e14ac |
 | 27 | T-33 | CC | Swagger API文档补全 | ✅ 完成 | d08b424 |
 | 28 | T-34 | CC | 候选人通知系统 | ✅ 完成 | daf25c5 |
+| 29 | T-40 | 小P | Phase 7 API自动化测试 | ✅ 完成 | 49/51通过，0失败 |
+| 30 | T-41~T-43 | 小P | Bug修复（4个真实bug） | ✅ 完成 | MiniMaxService/MiniMaxService/MySQL |
+| 31 | T-44 | 小P | Playwright E2E | 🔄 待进行 | TC-0401~TC-0405 |
+| 32 | T-45 | Mark | UI验收截图确认 | 🔄 待进行 | 前端界面截图 |
 
 ---
 
 ## CC 实时状态
 
 ||**tmux session：** `cc-talentpilot`（无活跃任务）
-||**当前任务：** 🔄 T-34 候选人通知系统（CC开发中）
-||**最新commit：** `6a923c5` — "docs: 添加CLAUDE.md项目初始化文件"
+||**当前任务：** ✅ Phase 7 API自动化测试完成（49/51），等待 T-44 Playwright E2E
+||**最新commit：** `bb8969f` — "docs: Phase 6全部完成"
 ||**CC 启动方式：** `bash /tmp/cc_run_T{NN}.sh`（--print模式，后台运行）
 
 ---

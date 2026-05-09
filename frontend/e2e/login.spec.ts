@@ -18,9 +18,9 @@ test.describe('登录流程测试', () => {
     await page.getByPlaceholder('请输入密码').fill(TEST_PASSWORD)
     await page.locator('button[type="submit"]').click()
 
-    await page.waitForURL('**/users', { timeout: 15000 })
+    await page.waitForURL('**/dashboard', { timeout: 15000 })
 
-    await expect(page).toHaveURL(/\/users/)
+    await expect(page).toHaveURL(/\/dashboard/)
   })
 
   test('用户名+密码错误 -> 显示错误提示', async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe('登录流程测试', () => {
     await page.getByPlaceholder('请输入密码').fill(TEST_PASSWORD)
     await page.locator('button[type="submit"]').click()
 
-    await page.waitForURL('**/users', { timeout: 15000 })
+    await page.waitForURL('**/dashboard', { timeout: 15000 })
 
     const token = await getToken(page)
     expect(token).toBeTruthy()

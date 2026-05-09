@@ -58,7 +58,7 @@ public class MatchingService : IMatchingService
 
         if (llmResponse?.Content != null && llmResponse.Content.Count > 0)
         {
-            var responseText = llmResponse.Content[0].Text ?? "";
+            var responseText = llmResponse.GetFirstText() ?? "";
             try
             {
                 // Try to parse JSON from response

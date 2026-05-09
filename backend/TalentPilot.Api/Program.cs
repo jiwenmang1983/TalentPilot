@@ -102,6 +102,7 @@ builder.Services.AddScoped<MatchingService>();
 builder.Services.AddScoped<AIInterviewSessionService>();
 builder.Services.AddScoped<InterviewReportService>();
 builder.Services.AddScoped<ConversionFunnelService>();
+builder.Services.AddScoped<InterviewInvitationService>();
 builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();

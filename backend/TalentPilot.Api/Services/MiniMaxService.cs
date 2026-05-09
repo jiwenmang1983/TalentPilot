@@ -36,6 +36,17 @@ public class MiniMaxMessageResponse
 
     [JsonPropertyName("stop_sequence")]
     public string? StopSequence { get; set; }
+
+    /// <summary>
+    /// Extracts the actual text from the response, skipping MiniMax M2.7 thinking blocks.
+    /// M2.7 returns content blocks where block[0] is type=thinking (no Text field) and block[1+] is type=text.
+    /// </summary>
+    public string? GetFirstText()
+    {
+        if (Content == null || Content.Count == 0) return null;
+        var textBlock = Content.FirstOrDefault(c => c.Type == "text" && !string.IsNullOrEmpty(c.Text));
+        return textBlock?.Text ?? Content[0].Text;
+    }
 }
 
 public class MiniMaxContentBlock

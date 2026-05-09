@@ -102,7 +102,7 @@ public class AIInterviewSessionService : IAIInterviewSessionService
             var response = await _miniMaxService.ChatAsync(prompt, 2048);
             if (response?.Content != null && response.Content.Count > 0)
             {
-                var text = response.Content[0].Text;
+                var text = response.GetFirstText();
                 // Try to extract JSON from the response (in case there's any wrapper text)
                 var jsonStart = text.IndexOf('{');
                 var jsonEnd = text.LastIndexOf('}');

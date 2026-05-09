@@ -136,7 +136,7 @@ public class InterviewReportService : IInterviewReportService
         }
 
         // Extract JSON from LLM response
-        var llmText = response.Content[0].Text ?? "";
+        var llmText = response.GetFirstText() ?? "";
         _logger.LogDebug("MiniMax LLM response: {Response}", llmText);
 
         // Parse JSON response from LLM

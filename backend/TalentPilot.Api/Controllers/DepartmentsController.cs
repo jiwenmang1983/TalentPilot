@@ -174,6 +174,12 @@ public class DepartmentsController : ControllerBase
             return NotFound(new ApiResponse<object>(false, "部门不存在", null));
         }
 
+        var children = await _departmentService.GetSubDepartments(id);
+        if (children.Any())
+        {
+            return BadRequest(new ApiResponse<object>(false, "请先删除子部门", null));
+        }
+
         var success = await _departmentService.DeleteDepartment(id);
         if (!success)
         {
