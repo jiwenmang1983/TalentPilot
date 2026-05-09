@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
->**版本：** v1.2（Phase 7 E2E 全部通过）
+>**版本：** v1.3（Phase 7完成，Phase 8待审批 T-48~T-51）
 >**更新：** 2026-05-09
 
 ---
@@ -43,7 +43,11 @@
 | 30 | T-41~T-43 | 小P+CC | Bug修复（4个真实bug） | ✅ 完成 | MiniMaxService/MySQL |
 | 31 | T-44 | 小P | Phase 7 E2E Playwright | ✅ 完成 | **25 passed, 1 skipped, 0 failed** ✅ |
 | 32 | T-46 | 小P | UserManagement.vue formRef nextTick()修复 | ✅ 完成 | a481824 - nextTick() before validate() |
-| 33 | T-47 | Mark | UI验收截图确认 | 🔄 待进行 | 前端界面截图 PRD 对齐验证 |
+| 33 | T-47 | Mark | UI验收截图确认 | 🔴 待确认 | 8张截图已拍 |
+| 34 | T-48 | CC | 渠道账号管理 F-04（ChannelCredentials表+API+UI） | 🔴 待审批 | WBS v1.9 |
+| 35 | T-49 | CC | AI内容适配服务 F-05（ContentAdaptationService+格式模板） | 🔴 待审批 | WBS v1.9 |
+| 36 | T-50 | CC | AI Agent分发引擎 F-02（JobDistributionAgent+定时发布） | 🔴 待审批 | WBS v1.9 |
+| 37 | T-51 | CC | 发布状态追踪前端 F-06（JobPostList渠道状态） | 🔴 待审批 | WBS v1.9 |
 
 ---
 
