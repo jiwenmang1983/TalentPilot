@@ -35,16 +35,19 @@
 | 22 | T-28 | CC | AI智能匹配算法优化 | ✅ | 11c10f8 ✅ ||
 | 23 | T-29 | CC | AI面试题自动生成 | ✅ | d2a636c ✅ ||
 | 24 | T-30 | CC | AI面试报告自动生成 | ✅ | 50835d4 ✅ ||
-| 25 | T-31 | CC | API性能压测+SQL优化 | 🔄 进行中 | CC background |
+| 25 | T-31 | CC | API性能压测+SQL优化 | 🔄 进行中 | 待启动 |
+| 26 | T-32 | CC | JWT权限安全审查 | 🔴 待启动 | — |
+| 27 | T-33 | CC | Swagger API文档补全 | 🔴 待启动 | — |
+| 28 | T-34 | CC | 候选人通知系统 | 🔴 待启动 | — |
 
 ---
 
 ## CC 实时状态
 
-**tmux session：** `cc-talentpilot`（✅ 活跃，执行T-28中）
-**当前任务：** 🔄 T-28 AI智能匹配算法优化
-**最新commit：** `5bd3a12` — "docs: T-27 MiniMax API config verified"
-**CC 启动方式：** `bash /tmp/cc_run_T27_v2.sh`（--print模式，后台运行）
+|**tmux session：** `cc-talentpilot`（无活跃任务）
+|**当前任务：** 🔄 T-31 API性能压测+SQL优化（待启动）
+|**最新commit：** `50835d4` — "feat: T-30 AI面试报告MiniMax LLM"
+|**CC 启动方式：** `bash /tmp/cc_run_T{NN}.sh`（--print模式，后台运行）
 
 ---
 
