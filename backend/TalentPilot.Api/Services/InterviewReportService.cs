@@ -21,10 +21,17 @@ public interface IInterviewReportService
 public class InterviewReportService : IInterviewReportService
 {
     private readonly TalentPilotDbContext _dbContext;
+    private readonly IMiniMaxService _miniMaxService;
+    private readonly ILogger<InterviewReportService> _logger;
 
-    public InterviewReportService(TalentPilotDbContext dbContext)
+    public InterviewReportService(
+        TalentPilotDbContext dbContext,
+        IMiniMaxService miniMaxService,
+        ILogger<InterviewReportService> logger)
     {
         _dbContext = dbContext;
+        _miniMaxService = miniMaxService;
+        _logger = logger;
     }
 
     public async Task<InterviewReport?> GetByIdAsync(int id)
@@ -105,62 +112,76 @@ public class InterviewReportService : IInterviewReportService
 
         // Extract transcript content for analysis
         var transcript = session.Transcript ?? "";
-        var totalTextLength = CountTextLength(transcript);
 
-        // Mock scoring logic
-        decimal overallScore = Math.Min(95, 60 + (totalTextLength / 10));
-
-        string scoreText = overallScore switch
+        // Check if transcript is empty or too short
+        if (string.IsNullOrWhiteSpace(transcript) || transcript.Length < 50)
         {
-            >= 85 => "优秀",
-            >= 75 => "良好",
-            >= 60 => "一般",
-            _ => "待改进"
-        };
+            throw new InvalidOperationException("暂无足够面试数据生成报告");
+        }
 
-        string recommendation = overallScore switch
+        // Build prompt for MiniMax LLM
+        var candidateName = session.Candidate?.Name ?? "未知";
+        var jobTitle = session.JobPost?.Title ?? "未知";
+        var prompt = BuildAnalysisPrompt(transcript, candidateName, jobTitle);
+
+        _logger.LogInformation("Calling MiniMax LLM for interview report analysis, sessionId: {SessionId}", sessionId);
+
+        // Call MiniMax LLM
+        var response = await _miniMaxService.ChatAsync(prompt, maxTokens: 2048);
+
+        if (response == null || response.Content == null || response.Content.Count == 0)
         {
-            >= 85 => "StrongHire",
-            >= 75 => "Hire",
-            >= 60 => "Hold",
-            _ => "Reject"
-        };
+            _logger.LogError("MiniMax API returned null or empty response for sessionId: {SessionId}", sessionId);
+            throw new InvalidOperationException("AI分析服务暂时不可用，请稍后重试");
+        }
 
-        // Generate dimension scores
-        var dimensionScores = new Dictionary<string, decimal>
+        // Extract JSON from LLM response
+        var llmText = response.Content[0].Text ?? "";
+        _logger.LogDebug("MiniMax LLM response: {Response}", llmText);
+
+        // Parse JSON response from LLM
+        LLMReportResponse? reportData;
+        try
         {
-            { "技术能力", Math.Min(100, overallScore + RandomScore()) },
-            { "沟通表达", Math.Min(100, overallScore - 5 + RandomScore()) },
-            { "问题解决", Math.Min(100, overallScore + RandomScore()) },
-            { "团队协作", Math.Min(100, overallScore - 3 + RandomScore()) },
-            { "学习能力", Math.Min(100, overallScore + RandomScore()) }
-        };
+            // Try to extract JSON from the response (LLM might wrap it in markdown code blocks)
+            var jsonText = ExtractJson(llmText);
+            reportData = JsonSerializer.Deserialize<LLMReportResponse>(jsonText, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse LLM response as JSON: {Response}", llmText);
+            throw new InvalidOperationException("AI分析结果解析失败，请稍后重试");
+        }
 
-        // Generate highlights and concerns
-        var highlights = DetectHighlights(transcript);
-        var concerns = DetectConcerns(transcript);
+        if (reportData == null)
+        {
+            throw new InvalidOperationException("AI分析结果无效，请稍后重试");
+        }
 
-        // Generate AI comments
-        var aiComments = GenerateComments(transcript, overallScore, dimensionScores, highlights, concerns);
-
+        // Create InterviewReport from LLM analysis
         var report = new InterviewReport
         {
             AIInterviewSessionId = sessionId,
             CandidateId = session.CandidateId,
             JobPostId = session.JobPostId,
-            OverallScore = overallScore,
-            ScoreText = scoreText,
-            DimensionScores = JsonSerializer.Serialize(dimensionScores),
-            AiComments = aiComments,
-            Recommendation = recommendation,
-            Highlights = JsonSerializer.Serialize(highlights),
-            Concerns = JsonSerializer.Serialize(concerns),
+            OverallScore = reportData.OverallScore,
+            ScoreText = reportData.ScoreText,
+            DimensionScores = JsonSerializer.Serialize(reportData.DimensionScores),
+            AiComments = reportData.AiComments,
+            Recommendation = reportData.Recommendation,
+            Highlights = JsonSerializer.Serialize(reportData.Highlights),
+            Concerns = JsonSerializer.Serialize(reportData.Concerns),
             HrNotes = "",
             CreatedAt = DateTime.UtcNow
         };
 
         _dbContext.InterviewReports.Add(report);
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Successfully generated interview report for sessionId: {SessionId}, score: {Score}", sessionId, reportData.OverallScore);
 
         return report;
     }
@@ -176,119 +197,74 @@ public class InterviewReportService : IInterviewReportService
         return report;
     }
 
-    private static int CountTextLength(string text)
+    private static string BuildAnalysisPrompt(string transcript, string candidateName, string jobTitle)
     {
-        if (string.IsNullOrEmpty(text))
-            return 0;
+        return $@"你是一位专业的AI面试评估专家。请分析以下面试记录，对候选人进行全面评估。
 
-        // Simple Chinese/English text length calculation
-        var chineseChars = text.Count(c => c >= 0x4E00 && c <= 0x9FFF);
-        var englishWords = text.Split(' ')
-            .Where(s => !string.IsNullOrWhiteSpace(s))
-            .Count();
-        return chineseChars + englishWords * 2;
+候选人信息：
+- 姓名：{candidateName}
+- 应聘岗位：{jobTitle}
+
+面试问答记录：
+{transcript}
+
+请根据面试记录，从以下几个维度进行评估：
+1. 技术能力（专业知识、项目经验、技术深度）
+2. 沟通表达（表达清晰度、逻辑思维）
+3. 问题解决（分析问题能力、解决方案思路）
+4. 团队协作（合作经验、领导能力）
+5. 学习能力（学习主动性、成长潜力）
+
+请以JSON格式返回评估结果，格式如下：
+{{
+  ""overallScore"": 85,
+  ""scoreText"": ""优秀"",
+  ""dimensionScores"": {{
+    ""技术能力"": 88,
+    ""沟通表达"": 82,
+    ""问题解决"": 85,
+    ""团队协作"": 80,
+    ""学习能力"": 83
+  }},
+  ""highlights"": [""有大型项目经验"", ""问题解决能力强""],
+  ""concerns"": [""薪资期望较高""],
+  ""aiComments"": ""综合评价..."",
+  ""recommendation"": ""Hire""
+}}
+
+注意事项：
+- overallScore为0-100的整数
+- scoreText可选值：优秀、良好、一般、待改进
+- recommendation可选值：StrongHire、Hire、Hold、Reject
+- highlights和concerns各返回2-5条
+- aiComments是对候选人面试表现的综合评价，50-200字
+- 请只返回JSON，不要添加任何解释或其他内容";
     }
 
-    private static decimal RandomScore()
+    private static string ExtractJson(string text)
     {
-        var random = new Random();
-        return (decimal)(random.NextDouble() * 10 - 5);
+        // Try to find JSON in markdown code blocks first
+        var codeBlockMatch = System.Text.RegularExpressions.Regex.Match(text, @"```(?:json)?\s*(\{[\s\S]*?\})\s*```");
+        if (codeBlockMatch.Success)
+            return codeBlockMatch.Groups[1].Value;
+
+        // Try to find raw JSON object
+        var jsonMatch = System.Text.RegularExpressions.Regex.Match(text, @"\{[\s\S]*\}");
+        if (jsonMatch.Success)
+            return jsonMatch.Value;
+
+        return text;
     }
+}
 
-    private static List<string> DetectHighlights(string transcript)
-    {
-        var highlights = new List<string>();
-        var lowerTranscript = transcript.ToLower();
-
-        var positiveKeywords = new Dictionary<string, string>
-        {
-            { "项目", "有大型项目经验" },
-            { "团队", "有团队协作经验" },
-            { "解决", "具备问题解决能力" },
-            { "架构", "了解系统架构设计" },
-            { "性能", "关注系统性能优化" },
-            { "开源", "参与过开源项目" },
-            { "领导", "有团队领导经验" },
-            { "培训", "有培训他人经验" },
-            { "业绩", "有突出的工作业绩" },
-            { "创新", "具有创新思维" }
-        };
-
-        foreach (var kvp in positiveKeywords)
-        {
-            if (lowerTranscript.Contains(kvp.Key))
-                highlights.Add(kvp.Value);
-        }
-
-        if (highlights.Count < 2)
-        {
-            highlights.Add("表达清晰有条理");
-            highlights.Add("态度积极认真");
-        }
-
-        return highlights.Take(5).ToList();
-    }
-
-    private static List<string> DetectConcerns(string transcript)
-    {
-        var concerns = new List<string>();
-        var lowerTranscript = transcript.ToLower();
-
-        var negativeKeywords = new Dictionary<string, string>
-        {
-            { "没有", "部分经验有所欠缺" },
-            { "不太会", "某些技能需要提升" },
-            { "第一次", "相关经验较少" },
-            { "可能", "回答缺乏自信" },
-            { "不太清楚", "对某些概念理解不够深入" },
-            { "一般", "表现中规中矩" },
-            { "加班", "对工作强度有顾虑" },
-            { "薪资", "薪资期望可能较高" }
-        };
-
-        foreach (var kvp in negativeKeywords)
-        {
-            if (lowerTranscript.Contains(kvp.Key))
-                concerns.Add(kvp.Value);
-        }
-
-        return concerns.Take(3).ToList();
-    }
-
-    private static string GenerateComments(
-        string transcript,
-        decimal overallScore,
-        Dictionary<string, decimal> dimensionScores,
-        List<string> highlights,
-        List<string> concerns)
-    {
-        var topDimension = dimensionScores.OrderByDescending(kv => kv.Value).First();
-        var lowDimension = dimensionScores.OrderBy(kv => kv.Value).First();
-
-        var comments = $@"整体评价：
-该候选人在面试中表现{(overallScore >= 75 ? "良好" : "一般")}，综合评分{overallScore:F1}分。
-
-维度分析：
-- {topDimension.Key}最为突出，得分{topDimension.Value:F1}分
-- {lowDimension.Key}相对较弱，得分{lowDimension.Value:F1}分，建议后续加强
-
-{(highlights.Count > 0 ? $"亮点：{string.Join("，", highlights.Take(3))}。" : "")}
-
-{(concerns.Count > 0 ? $"建议关注：{string.Join("，", concerns)}。" : "")}
-
-综合建议：{GetRecommendationAdvice(overallScore)}";
-
-        return comments;
-    }
-
-    private static string GetRecommendationAdvice(decimal score)
-    {
-        return score switch
-        {
-            >= 85 => "强烈建议录用，候选人综合素质优秀",
-            >= 75 => "建议录用，可安排进一步面试",
-            >= 60 => "建议观望，与其他候选人综合比较",
-            _ => "暂不推荐，建议继续寻找更合适的人选"
-        };
-    }
+// Internal class for parsing LLM response
+internal class LLMReportResponse
+{
+    public decimal OverallScore { get; set; }
+    public string ScoreText { get; set; } = "";
+    public Dictionary<string, decimal> DimensionScores { get; set; } = new();
+    public List<string> Highlights { get; set; } = new();
+    public List<string> Concerns { get; set; } = new();
+    public string AiComments { get; set; } = "";
+    public string Recommendation { get; set; } = "";
 }
