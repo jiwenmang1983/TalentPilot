@@ -73,15 +73,15 @@
         <a-form-item label="描述" name="description">
           <a-textarea v-model:value="formState.description" placeholder="请输入描述" :rows="3" />
         </a-form-item>
+        <div class="drawer-footer">
+          <a-space>
+            <a-button @click="closeDrawer">取消</a-button>
+            <a-button type="primary" :loading="submitLoading" @click="handleSubmit">
+              确定
+            </a-button>
+          </a-space>
+        </div>
       </a-form>
-      <template #footer>
-        <a-space>
-          <a-button @click="closeDrawer">取消</a-button>
-          <a-button type="primary" :loading="submitLoading" @click="handleSubmit">
-            确定
-          </a-button>
-        </a-space>
-      </template>
     </a-drawer>
   </div>
 </template>
@@ -312,5 +312,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.drawer-footer {
+  padding-top: 16px;
+  text-align: right;
 }
 </style>

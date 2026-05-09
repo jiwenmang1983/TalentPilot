@@ -47,3 +47,8 @@ body {
 .ant-layout-sider {
   background: #fff !important;
 }
+
+/* Fix: drawer mask should not block clicks on drawer content/buttons */
+.ant-drawer-mask {
+  pointer-events: none !important;
+}
