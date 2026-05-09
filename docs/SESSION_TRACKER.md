@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-**版本：** v0.9（UI SFT风格改造 + 服务重启）
+**版本：** v1.0（UI SFT风格改造 + 服务重启）
 **更新：** 2026-05-09
 
 ---
@@ -31,20 +31,19 @@
 | 18 | T-26 | CC | 招聘效果分析ConversionFunnel | ✅ | f724df5 |
 | 19 | 登录页重构 | CC | Ant Design Vue官方UI重调 | ✅ | e87d19d |
 | 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 |
-| 21 | T-27 | CC | AI简历解析接入MiniMax LLM（T-27后端+前端+建表） | 🔄 进行中 | — |
-| 22 | Phase 6 | — | AI增强+工程保障 | 🔴 规划中 | T-28~T-34 |
-| 23 | UI-SFT | 小P | TalentPilot UI SFT风格改造（Layout+Login+Dashboard+PageHeader） | ✅ | df0fc76 ✅ push |
-| 24 | UI-SFT-剩余 | CC | 16个业务页面 page header（SFT风格） | ✅ | 7fa5f58 ✅ push |
-| 25 | T-27 | CC | AI简历解析接入MiniMax LLM（修复MiniMaxService endpoint+key） | 🔄 进行中 | CC tmux dispatch |
+|| 21 | T-27 | CC | AI简历解析接入MiniMax LLM | ✅ | 5bd3a12 ✅ |
+| 22 | T-28 | CC | AI智能匹配算法优化 | ✅ | 11c10f8 ✅ |
+| 23 | T-29 | CC | AI面试题自动生成 | ✅ | d2a636c ✅ |
+| 24 | T-30 | CC | AI面试报告自动生成 | 🔄 进行中 | CC background |
 
 ---
 
 ## CC 实时状态
 
-**tmux session：** `cc-talentpilot`（✅ 活跃，空闲中）
-**当前任务：** 🔄 UI-SFT-剩余（16个业务页面 page header）
-**最新commit：** `86665d0` — "docs: WBS v1.3 + SESSION_TRACKER v0.9"
-**T-27 tmux 恢复：** `tmux kill-session -t cc-talentpilot 2>/dev/null; tmux new-session -d -s cc-talentpilot`
+**tmux session：** `cc-talentpilot`（✅ 活跃，执行T-28中）
+**当前任务：** 🔄 T-28 AI智能匹配算法优化
+**最新commit：** `5bd3a12` — "docs: T-27 MiniMax API config verified"
+**CC 启动方式：** `bash /tmp/cc_run_T27_v2.sh`（--print模式，后台运行）
 
 ---
 
