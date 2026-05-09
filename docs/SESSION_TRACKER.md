@@ -30,11 +30,12 @@
 | 17 | T-25 | CC | AI面试报告InterviewReport | ✅ | c1b1a02 |
 | 18 | T-26 | CC | 招聘效果分析ConversionFunnel | ✅ | f724df5 |
 | 19 | 登录页重构 | CC | Ant Design Vue官方UI重调 | ✅ | e87d19d |
-| 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 |
-|| 21 | T-27 | CC | AI简历解析接入MiniMax LLM | ✅ | 5bd3a12 ✅ |
-| 22 | T-28 | CC | AI智能匹配算法优化 | ✅ | 11c10f8 ✅ |
-| 23 | T-29 | CC | AI面试题自动生成 | ✅ | d2a636c ✅ |
-| 24 | T-30 | CC | AI面试报告自动生成 | 🔄 进行中 | CC background |
+| 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 ||
+| 21 | T-27 | CC | AI简历解析接入MiniMax LLM | ✅ | 5bd3a12 ✅ ||
+| 22 | T-28 | CC | AI智能匹配算法优化 | ✅ | 11c10f8 ✅ ||
+| 23 | T-29 | CC | AI面试题自动生成 | ✅ | d2a636c ✅ ||
+| 24 | T-30 | CC | AI面试报告自动生成 | ✅ | 50835d4 ✅ ||
+| 25 | T-31 | CC | API性能压测+SQL优化 | 🔄 进行中 | CC background |
 
 ---
 
