@@ -20,7 +20,8 @@
 | Phase 5: 招聘核心功能 | 6 | 🟢 6/6完成(T-19~T-26✅) |
 | Phase 6: AI增强+工程保障 | 9 | 🟢 9/9全部完成(T-27✅,T-28✅,T-29✅,T-30✅,T-31✅,T-32✅,T-33✅,T-34✅) |
 | Phase 7: 系统验收测试 | 6 | 🎯 **Phase 7 完成** — API 49/51 ✅，E2E 25/25 ✅，UI截图 ✅ |
-| **合计** | **39** | |
+| **Phase 8: 跨渠道智能分发（§3.2）** | 4 | 🔴 **待审批** — F-02~F-06 未实现 |
+| **合计** | **43** | |
 
 ---
 
@@ -321,6 +322,37 @@
 - **失败**：0
 
 **通过模块**：认证(5) / 部门管理(5) / 用户角色(3) / 权限管理(1) / 操作日志(2) / 候选人(2) / 招聘核心(8) / AI面试会话(6) / 通知系统(2) / API性能(5)
+
+---
+
+## Phase 8：跨渠道智能分发（§3.2 PRD）
+
+> PRD：§3.2 跨渠道智能分发（F-02~F-06）
+> 状态：🔴 待 Mark 审批后启动
+
+**T-48: 渠道账号管理（F-04）**
+  - `ChannelCredentials` 表（存储各渠道 API Key / 凭证）
+  - `ChannelCredentialController` CRUD API
+  - `ChannelCredentialManagement.vue` 前端页面
+  - 状态: 🔴 待开发
+
+**T-49: AI 内容适配服务（F-05）**
+  - `ContentAdaptationService` — LLM 实现 JD → 各渠道格式转换
+  - `JobChannelContents` 表（存储各渠道适配后的 JD 内容）
+  - Boss直聘（500字+技能标签）/ 猎聘 / 拉勾 / 领英 / 小红书 格式模板
+  - 状态: 🔴 待开发
+
+**T-50: AI Agent 分发引擎（F-02）**
+  - `JobDistributionAgent` — 按优先级执行各渠道分发
+  - `JobDistributionTasks` 表（任务状态：待发布/发布中/已发布/失败）
+  - `JobDistributionLogs` 表（发布结果日志）
+  - 定时发布支持（BackgroundService）
+  - 状态: 🔴 待开发
+
+**T-51: 发布状态追踪前端（F-06）**
+  - JobPostList 页面显示各渠道发布状态
+  - 失败原因展示 + 重新发布按钮
+  - 状态: 🔴 待开发
 
 ---
 
