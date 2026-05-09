@@ -34,8 +34,8 @@
 | 21 | T-27 | CC | AI简历解析接入MiniMax LLM（T-27后端+前端+建表） | 🔄 进行中 | — |
 | 22 | Phase 6 | — | AI增强+工程保障 | 🔴 规划中 | T-28~T-34 |
 | 23 | UI-SFT | 小P | TalentPilot UI SFT风格改造（Layout+Login+Dashboard+PageHeader） | ✅ | df0fc76 ✅ push |
-| 24 | UI-SFT-剩余 | CC | 16个业务页面 page header（SFT风格） | 🔄 进行中 | CC tmux dispatch |
-| 25 | T-27 | CC | AI简历解析接入MiniMax LLM（后端+前端+建表） | 🔴 待开始 | — |
+| 24 | UI-SFT-剩余 | CC | 16个业务页面 page header（SFT风格） | ✅ | 7fa5f58 ✅ push |
+| 25 | T-27 | CC | AI简历解析接入MiniMax LLM（修复MiniMaxService endpoint+key） | 🔄 进行中 | CC tmux dispatch |
 
 ---
 
