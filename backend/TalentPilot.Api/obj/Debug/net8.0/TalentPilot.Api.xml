@@ -123,6 +123,43 @@
             Matches
             </summary>
         </member>
+        <member name="T:TalentPilot.Api.Controllers.NotificationsController">
+            <summary>
+            通知管理接口
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.GetNotifications(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            获取通知日志列表（分页）
+            </summary>
+            <param name="candidateName">候选人姓名筛选</param>
+            <param name="notificationType">通知类型筛选：InterviewInvitation, InterviewReminder, Offer</param>
+            <param name="status">状态筛选：Pending, Sent, Failed</param>
+            <param name="page">页码，默认1</param>
+            <param name="pageSize">每页数量，默认20</param>
+            <returns>通知日志列表</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.SendNotification(TalentPilot.Api.Models.DTOs.SendNotificationRequest)">
+            <summary>
+            发送通知
+            </summary>
+            <param name="request">发送通知请求</param>
+            <returns>发送结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.GetTemplates">
+            <summary>
+            获取通知模板列表
+            </summary>
+            <returns>模板列表</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.UpdateTemplate(System.Int32,TalentPilot.Api.Models.DTOs.UpdateNotificationTemplateRequest)">
+            <summary>
+            更新通知模板
+            </summary>
+            <param name="id">模板ID</param>
+            <param name="request">更新请求</param>
+            <returns>更新结果</returns>
+        </member>
         <member name="T:TalentPilot.Api.Controllers.OperationLogsController">
             <summary>
             OperationLogs

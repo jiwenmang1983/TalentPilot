@@ -113,6 +113,18 @@ const routes = [
         name: 'InterviewReports',
         component: () => import('@/views/interview/InterviewReports.vue'),
         meta: { title: '面试报告', icon: 'FileTextOutlined' }
+      },
+      {
+        path: 'notifications',
+        name: 'NotificationList',
+        component: () => import('@/views/notification/NotificationList.vue'),
+        meta: { title: '通知日志', icon: 'BellOutlined' }
+      },
+      {
+        path: 'notifications/templates',
+        name: 'NotificationTemplates',
+        component: () => import('@/views/notification/NotificationTemplates.vue'),
+        meta: { title: '通知模板', icon: 'FileTextOutlined' }
       }
     ]
   },

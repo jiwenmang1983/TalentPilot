@@ -26,6 +26,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<InterviewReport> InterviewReports => Set<InterviewReport>();
     public DbSet<ConversionFunnel> ConversionFunnels => Set<ConversionFunnel>();
     public DbSet<ResumeParsedRecord> ResumeParsedRecords => Set<ResumeParsedRecord>();
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -247,6 +248,18 @@ public class TalentPilotDbContext : DbContext
         {
             entity.ToTable("ResumeParsedRecords");
             entity.HasKey(e => e.Id);
+        });
+
+        // NotificationLog
+        modelBuilder.Entity<NotificationLog>(entity =>
+        {
+            entity.ToTable("NotificationLogs");
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Candidate)
+                  .WithMany()
+                  .HasForeignKey(e => e.CandidateId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

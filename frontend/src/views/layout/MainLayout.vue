@@ -96,6 +96,22 @@
             </div>
             <div
               class="menu-item"
+              :class="{ active: selectedKeys.includes('notifications') }"
+              @click="navigate('/notifications')"
+            >
+              <BellOutlined class="menu-icon" />
+              <span class="menu-label" v-if="!collapsed">通知日志</span>
+            </div>
+            <div
+              class="menu-item"
+              :class="{ active: selectedKeys.includes('notification-templates') }"
+              @click="navigate('/notifications/templates')"
+            >
+              <FileTextOutlined class="menu-icon" />
+              <span class="menu-label" v-if="!collapsed">通知模板</span>
+            </div>
+            <div
+              class="menu-item"
               :class="{ active: selectedKeys.includes('evaluations') }"
               @click="navigate('/evaluations')"
             >
