@@ -45,7 +45,7 @@
 | 32 | T-46 | 小P | UserManagement.vue formRef nextTick()修复 | ✅ 完成 | a481824 - nextTick() before validate() |
 | 33 | T-47 | Mark | UI验收截图确认 | 🔴 待确认 | 8张截图已拍 |
 | 34 | T-48 | 小P | 渠道账号管理 F-04（ChannelCredentials表+API+UI） | ✅ | e90ee75 ✅ |
-| 35 | T-49 | CC | AI内容适配服务 F-05（ContentAdaptationService+格式模板） | 🔄 开发中 | SPEC已下达，CC执行 |
+| 35 | T-49 | ✅ 4a7982a | 小P+CC | 2026-05-10 | ✅ 完成 | 后端API+前端Drawer适配完整，LLM生成6渠道内容 |
 | 36 | T-50 | CC | AI Agent分发引擎 F-02（JobDistributionAgent+定时发布） | 🔴 待审批 | WBS v1.9 |
 | 37 | T-51 | CC | 发布状态追踪前端 F-06（JobPostList渠道状态） | 🔴 待审批 | WBS v1.9 |
 
