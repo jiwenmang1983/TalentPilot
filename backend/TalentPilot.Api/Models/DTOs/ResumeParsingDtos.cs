@@ -15,6 +15,8 @@ public class ResumeParseResponse
     public List<string> SkillTags { get; set; } = new();
     public string? Summary { get; set; }
     public int? TotalWorkYears { get; set; }
+    public decimal? ExpectedSalary { get; set; }
+    public int MatchScore { get; set; }
     public int MinimaxTokens { get; set; }
 }
 

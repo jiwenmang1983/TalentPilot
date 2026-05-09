@@ -110,8 +110,100 @@ public class ResumeParsingService : IResumeParsingService
 
     private async Task<ParsedResumeResult> CallMiniMaxToParseAsync(Resume resume)
     {
-        var resumeText = $"姓名: {resume.CandidateName ?? "未知"}\n电话: {resume.Phone ?? "未知"}\n邮箱: {resume.Email ?? "未知"}";
-        return await Task.FromResult(MockParseResume(resume));
+        var resumeText = $"姓名: {resume.CandidateName ?? "未知"}\n电话: {resume.Phone ?? "未知"}\n邮箱: {resume.Email ?? "未知"}\n简历文件路径: {resume.RawFilePath ?? ""}";
+
+        var prompt = $@"请从以下简历信息中提取结构化信息，并以JSON格式返回。必须严格按照以下JSON结构返回，不要包含任何其他内容：
+
+{{
+  ""name"": ""姓名"",
+  ""phone"": ""手机号"",
+  ""email"": ""邮箱"",
+  ""workExperience"": [
+    {{
+      ""company"": ""公司名称"",
+      ""position"": ""职位"",
+      ""duration"": ""时间段"",
+      ""description"": ""工作描述""
+    }}
+  ],
+  ""education"": [
+    {{
+      ""school"": ""学校名称"",
+      ""degree"": ""学历"",
+      ""major"": ""专业"",
+      ""graduationYear"": ""毕业年份""
+    }}
+  ],
+  ""skillTags"": [""技能1"", ""技能2""],
+  ""summary"": ""个人简介"",
+  ""totalWorkYears"": 总工作年限数字,
+  ""expectedSalary"": 期望薪资数字(单位千元/月),
+  ""matchScore"": 匹配度分数(0-100)
+}}
+
+简历文本如下：
+{resumeText}
+
+请直接返回JSON，不要有任何其他文字。";
+
+        var response = await _miniMaxService.ChatAsync(prompt, 2048);
+
+        if (response?.Content == null || response.Content.Count == 0)
+        {
+            _logger.LogError("MiniMax API returned no content blocks for resume {ResumeId}", resume.Id);
+            throw new Exception("MiniMax API returned no content");
+        }
+
+        var textBlock = response.Content.FirstOrDefault(c => c.Type == "text");
+        if (textBlock == null || string.IsNullOrEmpty(textBlock.Text))
+        {
+            _logger.LogError("MiniMax API returned empty text content for resume {ResumeId}", resume.Id);
+            throw new Exception("MiniMax API returned empty text");
+        }
+
+        var content = textBlock.Text;
+        var jsonMatch = Regex.Match(content, @"\{[\s\S]*\}");
+        if (!jsonMatch.Success)
+        {
+            _logger.LogError("Failed to extract JSON from MiniMax response for resume {ResumeId}: {Content}", resume.Id, content);
+            throw new Exception("Failed to extract JSON from MiniMax response");
+        }
+
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<ResumeParseResponse>(jsonMatch.Value, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (parsed == null)
+            {
+                throw new Exception("Failed to deserialize MiniMax response");
+            }
+
+            return new ParsedResumeResult
+            {
+                ResumeId = resume.Id,
+                CandidateName = parsed.Name,
+                Phone = parsed.Phone,
+                Email = parsed.Email,
+                WorkExperienceYears = parsed.TotalWorkYears,
+                WorkExperienceSummary = parsed.Summary,
+                Education = parsed.Education?.FirstOrDefault() != null
+                    ? $"{parsed.Education[0].School} - {parsed.Education[0].Major}"
+                    : null,
+                Skills = parsed.SkillTags ?? new List<string>(),
+                SkillsJson = parsed.SkillTags != null ? JsonSerializer.Serialize(parsed.SkillTags) : null,
+                ExpectedSalary = parsed.ExpectedSalary,
+                MatchScore = parsed.MatchScore > 0 ? parsed.MatchScore : 75,
+                Summary = parsed.Summary ?? string.Empty
+            };
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse JSON from MiniMax response for resume {ResumeId}: {Content}", resume.Id, content);
+            throw;
+        }
     }
 
     private async Task<ResumeParseResponse?> CallMiniMaxForStructuredParseAsync(string resumeText)
@@ -150,18 +242,22 @@ public class ResumeParsingService : IResumeParsingService
 
         var response = await _miniMaxService.ChatAsync(prompt, 2048);
 
-        if (response?.Choices == null || response.Choices.Count == 0)
+        // Anthropic /v1/messages response format: content is an array of blocks
+        if (response?.Content == null || response.Content.Count == 0)
         {
-            _logger.LogError("MiniMax API returned no choices");
+            _logger.LogError("MiniMax API returned no content blocks");
             return null;
         }
 
-        var content = response.Choices[0].Messages?[0]?.Content;
-        if (string.IsNullOrEmpty(content))
+        // Find the first text block (skip thinking blocks)
+        var textBlock = response.Content.FirstOrDefault(c => c.Type == "text");
+        if (textBlock == null || string.IsNullOrEmpty(textBlock.Text))
         {
-            _logger.LogError("MiniMax API returned empty content");
+            _logger.LogError("MiniMax API returned empty text content");
             return null;
         }
+
+        var content = textBlock.Text;
 
         // Extract JSON from the response
         var jsonMatch = Regex.Match(content, @"\{[\s\S]*\}");
@@ -180,7 +276,7 @@ public class ResumeParsingService : IResumeParsingService
 
             if (result != null && response.Usage != null)
             {
-                result.MinimaxTokens = response.Usage.Tokens ?? 0;
+                result.MinimaxTokens = (response.Usage.InputTokens ?? 0) + (response.Usage.OutputTokens ?? 0);
             }
 
             return result;

@@ -7,9 +7,63 @@ namespace TalentPilot.Api.Services;
 
 public interface IMiniMaxService
 {
-    Task<MiniMaxChatResponse?> ChatAsync(string prompt, int? maxTokens = 1024);
+    Task<MiniMaxMessageResponse?> ChatAsync(string prompt, int? maxTokens = 1024);
 }
 
+// Anthropic /v1/messages response format
+public class MiniMaxMessageResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
+
+    [JsonPropertyName("role")]
+    public string? Role { get; set; }
+
+    [JsonPropertyName("content")]
+    public List<MiniMaxContentBlock>? Content { get; set; }
+
+    [JsonPropertyName("model")]
+    public string? Model { get; set; }
+
+    [JsonPropertyName("usage")]
+    public MiniMaxUsage? Usage { get; set; }
+
+    [JsonPropertyName("stop_reason")]
+    public string? StopReason { get; set; }
+
+    [JsonPropertyName("stop_sequence")]
+    public string? StopSequence { get; set; }
+}
+
+public class MiniMaxContentBlock
+{
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
+
+    [JsonPropertyName("text")]
+    public string? Text { get; set; }
+
+    // For MiniMax thinking blocks: thinking is a plain string, not an object
+    [JsonPropertyName("thinking")]
+    public string? Thinking { get; set; }
+
+    [JsonPropertyName("signature")]
+    public string? Signature { get; set; }
+}
+
+public class MiniMaxUsage
+{
+    [JsonPropertyName("input_tokens")]
+    public int? InputTokens { get; set; }
+
+    [JsonPropertyName("output_tokens")]
+    public int? OutputTokens { get; set; }
+}
+
+// Legacy compatibility (kept for other code that might reference it)
 public class MiniMaxChatResponse
 {
     [JsonPropertyName("choices")]
@@ -37,18 +91,6 @@ public class MiniMaxMessage
     public string? Content { get; set; }
 }
 
-public class MiniMaxUsage
-{
-    [JsonPropertyName("tokens")]
-    public int? Tokens { get; set; }
-
-    [JsonPropertyName("prompt_tokens")]
-    public int? PromptTokens { get; set; }
-
-    [JsonPropertyName("completion_tokens")]
-    public int? CompletionTokens { get; set; }
-}
-
 public class MiniMaxService : IMiniMaxService
 {
     private readonly HttpClient _httpClient;
@@ -64,7 +106,7 @@ public class MiniMaxService : IMiniMaxService
         _logger = logger;
     }
 
-    public async Task<MiniMaxChatResponse?> ChatAsync(string prompt, int? maxTokens = 1024)
+    public async Task<MiniMaxMessageResponse?> ChatAsync(string prompt, int? maxTokens = 1024)
     {
         try
         {
@@ -81,11 +123,13 @@ public class MiniMaxService : IMiniMaxService
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "/v1/text/chatcompletion_free")
+            var request = new HttpRequestMessage(HttpMethod.Post,
+                new Uri("https://api.minimaxi.com/anthropic/v1/messages"))
             {
                 Content = content
             };
-            request.Headers.Add("Authorization", $"Bearer {_apiKey}");
+            request.Headers.Add("x-api-key", _apiKey);
+            request.Headers.Add("anthropic-version", "2023-06-01");
 
             var response = await _httpClient.SendAsync(request);
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -96,7 +140,7 @@ public class MiniMaxService : IMiniMaxService
                 return null;
             }
 
-            return JsonSerializer.Deserialize<MiniMaxChatResponse>(responseContent);
+            return JsonSerializer.Deserialize<MiniMaxMessageResponse>(responseContent);
         }
         catch (Exception ex)
         {
