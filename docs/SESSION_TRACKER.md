@@ -33,16 +33,17 @@
 | 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 |
 | 21 | T-27 | CC | AI简历解析接入MiniMax LLM（T-27后端+前端+建表） | 🔄 进行中 | — |
 | 22 | Phase 6 | — | AI增强+工程保障 | 🔴 规划中 | T-28~T-34 |
-| 23 | UI-SFT | 小P | TalentPilot UI SFT风格改造（Layout+Login+Dashboard+PageHeader） | ✅ | df0fc76，push待网络恢复 |
+| 23 | UI-SFT | 小P | TalentPilot UI SFT风格改造（Layout+Login+Dashboard+PageHeader） | ✅ | df0fc76 ✅ push |
+| 24 | UI-SFT-剩余 | CC | 16个业务页面 page header（SFT风格） | 🔄 进行中 | CC tmux dispatch |
+| 25 | T-27 | CC | AI简历解析接入MiniMax LLM（后端+前端+建表） | 🔴 待开始 | — |
 
 ---
 
 ## CC 实时状态
 
-**tmux session：** `cc-talentpilot`（状态未知，需手动确认）
-**当前任务：** 🔄 T-27 AI简历解析接入MiniMax LLM（进行中，但tmux session可能已断）
-**最新commit：** `df0fc76` — "feat: TalentPilot UI SFT风格改造 - Layout/Login/Dashboard/PageHeader"
-**GitHub push：** ⚠️ 网络不可达，commit在本地待推送
+**tmux session：** `cc-talentpilot`（✅ 活跃，空闲中）
+**当前任务：** 🔄 UI-SFT-剩余（16个业务页面 page header）
+**最新commit：** `86665d0` — "docs: WBS v1.3 + SESSION_TRACKER v0.9"
 **T-27 tmux 恢复：** `tmux kill-session -t cc-talentpilot 2>/dev/null; tmux new-session -d -s cc-talentpilot`
 
 ---
