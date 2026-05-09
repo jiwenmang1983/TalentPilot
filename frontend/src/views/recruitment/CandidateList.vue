@@ -1,6 +1,14 @@
 <template>
   <div class="candidate-list">
-    <div class="header-actions">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>👥 候选人管理</h1>
+        <p>候选人信息管理与智能匹配</p>
+      </div>
+    </div>
+
+    <div class="toolbar">
       <a-space>
         <a-input-search
           v-model:value="keyword"
@@ -134,12 +142,38 @@ import api from '@/api'
 
 <style scoped>
 .candidate-list {
-  padding: 24px;
+  padding: 0;
 }
 
-.header-actions {
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 4px;
+}
+
+.page-header p {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.toolbar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
 }
 </style>

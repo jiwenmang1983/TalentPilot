@@ -12,8 +12,18 @@ const routes = [
     path: '/',
     component: () => import('@/views/layout/MainLayout.vue'),
     meta: { requiresAuth: true },
-    redirect: '/users',
+    redirect: '/dashboard',
     children: [
+      {
+        path: '',
+        redirect: '/dashboard'
+      },
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/analytics/Dashboard.vue'),
+        meta: { title: 'Dashboard', icon: 'DashboardOutlined' }
+      },
       {
         path: 'users',
         name: 'UserManagement',

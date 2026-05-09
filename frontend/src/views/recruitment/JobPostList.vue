@@ -1,18 +1,28 @@
 <template>
   <div class="job-post-list">
-    <div class="header-actions">
-      <a-select
-        v-model:value="filterStatus"
-        placeholder="筛选状态"
-        style="width: 150px"
-        allowClear
-        @change="handleSearch"
-      >
-        <a-select-option value="Draft">草稿</a-select-option>
-        <a-select-option value="Published">已发布</a-select-option>
-        <a-select-option value="Paused">暂停</a-select-option>
-        <a-select-option value="Closed">已关闭</a-select-option>
-      </a-select>
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>💼 职位管理</h1>
+        <p>职位发布、编辑与全流程管理</p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <a-space wrap>
+        <a-select
+          v-model:value="filterStatus"
+          placeholder="筛选状态"
+          style="width: 150px"
+          allowClear
+          @change="handleSearch"
+        >
+          <a-select-option value="Draft">草稿</a-select-option>
+          <a-select-option value="Published">已发布</a-select-option>
+          <a-select-option value="Paused">暂停</a-select-option>
+          <a-select-option value="Closed">已关闭</a-select-option>
+        </a-select>
+      </a-space>
       <a-button type="primary" @click="$router.push('/jobposts/new')">
         <template #icon><PlusOutlined /></template>
         新建职位
@@ -185,12 +195,38 @@ onMounted(() => {
 
 <style scoped>
 .job-post-list {
-  padding: 24px;
+  padding: 0;
 }
 
-.header-actions {
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 4px;
+}
+
+.page-header p {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.toolbar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
 }
 </style>

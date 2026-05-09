@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D3D92;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a6ed8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="wing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00C9FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00F5D4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="url(#bg)"/>
+
+  <!-- Wing / Bird shape - left -->
+  <path d="M 64 36 C 40 36 24 50 20 68 C 24 62 32 58 42 58 C 50 58 58 64 64 72 C 58 64 50 58 42 58 C 32 58 24 62 20 68 C 24 62 32 58 42 58" fill="none" stroke="url(#wing)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wing / Bird shape - stylized left wing -->
+  <path d="M 64 70 C 48 68 30 60 22 44 C 30 56 44 64 58 66 Z" fill="url(#wing)" opacity="0.9"/>
+
+  <!-- Wing / Bird shape - stylized right wing -->
+  <path d="M 64 70 C 80 68 98 60 106 44 C 98 56 84 64 70 66 Z" fill="url(#wing)" opacity="0.9"/>
+
+  <!-- Center node / head -->
+  <circle cx="64" cy="72" r="8" fill="white" opacity="0.95"/>
+
+  <!-- Connection dots -->
+  <circle cx="38" cy="52" r="4" fill="url(#wing)" opacity="0.8"/>
+  <circle cx="90" cy="52" r="4" fill="url(#wing)" opacity="0.8"/>
+  <circle cx="64" cy="38" r="4" fill="url(#wing)" opacity="0.8"/>
+
+  <!-- Connection lines -->
+  <line x1="38" y1="52" x2="56" y2="66" stroke="url(#wing)" stroke-width="2" opacity="0.5"/>
+  <line x1="90" y1="52" x2="72" y2="66" stroke="url(#wing)" stroke-width="2" opacity="0.5"/>
+  <line x1="64" y1="38" x2="64" y2="64" stroke="url(#wing)" stroke-width="2" opacity="0.5"/>
+</svg>
