@@ -27,6 +27,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<ConversionFunnel> ConversionFunnels => Set<ConversionFunnel>();
     public DbSet<ResumeParsedRecord> ResumeParsedRecords => Set<ResumeParsedRecord>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+    public DbSet<ChannelCredential> ChannelCredentials => Set<ChannelCredential>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,6 +114,7 @@ public class TalentPilotDbContext : DbContext
         modelBuilder.Entity<Department>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Candidate>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<ChannelCredential>().HasQueryFilter(e => !e.IsDeleted);
 
         // Candidate
         modelBuilder.Entity<Candidate>(entity =>
@@ -260,6 +262,14 @@ public class TalentPilotDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(e => e.CandidateId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ChannelCredential
+        modelBuilder.Entity<ChannelCredential>(entity =>
+        {
+            entity.ToTable("ChannelCredentials");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ChannelType).IsUnique();
         });
     }
 }

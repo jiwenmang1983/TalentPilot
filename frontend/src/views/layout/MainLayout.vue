@@ -162,6 +162,14 @@
               <FileTextOutlined class="menu-icon" />
               <span class="menu-label" v-if="!collapsed">系统操作日志</span>
             </div>
+            <div
+              class="menu-item"
+              :class="{ active: selectedKeys.includes('channels') }"
+              @click="navigate('/channels')"
+            >
+              <ApiOutlined class="menu-icon" />
+              <span class="menu-label" v-if="!collapsed">渠道账号管理</span>
+            </div>
           </div>
         </div>
       </div>
@@ -235,7 +243,8 @@ import {
   CalendarOutlined,
   FormOutlined,
   BellOutlined,
-  DownOutlined
+  DownOutlined,
+  ApiOutlined
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
@@ -258,7 +267,8 @@ const routeTitleMap = {
   '/users': '用户账号管理',
   '/roles': '角色和权限管理',
   '/departments': '部门管理',
-  '/operation-logs': '系统操作日志'
+  '/operation-logs': '系统操作日志',
+  '/channels': '渠道账号管理'
 }
 
 const currentTitle = computed(() => routeTitleMap[route.path] || 'Dashboard')

@@ -49,6 +49,12 @@ const routes = [
         meta: { title: '操作日志', icon: 'FileTextOutlined' }
       },
       {
+        path: 'channels',
+        name: 'ChannelCredentialManagement',
+        component: () => import('@/views/system/ChannelCredentialManagement.vue'),
+        meta: { title: '渠道账号管理', icon: 'ApiOutlined' }
+      },
+      {
         path: 'jobposts',
         name: 'JobPostList',
         component: () => import('@/views/recruitment/JobPostList.vue'),
