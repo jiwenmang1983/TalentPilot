@@ -2,8 +2,8 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-**版本：** v0.7（重启后更新）
-**更新：** 2026-05-08 重启后
+**版本：** v0.9（UI SFT风格改造 + 服务重启）
+**更新：** 2026-05-09
 
 ---
 
@@ -33,14 +33,16 @@
 | 20 | Fix-字段映射 | 小P | 前后端字段名不匹配修复 | ✅ | f577836 |
 | 21 | T-27 | CC | AI简历解析接入MiniMax LLM（T-27后端+前端+建表） | 🔄 进行中 | — |
 | 22 | Phase 6 | — | AI增强+工程保障 | 🔴 规划中 | T-28~T-34 |
+| 23 | UI-SFT | 小P | TalentPilot UI SFT风格改造（Layout+Login+Dashboard+PageHeader） | ✅ | df0fc76，push待网络恢复 |
 
 ---
 
 ## CC 实时状态
 
-**tmux session：** `cc-talentpilot`（本次新建）
-**当前任务：** 🔄 T-27 AI简历解析接入MiniMax LLM（进行中）
-**最新commit：** `c6f5749` — "docs: 删除ISSUE_LOG.md，PLAYBOOK简化联动修改规则"
+**tmux session：** `cc-talentpilot`（状态未知，需手动确认）
+**当前任务：** 🔄 T-27 AI简历解析接入MiniMax LLM（进行中，但tmux session可能已断）
+**最新commit：** `df0fc76` — "feat: TalentPilot UI SFT风格改造 - Layout/Login/Dashboard/PageHeader"
+**GitHub push：** ⚠️ 网络不可达，commit在本地待推送
 **T-27 tmux 恢复：** `tmux kill-session -t cc-talentpilot 2>/dev/null; tmux new-session -d -s cc-talentpilot`
 
 ---
@@ -49,8 +51,8 @@
 
 | 服务 | PID | 端口 | 状态 |
 |---|---|---|---|
-| API (.NET) | 623 | 5010 | ✅ Running |
-| 前端 (Vite) | 665 | 5173 | ✅ Running |
+| API (.NET) | 17536 | 5010 | ✅ Running |
+| 前端 (Vite) | 17654 | 5173 | ✅ Running |
 | MySQL | — | 3306 | ✅ Running |
 
 **admin 密码：** `TalentPilot2026`（无感叹号）

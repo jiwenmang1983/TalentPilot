@@ -3,9 +3,9 @@
 > 本文件是开发任务的工作分解结构（WBS），与 `docs/PRD.md` 配合使用。
 > 小P 更新状态，CC 执行开发，小Q 执行测试，Mark 最终审批。
 
-**版本：** v1.2
-**日期：** 2026-05-08
-**状态：** ✅ Phase 5全部完成(T-19~T-26✅)，T-17 E2E核心功能✅(14/20)，🔄 Phase 6 规划中（AI增强+工程保障）
+**版本：** v1.3
+**日期：** 2026-05-09
+**状态：** ✅ Phase 5全部完成(T-19~T-26✅)，T-17 E2E核心功能✅(14/20)，🔄 Phase 6 规划中（AI增强+工程保障），✅ UI-SFT SFT风格改造完成
 
 ---
 
@@ -18,8 +18,8 @@
 | Phase 3: 前端页面 | 7 | 🟢 全部完成 |
 | Phase 4: E2E 测试 | 3 | 🟢 核心功能✅(14/20通过，系统角色/视图滚动等边缘问题非阻塞) |
 | Phase 5: 招聘核心功能 | 6 | 🟢 6/6完成(T-19~T-26✅) |
-| Phase 6: AI增强+工程保障 | 8 | 🔴 规划中 |
-| **合计** | **32** | |
+| Phase 6: AI增强+工程保障 | 9 | 🔴 规划中（UI-SFT ✅） |
+| **合计** | **33** | |
 
 ---
 
@@ -273,6 +273,15 @@
   - 候选人邮件模板管理
   - 通知发送状态追踪
   - 状态: 🔴 待开发
+
+**UI-SFT: 前端UI SFT风格改造**
+  - MainLayout.vue：自定义分组菜单 + Sandvik蓝Header + 面包屑 + 用户头像下拉
+  - Login.vue：左右分栏（蓝底品牌+白底表单）
+  - Dashboard.vue：新建，KPI卡片+图表+最近动态
+  - Page Header：JobPostList + CandidateList 加入 SFT风格 page header + toolbar
+  - router/index.js：默认 redirect → /dashboard
+  - talentpilot-logo.svg：手工SVG logo
+  - 状态: ✅ 已完成 (df0fc76，push待网络恢复)
 
 ---
 
