@@ -145,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, nextTick } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { userApi, roleApi, departmentApi } from '@/api'
@@ -297,6 +297,7 @@ function closeDrawer() {
 
 async function handleSubmit() {
   try {
+    await nextTick()
     await formRef.value.validate()
     submitLoading.value = true
 
