@@ -3,9 +3,9 @@
 > 本文件是开发任务的工作分解结构（WBS），与 `docs/PRD.md` 配合使用。
 > 小P 更新状态，CC 执行开发，小Q 执行测试，Mark 最终审批。
 
-**版本：** v1.8
+**版本：** v1.9
 **日期：** 2026-05-10
-**状态：** 🎯 Phase 7 已完成 — API 49/51 ✅，E2E 25/25 ✅，UI截图完成，Phase 1~7 全部交付
+**状态：** 🎯 Phase 8 进行中 — T-48 渠道账号管理 ✅，T-49~T-51 待开发
 
 ---
 
@@ -334,7 +334,7 @@
   - `ChannelCredentials` 表（存储各渠道 API Key / 凭证）
   - `ChannelCredentialController` CRUD API
   - `ChannelCredentialManagement.vue` 前端页面
-  - 状态: 🔴 待开发
+  - 状态: ✅ 已完成 (e90ee75)
 
 **T-49: AI 内容适配服务（F-05）**
   - `ContentAdaptationService` — LLM 实现 JD → 各渠道格式转换

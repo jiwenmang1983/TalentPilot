@@ -2,8 +2,8 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
->**版本：** v1.3（Phase 7完成，Phase 8待审批 T-48~T-51）
->**更新：** 2026-05-09
+> **版本：** v1.4（Phase 8进行中：T-48✅，T-49~T-51待开发）
+> **更新：** 2026-05-10
 
 ---
 
@@ -44,8 +44,8 @@
 | 31 | T-44 | 小P | Phase 7 E2E Playwright | ✅ 完成 | **25 passed, 1 skipped, 0 failed** ✅ |
 | 32 | T-46 | 小P | UserManagement.vue formRef nextTick()修复 | ✅ 完成 | a481824 - nextTick() before validate() |
 | 33 | T-47 | Mark | UI验收截图确认 | 🔴 待确认 | 8张截图已拍 |
-| 34 | T-48 | CC | 渠道账号管理 F-04（ChannelCredentials表+API+UI） | 🔴 待审批 | WBS v1.9 |
-| 35 | T-49 | CC | AI内容适配服务 F-05（ContentAdaptationService+格式模板） | 🔴 待审批 | WBS v1.9 |
+| 34 | T-48 | 小P | 渠道账号管理 F-04（ChannelCredentials表+API+UI） | ✅ | e90ee75 ✅ |
+| 35 | T-49 | CC | AI内容适配服务 F-05（ContentAdaptationService+格式模板） | 🔄 开发中 | SPEC已下达，CC执行 |
 | 36 | T-50 | CC | AI Agent分发引擎 F-02（JobDistributionAgent+定时发布） | 🔴 待审批 | WBS v1.9 |
 | 37 | T-51 | CC | 发布状态追踪前端 F-06（JobPostList渠道状态） | 🔴 待审批 | WBS v1.9 |
 

@@ -28,6 +28,7 @@ public class TalentPilotDbContext : DbContext
     public DbSet<ResumeParsedRecord> ResumeParsedRecords => Set<ResumeParsedRecord>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
     public DbSet<ChannelCredential> ChannelCredentials => Set<ChannelCredential>();
+    public DbSet<JobChannelContent> JobChannelContents => Set<JobChannelContent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -270,6 +271,20 @@ public class TalentPilotDbContext : DbContext
             entity.ToTable("ChannelCredentials");
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.ChannelType).IsUnique();
+        });
+
+        // JobChannelContent
+        modelBuilder.Entity<JobChannelContent>(entity =>
+        {
+            entity.ToTable("JobChannelContents");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.JobPostId, e.ChannelType });
+            entity.HasIndex(e => e.Status);
+
+            entity.HasOne(e => e.JobPost)
+                  .WithMany()
+                  .HasForeignKey(e => e.JobPostId)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -105,6 +105,7 @@ builder.Services.AddScoped<ConversionFunnelService>();
 builder.Services.AddScoped<InterviewInvitationService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ChannelCredentialService>();
+builder.Services.AddScoped<ContentAdaptationService>();
 
 var app = builder.Build();
 
