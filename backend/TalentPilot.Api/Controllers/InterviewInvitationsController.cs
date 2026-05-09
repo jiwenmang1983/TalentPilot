@@ -20,6 +20,7 @@ public class InterviewInvitationsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "admin,hr,hiring_manager")]
     public async Task<ActionResult<ApiResponse<object>>> GetInvitations(
         [FromQuery] string? status = null,
         [FromQuery] int page = 1,
@@ -55,6 +56,7 @@ public class InterviewInvitationsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "admin,hr,hiring_manager")]
     public async Task<ActionResult<ApiResponse<object>>> GetInvitation(int id)
     {
         var invitation = await _invitationService.GetByIdAsync(id);
