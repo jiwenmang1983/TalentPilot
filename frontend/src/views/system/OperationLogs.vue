@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>📋 操作日志</h1>
+      <p>系统操作记录查询</p>
+    </div>
+  </div>
+
   <div class="operation-logs">
     <div class="toolbar">
       <a-space wrap>

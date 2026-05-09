@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>👤 候选人详情</h1>
+      <p>候选人完整信息</p>
+    </div>
+  </div>
+
   <div class="candidate-detail">
     <a-spin :spinning="loading">
       <a-row :gutter="24" v-if="candidate">

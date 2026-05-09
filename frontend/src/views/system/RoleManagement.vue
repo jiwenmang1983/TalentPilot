@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>🛡 角色管理</h1>
+      <p>系统角色与权限配置</p>
+    </div>
+  </div>
+
   <div class="role-management">
     <div class="toolbar">
       <a-button type="primary" @click="openDrawer()">

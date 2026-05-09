@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>📊 面试报告</h1>
+      <p>AI生成的面试评估报告</p>
+    </div>
+  </div>
+
   <div class="interview-reports">
     <div class="toolbar">
       <a-space wrap>

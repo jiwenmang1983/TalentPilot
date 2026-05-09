@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>📈 招聘效果漏斗</h1>
+      <p>招聘各环节转化率分析</p>
+    </div>
+  </div>
+
   <div class="conversion-funnel">
     <!-- Summary Cards -->
     <a-row :gutter="16" class="summary-cards">

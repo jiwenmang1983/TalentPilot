@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>📨 面试邀请</h1>
+      <p>批量发送面试邀请</p>
+    </div>
+  </div>
+
   <div class="interview-invitation-list">
     <div class="header-actions">
       <a-select

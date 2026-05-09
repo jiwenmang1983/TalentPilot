@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>🎯 智能匹配</h1>
+      <p>职位与候选人智能匹配结果</p>
+    </div>
+  </div>
+
   <div class="match-result-list">
     <div class="header-actions">
       <a-space>

@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>👥 用户账号管理</h1>
+      <p>用户账号创建、编辑与禁用</p>
+    </div>
+  </div>
+
   <div class="user-management">
     <div class="toolbar">
       <a-space>

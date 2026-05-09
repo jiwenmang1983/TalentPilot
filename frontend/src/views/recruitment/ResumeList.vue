@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>📄 简历管理</h1>
+      <p>候选人简历采集与管理</p>
+    </div>
+  </div>
+
   <div class="resume-list">
     <div class="header-actions">
       <a-space>

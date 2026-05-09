@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>🏢 部门管理</h1>
+      <p>企业组织架构树形管理</p>
+    </div>
+  </div>
+
   <div class="department-tree">
     <div class="toolbar">
       <a-button type="primary" @click="openDrawer('create')">

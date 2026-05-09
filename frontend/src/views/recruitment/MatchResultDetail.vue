@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>🔍 匹配详情</h1>
+      <p>单条匹配详情及理由</p>
+    </div>
+  </div>
+
   <div class="match-result-detail">
     <a-spin :spinning="loading" v-if="match">
       <a-card title="匹配结果详情">

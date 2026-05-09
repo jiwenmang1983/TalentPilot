@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>🧠 AI简历解析</h1>
+      <p>上传简历自动提取关键信息</p>
+    </div>
+  </div>
+
   <div class="resume-parse">
     <a-card title="简历解析" :bordered="false">
       <a-space direction="vertical" :size="16" style="width: 100%">

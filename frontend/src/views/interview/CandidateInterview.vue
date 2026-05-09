@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>🎤 AI面试</h1>
+      <p>AI视频面试进行中</p>
+    </div>
+  </div>
+
   <div class="candidate-interview">
     <!-- Token Input Screen -->
     <div v-if="!sessionValid" class="token-screen">

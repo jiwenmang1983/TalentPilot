@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>💼 发布职位</h1>
+      <p>填写职位详情</p>
+    </div>
+  </div>
+
   <div class="job-post-form">
     <a-card>
       <a-form

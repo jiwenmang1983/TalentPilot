@@ -1,4 +1,12 @@
 <template>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>📋 面试确认</h1>
+      <p>候选人面试确认与反馈</p>
+    </div>
+  </div>
+
   <div class="candidate-confirm-container">
     <div class="confirm-card">
       <div v-if="loading" class="loading">
