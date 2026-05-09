@@ -52,6 +52,9 @@ public class AIInterviewSession
     [Column("AiComments")]
     public string? AiComments { get; set; }
 
+    [Column("GeneratedQuestions")]
+    public string? GeneratedQuestions { get; set; }
+
     [Column("CreatedAt")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

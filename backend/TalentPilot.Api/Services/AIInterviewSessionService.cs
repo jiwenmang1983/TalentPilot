@@ -22,6 +22,8 @@ public interface IAIInterviewSessionService
 public class AIInterviewSessionService : IAIInterviewSessionService
 {
     private readonly TalentPilotDbContext _dbContext;
+    private readonly IMiniMaxService _miniMaxService;
+    private readonly ILogger<AIInterviewSessionService> _logger;
     private static readonly QuestionResponse[] MockQuestions = new[]
     {
         new QuestionResponse { QuestionId = "Q1", QuestionText = "请简单介绍一下你自己", QuestionType = "open", TimeLimit = 120, Tips = "控制在2分钟内" },
@@ -31,9 +33,91 @@ public class AIInterviewSessionService : IAIInterviewSessionService
         new QuestionResponse { QuestionId = "Q5", QuestionText = "请描述一个你解决过的难题", QuestionType = "behavioral", TimeLimit = 120, Tips = "突出你的能力和结果" },
     };
 
-    public AIInterviewSessionService(TalentPilotDbContext dbContext)
+    public AIInterviewSessionService(TalentPilotDbContext dbContext, IMiniMaxService miniMaxService, ILogger<AIInterviewSessionService> logger)
     {
         _dbContext = dbContext;
+        _miniMaxService = miniMaxService;
+        _logger = logger;
+    }
+
+    private List<QuestionResponse>? ParseGeneratedQuestions(string? json)
+    {
+        if (string.IsNullOrEmpty(json)) return null;
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("questions", out var questions))
+            {
+                var result = new List<QuestionResponse>();
+                foreach (var q in questions.EnumerateArray())
+                {
+                    result.Add(new QuestionResponse
+                    {
+                        QuestionId = q.GetProperty("questionId").GetString() ?? "",
+                        QuestionText = q.GetProperty("questionText").GetString() ?? "",
+                        QuestionType = q.GetProperty("questionType").GetString() ?? "",
+                        TimeLimit = q.GetProperty("timeLimit").GetInt32(),
+                        Tips = q.TryGetProperty("tips", out var tips) ? tips.GetString() : null
+                    });
+                }
+                return result;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to parse generated questions JSON");
+        }
+        return null;
+    }
+
+    private async Task<string?> GenerateQuestionsWithLLMAsync(JobPost? jobPost, Candidate? candidate)
+    {
+        var requirements = jobPost?.Requirements ?? "未提供";
+        var candidateInfo = candidate != null
+            ? $"姓名: {candidate.Name}, 当前职位: {candidate.CurrentPosition}, 当前公司: {candidate.CurrentCompany}, 技能: {candidate.Skills}, 工作经验: {candidate.WorkExperience}年"
+            : "候选人信息未提供";
+
+        var jsonTemplate = "{{\"questions\": [{\"questionId\": \"Q1\", \"questionText\": \"...\", \"questionType\": \"technical\", \"timeLimit\": 120, \"tips\": \"...\"}]}}";
+
+        var prompt = $@"你是一个专业的AI面试官。请根据以下职位要求和候选人信息，生成5-8道个性化面试问题。
+
+职位名称: {jobPost?.Title}
+职位要求: {requirements}
+候选人信息: {candidateInfo}
+
+请生成包含以下类型的面试题：
+1. 技术问题 (questionType: technical) - 考察专业技能
+2. 行为问题 (questionType: behavioral) - 考察软技能和经验
+3. 情景问题 (questionType: situational) - 考察应变能力
+
+每道题包含：questionId, questionText, questionType, timeLimit(秒), tips(答题提示)。
+
+请以以下JSON格式返回：
+{jsonTemplate}
+
+只返回JSON，不要有其他内容。";
+
+        try
+        {
+            var response = await _miniMaxService.ChatAsync(prompt, 2048);
+            if (response?.Content != null && response.Content.Count > 0)
+            {
+                var text = response.Content[0].Text;
+                // Try to extract JSON from the response (in case there's any wrapper text)
+                var jsonStart = text.IndexOf('{');
+                var jsonEnd = text.LastIndexOf('}');
+                if (jsonStart >= 0 && jsonEnd > jsonStart)
+                {
+                    return text.Substring(jsonStart, jsonEnd - jsonStart + 1);
+                }
+                return text;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to generate questions with LLM");
+        }
+        return null;
     }
 
     public async Task<(List<AIInterviewSession> Items, int Total)> GetAllAsync(
@@ -110,6 +194,18 @@ public class AIInterviewSessionService : IAIInterviewSessionService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
+
+        // Generate personalized questions with MiniMax LLM
+        var generatedQuestionsJson = await GenerateQuestionsWithLLMAsync(invitation.JobPost, invitation.Candidate);
+        if (!string.IsNullOrEmpty(generatedQuestionsJson))
+        {
+            session.GeneratedQuestions = generatedQuestionsJson;
+            _logger.LogInformation("Generated personalized interview questions for session {SessionId}", session.Id);
+        }
+        else
+        {
+            _logger.LogWarning("Failed to generate personalized questions, will use fallback mock questions");
+        }
 
         _dbContext.AIInterviewSessions.Add(session);
         await _dbContext.SaveChangesAsync();
@@ -203,15 +299,27 @@ public class AIInterviewSessionService : IAIInterviewSessionService
         session.Transcript = System.Text.Json.JsonSerializer.Serialize(transcriptList);
         session.UpdatedAt = DateTime.UtcNow;
 
+        // Get total questions from GeneratedQuestions or fallback to MockQuestions
+        var questions = ParseGeneratedQuestions(session.GeneratedQuestions);
+        var totalQuestions = questions?.Count ?? MockQuestions.Length;
+
         var answeredCount = transcriptList.Count;
         var progress = answeredCount;
         QuestionResponse? nextQuestion = null;
 
-        if (answeredCount < MockQuestions.Length)
+        if (questions != null && questions.Count > 0)
+        {
+            if (answeredCount < questions.Count)
+            {
+                nextQuestion = questions[answeredCount];
+            }
+        }
+        else if (answeredCount < MockQuestions.Length)
         {
             nextQuestion = MockQuestions[answeredCount];
         }
-        else if (session.Status == AIInterviewSessionStatus.InProgress)
+
+        if (answeredCount >= totalQuestions && session.Status == AIInterviewSessionStatus.InProgress)
         {
             session.Status = AIInterviewSessionStatus.Completed;
             session.EndTime = DateTime.UtcNow;
@@ -228,7 +336,7 @@ public class AIInterviewSessionService : IAIInterviewSessionService
         {
             NextQuestion = nextQuestion,
             Progress = progress,
-            TotalQuestions = MockQuestions.Length
+            TotalQuestions = totalQuestions
         };
     }
 
@@ -241,6 +349,16 @@ public class AIInterviewSessionService : IAIInterviewSessionService
             ? 0
             : (System.Text.Json.JsonSerializer.Deserialize<List<object>>(session.Transcript)?.Count ?? 0);
 
+        // Try to get questions from GeneratedQuestions first
+        var questions = ParseGeneratedQuestions(session.GeneratedQuestions);
+        if (questions != null && questions.Count > 0)
+        {
+            if (answeredCount >= questions.Count)
+                return null;
+            return questions[answeredCount];
+        }
+
+        // Fallback to mock questions
         if (answeredCount >= MockQuestions.Length)
             return null;
 
