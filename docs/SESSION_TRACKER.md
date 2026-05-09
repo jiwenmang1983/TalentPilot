@@ -44,10 +44,10 @@
 
 ## CC 实时状态
 
-|**tmux session：** `cc-talentpilot`（无活跃任务）
-|**当前任务：** 🔄 T-31 API性能压测+SQL优化（待启动）
-|**最新commit：** `50835d4` — "feat: T-30 AI面试报告MiniMax LLM"
-|**CC 启动方式：** `bash /tmp/cc_run_T{NN}.sh`（--print模式，后台运行）
+||**tmux session：** `cc-talentpilot`（无活跃任务）
+||**当前任务：** 🔄 T-34 候选人通知系统（CC开发中）
+||**最新commit：** `6a923c5` — "docs: 添加CLAUDE.md项目初始化文件"
+||**CC 启动方式：** `bash /tmp/cc_run_T{NN}.sh`（--print模式，后台运行）
 
 ---
 
