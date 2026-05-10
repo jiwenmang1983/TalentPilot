@@ -49,8 +49,9 @@
 | 36 | T-50 | ✅ def2190 | 小P | 2026-05-10 | ✅ 完成 | 跨渠道分发-后台任务+7端点+前端Drawer |
 | 37 | T-51 | ✅ 45066ad | 小P | 2026-05-10 | ✅ 完成 | **Drawer分发状态完整展示**——独立axios(baseURL=/api)+interceptor注Bearer token，5渠道任务状态正确显示；前端cancel()从PUT改为DELETE匹配后端 |
 | 38 | T-52 | ✅ 151ee12 | CC+小P | 2026-05-10 | ✅ 完成 | **定时发布后台调度+前端轮询**——DistributionTaskScheduler(IHostedService每30秒调度)+JobPostList.vue轮询 |
-| 39 | T-53 | ✅ f97a883(后端)+7790a5a(前端) | CC+小P | 2026-05-10 | ✅ 完成 | **8维度AI匹配引擎**——MatchingService重写(8维度评分)、JobPostsController新增阈值/权重API、MatchResultList/Detail Vue重写(维度条+权重配置滑块) |
-| 40 | T-54 | ✅ 4195318 | CC+小P | 2026-05-10 | ✅ 完成 | **F-10简历库管理**——ResumesController新增jobPostId/channel/minScore/maxScore筛选LEFT JOIN、MatchResult阈值override API、ResumeList重写(筛选+匹配度进度条+调整阈值弹窗) |
+| 40 | T-53 | ✅ f97a883(后端)+7790a5a(前端) | CC+小P | 2026-05-10 | ✅ 完成 | **8维度AI匹配引擎**——MatchingService重写(8维度评分)、JobPostsController新增阈值/权重API、MatchResultList/Detail Vue重写(维度条+权重配置滑块) |
+| 41 | T-54 | ✅ 4195318 | CC+小P | 2026-05-10 | ✅ 完成 | **F-10简历库管理**——ResumesController新增jobPostId/channel/minScore/maxScore筛选LEFT JOIN、MatchResult阈值override API、ResumeList重写(筛选+匹配度进度条+调整阈值弹窗) |
+| 42 | T-55 | ⏳ | CC | 2026-05-10 | 进行中 | **F-07简历采集**——ResumeCollectionScheduler(6小时定时)+ResumesController新端点+前端采集管理UI |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取

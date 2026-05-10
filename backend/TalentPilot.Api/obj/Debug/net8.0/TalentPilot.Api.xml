@@ -190,6 +190,16 @@
             Resumes
             </summary>
         </member>
+        <member name="M:TalentPilot.Api.Controllers.ResumesController.CollectNow(TalentPilot.Api.Controllers.CollectNowRequest)">
+            <summary>
+            触发立即采集
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.ResumesController.GetSources">
+            <summary>
+            获取简历来源列表
+            </summary>
+        </member>
         <member name="T:TalentPilot.Api.Controllers.RolesController">
             <summary>
             Roles
@@ -216,6 +226,11 @@
             <summary>
             Extracts the actual text from the response, skipping MiniMax M2.7 thinking blocks.
             M2.7 returns content blocks where block[0] is type=thinking (no Text field) and block[1+] is type=text.
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.ResumeCollectionScheduler">
+            <summary>
+            简历采集定时调度器 - 每6小时自动采集所有活跃渠道的新简历
             </summary>
         </member>
     </members>

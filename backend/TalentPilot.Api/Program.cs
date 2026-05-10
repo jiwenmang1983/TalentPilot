@@ -108,6 +108,7 @@ builder.Services.AddScoped<ChannelCredentialService>();
 builder.Services.AddScoped<ContentAdaptationService>();
 builder.Services.AddScoped<JobDistributionService>();
 builder.Services.AddHostedService<DistributionTaskScheduler>();
+builder.Services.AddHostedService<ResumeCollectionScheduler>();
 
 var app = builder.Build();
 

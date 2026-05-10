@@ -5,6 +5,38 @@
       <h1>📄 简历库</h1>
       <p>候选人简历采集与管理 - 按匹配度排序</p>
     </div>
+    <div class="page-header-right">
+      <a-button type="primary" @click="handleCollectNow" :loading="collecting">
+        立即采集
+      </a-button>
+    </div>
+  </div>
+
+  <!-- Source Status Section -->
+  <div class="source-status-section">
+    <div class="section-title">
+      <span>📡 采集渠道状态</span>
+      <a-button type="link" size="small" @click="fetchSources">刷新</a-button>
+    </div>
+    <a-table
+      :columns="sourceColumns"
+      :dataSource="sourceData"
+      :loading="sourcesLoading"
+      :pagination="false"
+      rowKey="id"
+      size="small"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'isActive'">
+          <a-tag :color="record.isActive ? 'green' : 'red'">
+            {{ record.isActive ? '活跃' : '停用' }}
+          </a-tag>
+        </template>
+        <template v-else-if="column.key === 'lastSyncAt'">
+          {{ formatDateTime(record.lastSyncAt) }}
+        </template>
+      </template>
+    </a-table>
   </div>
 
   <div class="resume-list">
@@ -142,8 +174,11 @@ import { jobPostApi } from '@/api/jobpost'
 
 const router = useRouter()
 const loading = ref(false)
+const collecting = ref(false)
 const dataSource = ref([])
 const jobPosts = ref([])
+const sourcesLoading = ref(false)
+const sourceData = ref([])
 const pagination = ref({
   current: 1,
   pageSize: 20,
@@ -165,6 +200,13 @@ const columns = [
   { title: '渠道', key: 'source', width: 100 },
   { title: '更新时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 },
   { title: '操作', key: 'action', width: 200, fixed: 'right' }
+]
+
+const sourceColumns = [
+  { title: '渠道', dataIndex: 'channel', key: 'channel', width: 120 },
+  { title: '状态', key: 'isActive', width: 80 },
+  { title: '最后同步', dataIndex: 'lastSyncAt', key: 'lastSyncAt', width: 180 },
+  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 }
 ]
 
 // Threshold modal
@@ -321,9 +363,42 @@ async function handleThresholdSubmit() {
   }
 }
 
+async function handleCollectNow() {
+  collecting.value = true
+  try {
+    await resumeApi.collectNow()
+    message.success('采集任务已触发')
+    fetchSources()
+  } catch (e) {
+    console.error(e)
+    message.error('触发采集失败')
+  } finally {
+    collecting.value = false
+  }
+}
+
+async function fetchSources() {
+  sourcesLoading.value = true
+  try {
+    const res = await resumeApi.getSources()
+    sourceData.value = res.data || []
+  } catch (e) {
+    console.error(e)
+  } finally {
+    sourcesLoading.value = false
+  }
+}
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return '-'
+  const date = new Date(dateStr)
+  return date.toLocaleString('zh-CN')
+}
+
 onMounted(() => {
   fetchJobPosts()
   fetchData()
+  fetchSources()
 })
 </script>
 
@@ -347,6 +422,26 @@ onMounted(() => {
 .page-header-left p {
   margin: 0;
   color: #666;
+}
+
+.page-header-right {
+  display: flex;
+  gap: 8px;
+}
+
+.source-status-section {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 500;
 }
 
 .filter-bar {

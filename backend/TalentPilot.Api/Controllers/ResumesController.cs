@@ -141,6 +141,35 @@ public class ResumesController : ControllerBase
             return BadRequest(new ApiResponse<object>(false, $"解析失败: {ex.Message}", null));
         }
     }
+
+    /// <summary>
+    /// 触发立即采集
+    /// </summary>
+    [HttpPost("collect-now")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<object>>> CollectNow([FromBody] CollectNowRequest? request = null)
+    {
+        await _resumeService.TriggerImmediateCollectionAsync(request?.JobPostId);
+        return Ok(new ApiResponse<object>(true, "采集任务已触发", null));
+    }
+
+    /// <summary>
+    /// 获取简历来源列表
+    /// </summary>
+    [HttpGet("sources")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<object>>> GetSources()
+    {
+        var sources = await _resumeService.GetSourcesAsync();
+        return Ok(new ApiResponse<object>(true, "获取成功", sources.Select(s => new
+        {
+            s.Id,
+            s.Channel,
+            s.IsActive,
+            s.LastSyncAt,
+            s.CreatedAt
+        })));
+    }
 }
 
 public class UploadResumeRequest
@@ -156,4 +185,9 @@ public class MockCollectRequest
 {
     public string Channel { get; set; } = "Boss";
     public int Count { get; set; } = 5;
+}
+
+public class CollectNowRequest
+{
+    public int? JobPostId { get; set; }
 }

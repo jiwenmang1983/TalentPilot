@@ -12,15 +12,20 @@ public interface IResumeCollectionService
     Task<List<Resume>> MockCollectResumesAsync(string channel, int count = 5);
     Task<bool> UpdateResumeCandidateIdAsync(int resumeId, int candidateId);
     Task<(List<object> Items, int Total)> ListResumesWithMatchAsync(int? jobPostId, string? channel, decimal? minScore, decimal? maxScore, int page, int pageSize);
+    Task CollectAllActiveChannelsAsync();
+    Task TriggerImmediateCollectionAsync(int? jobPostId);
+    Task<List<ResumeSource>> GetSourcesAsync();
 }
 
 public class ResumeCollectionService : IResumeCollectionService
 {
     private readonly TalentPilotDbContext _dbContext;
+    private readonly ILogger<ResumeCollectionService> _logger;
 
-    public ResumeCollectionService(TalentPilotDbContext dbContext)
+    public ResumeCollectionService(TalentPilotDbContext dbContext, ILogger<ResumeCollectionService> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     public async Task<(List<Resume> Items, int Total)> ListResumesAsync(string? source, int page, int pageSize)
@@ -146,6 +151,67 @@ public class ResumeCollectionService : IResumeCollectionService
             .ToListAsync();
 
         return (items, total);
+    }
+
+    public async Task CollectAllActiveChannelsAsync()
+    {
+        var activeSources = await _dbContext.ResumeSources
+            .Where(s => s.IsActive)
+            .ToListAsync();
+
+        foreach (var source in activeSources)
+        {
+            await CollectChannelAsync(source.Channel);
+        }
+    }
+
+    public async Task CollectChannelAsync(string channel)
+    {
+        // Simulate collection from channel (mock implementation)
+        _logger.LogInformation("开始采集渠道: {Channel}", channel);
+
+        // Update last sync time
+        var resumeSource = await _dbContext.ResumeSources.FirstOrDefaultAsync(s => s.Channel == channel);
+        if (resumeSource != null)
+        {
+            resumeSource.LastSyncAt = DateTime.UtcNow;
+        }
+        else
+        {
+            _dbContext.ResumeSources.Add(new ResumeSource
+            {
+                Channel = channel,
+                IsActive = true,
+                LastSyncAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("渠道 {Channel} 采集完成", channel);
+    }
+
+    public async Task TriggerImmediateCollectionAsync(int? jobPostId)
+    {
+        _logger.LogInformation("触发立即采集任务, JobPostId: {JobPostId}", jobPostId);
+
+        if (jobPostId.HasValue)
+        {
+            // Collect for specific job post
+            _logger.LogInformation("执行指定职位采集: {JobPostId}", jobPostId.Value);
+        }
+        else
+        {
+            // Collect from all active channels
+            await CollectAllActiveChannelsAsync();
+        }
+    }
+
+    public async Task<List<ResumeSource>> GetSourcesAsync()
+    {
+        return await _dbContext.ResumeSources
+            .OrderBy(s => s.Channel)
+            .ToListAsync();
     }
 
     private static List<Resume> GenerateMockResumes(string channel, int count)
