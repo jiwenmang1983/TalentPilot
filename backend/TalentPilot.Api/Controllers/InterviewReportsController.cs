@@ -16,11 +16,19 @@ public class InterviewReportsController : ControllerBase
 {
     private readonly InterviewReportService _reportService;
     private readonly OperationLogService _logService;
+    private readonly IExportService _exportService;
+    private readonly ILogger<InterviewReportsController> _logger;
 
-    public InterviewReportsController(InterviewReportService reportService, OperationLogService logService)
+    public InterviewReportsController(
+        InterviewReportService reportService,
+        OperationLogService logService,
+        IExportService exportService,
+        ILogger<InterviewReportsController> logger)
     {
         _reportService = reportService;
         _logService = logService;
+        _exportService = exportService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -119,6 +127,54 @@ public class InterviewReportsController : ControllerBase
         }
 
         return Ok(new ApiResponse<object>(true, "更新成功", new { report.Id }));
+    }
+
+    [HttpGet("{id}/export-pdf")]
+    [Authorize(Roles = "admin,hr")]
+    public IActionResult ExportPdf(int id)
+    {
+        try
+        {
+            var pdfBytes = _exportService.GeneratePdfReport(id);
+            return File(pdfBytes, "application/pdf", $"面试报告_{id}.pdf");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to export PDF for report {ReportId}", id);
+            return BadRequest(new ApiResponse<object>(false, "PDF导出失败", null));
+        }
+    }
+
+    [HttpGet("{id}/export-excel")]
+    [Authorize(Roles = "admin,hr")]
+    public IActionResult ExportExcel(int id)
+    {
+        try
+        {
+            var excelBytes = _exportService.GenerateSingleExcelReport(id);
+            return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"面试报告_{id}.xlsx");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to export Excel for report {ReportId}", id);
+            return BadRequest(new ApiResponse<object>(false, "Excel导出失败", null));
+        }
+    }
+
+    [HttpPost("export-excel-batch")]
+    [Authorize(Roles = "admin,hr")]
+    public IActionResult ExportExcelBatch([FromBody] List<int> reportIds)
+    {
+        try
+        {
+            var excelBytes = _exportService.GenerateBatchExcelReport(reportIds);
+            return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"批量面试报告_{DateTime.Now:yyyyMMdd}.xlsx");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to batch export Excel, count={Count}", reportIds?.Count ?? 0);
+            return BadRequest(new ApiResponse<object>(false, "批量Excel导出失败", null));
+        }
     }
 
     private static InterviewReportResponse ConvertToResponse(Models.Entities.InterviewReport report)

@@ -10,6 +10,9 @@
   <div class="interview-reports">
     <div class="toolbar">
       <a-space wrap>
+        <a-button type="primary" @click="batchExportExcel" :disabled="selectedRowKeys.length === 0">
+          批量导出Excel
+        </a-button>
         <a-select
           v-model:value="filterRecommendation"
           placeholder="录用建议"
@@ -56,6 +59,7 @@
       :data-source="reports"
       :loading="loading"
       :pagination="pagination"
+      :row-selection="{ selectedRowKeys, onChange: onSelectChange }"
       @change="handleTableChange"
       row-key="id"
     >
@@ -78,6 +82,12 @@
           <a-space>
             <a-button type="link" size="small" @click="handleView(record)">
               查看详情
+            </a-button>
+            <a-button type="link" size="small" @click="exportPdf(record.id)">
+              PDF
+            </a-button>
+            <a-button type="link" size="small" @click="exportExcel(record.id)">
+              Excel
             </a-button>
           </a-space>
         </template>
@@ -228,6 +238,7 @@ const showDetailModal = ref(false)
 const currentRecord = ref(null)
 const hrNotes = ref('')
 const savingNotes = ref(false)
+const selectedRowKeys = ref([])
 
 const filterRecommendation = ref(null)
 const filterMinScore = ref(null)
@@ -319,6 +330,77 @@ function handleTableChange(pag) {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
   fetchReports()
+}
+
+function onSelectChange(keys) {
+  selectedRowKeys.value = keys
+}
+
+async function exportPdf(id) {
+  const token = localStorage.getItem('accessToken')
+  try {
+    const resp = await fetch(`/api/interview-reports/${id}/export-pdf`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!resp.ok) throw new Error('Export failed')
+    const blob = await resp.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `面试报告_${id}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    message.error('PDF导出失败')
+  }
+}
+
+async function exportExcel(id) {
+  const token = localStorage.getItem('accessToken')
+  try {
+    const resp = await fetch(`/api/interview-reports/${id}/export-excel`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!resp.ok) throw new Error('Export failed')
+    const blob = await resp.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `面试报告_${id}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    message.error('Excel导出失败')
+  }
+}
+
+async function batchExportExcel() {
+  if (selectedRowKeys.value.length === 0) {
+    message.warning('请先选择要导出的报告')
+    return
+  }
+  const token = localStorage.getItem('accessToken')
+  try {
+    const resp = await fetch('/api/interview-reports/export-excel-batch', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(selectedRowKeys.value)
+    })
+    if (!resp.ok) throw new Error('Export failed')
+    const blob = await resp.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `批量面试报告_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+    message.success('批量导出成功')
+  } catch (e) {
+    message.error('批量Excel导出失败')
+  }
 }
 
 onMounted(() => {
