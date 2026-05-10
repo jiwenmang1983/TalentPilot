@@ -5,7 +5,7 @@
 
 **版本：** v1.9.3
 **日期：** 2026-05-10
-**状态：** 🎯 Phase 8 完成 + Phase 9 进行中（T-53 ✅）
+**状态：** 🎯 Phase 8 完成 + Phase 9 进行中（T-53 ✅，T-54 ✅）
 
 ---
 
@@ -372,6 +372,13 @@
   - 前端：MatchResultList重写（筛选+8维度条+展开详情）
   - 前端：MatchResultDetail重写（维度条+阈值达标显示+权重配置滑块）
   - 状态: ✅ 完成 (f97a883后端 + 7790a5a前端)
+
+**T-54: F-10 简历库管理 + 阈值Override**
+  - 后端：ResumesController增强（LEFT JOIN MatchResults，jobPostId/channel/minScore/maxScore筛选，按Score倒序）
+  - 后端：MatchesController新增 PATCH /{id}/threshold（阈值override）
+  - 后端：MatchingService保护override值（仅在null时写入）
+  - 前端：ResumeList重写（筛选栏+匹配度进度条+调整阈值弹窗+达标状态显示）
+  - 状态: ✅ 完成 (4195318)
 
 ---
 
