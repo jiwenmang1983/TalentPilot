@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-> **版本：** v1.4（Phase 8进行中：T-48✅，T-49✅，T-50✅，T-51🔄进行中）
+> **版本：** v1.5（Phase 8进行中：T-48✅，T-49✅，T-50✅，T-51✅，T-52待开发）
 > **更新：** 2026-05-10
 
 ---
@@ -47,7 +47,7 @@
 | 34 | T-48 | 小P | 渠道账号管理 F-04（ChannelCredentials表+API+UI） | ✅ | e90ee75 ✅ |
 | 35 | T-49 | ✅ 4a7982a | 小P+CC | 2026-05-10 | ✅ 完成 | 后端API+前端Drawer适配完整，LLM生成6渠道内容 |
 | 36 | T-50 | ✅ def2190 | 小P | 2026-05-10 | ✅ 完成 | 跨渠道分发-后台任务+7端点+前端Drawer |
-| 37 | T-51 | CC→小P | 发布状态追踪前端 F-06（JobPostList渠道状态—Drawer方案） | 🔄 进行中 | **根因：jobDistribution.js axios实例401问题**——独立axios实例直连localhost:5010绕过Vite proxy，Authorization header未转发。修复方案：BASE_URL从`http://localhost:5010/api`改为`/api`走proxy。**同时：ACP协作模式调研完成，hermes acp是反向架构（IDE→Hermes），不适用于Hermes→CC场景，需改用delegation机制。** |
+| 37 | T-51 | ✅ c3f1e06 | 小P | 2026-05-10 | ✅ 完成 | **Drawer分发状态完整展示**——独立axios(baseURL=/api)+interceptor注Bearer token，5渠道任务状态/时间/失败原因正确显示。**根因**：jobDistribution.js独立axios实例baseURL配置不当；**修复**：改为`/api`走Vite proxy+正确interceptor。"取消发布/重新发布"按钮前端已实现，后端API(T-52)待开发。 |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取
