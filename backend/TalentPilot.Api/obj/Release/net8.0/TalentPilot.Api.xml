@@ -1,0 +1,425 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TalentPilot.Api</name>
+    </assembly>
+    <members>
+        <member name="T:TalentPilot.Api.Controllers.AIInterviewSessionsController">
+            <summary>
+            AIInterviewSessions
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.AIInterviewSessionsController.JoinSessionByToken(System.String)">
+            <summary>
+            Candidate joins the interview session by token. Triggers HR notification.
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.AuthController">
+            <summary>
+            Auth
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.BrowserAgentController">
+            <summary>
+            Browser Agent 控制器 - 浏览器自动化简历采集 API（按需采集）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Collect(TalentPilot.Api.Controllers.BrowserAgentCollectRequest,System.Threading.CancellationToken)">
+            <summary>
+            按需采集：针对指定职位从 Boss 搜索并采集符合要求的简历
+            </summary>
+            <param name="request">必须传入 jobPostId</param>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.GetJobPosts(System.String,System.Int32,System.Int32)">
+            <summary>
+            获取职位列表（供 HR 选择要采集哪个职位）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.SaveSession(TalentPilot.Api.Controllers.SaveSessionRequest)">
+            <summary>
+            保存当前登录态（手动登录后调用）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.CheckLoginStatus(System.String)">
+            <summary>
+            检查登录态
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.DeleteSession(System.String)">
+            <summary>
+            删除登录态
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.CheckConnection">
+            <summary>
+            连接状态检查
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Navigate(TalentPilot.Api.Controllers.NavigateRequest)">
+            <summary>
+            手动导航到 URL（调试用）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Screenshot">
+            <summary>
+            截图当前页面（调试用）
+            </summary>
+        </member>
+        <member name="P:TalentPilot.Api.Controllers.BrowserAgentCollectRequest.JobPostId">
+            <summary>
+            必填：目标职位 ID（从 /api/browser-agent/job-posts 获取列表）
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.CandidatesController">
+            <summary>
+            Candidates
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.ConversionFunnelsController">
+            <summary>
+            ConversionFunnels
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.DepartmentsController">
+            <summary>
+            Departments
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.InterviewInvitationsController">
+            <summary>
+            面试邀请管理接口
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.GetInvitations(System.String,System.Int32,System.Int32)">
+            <summary>
+            获取面试邀请列表（分页）
+            </summary>
+            <param name="status">邀请状态筛选：pending/sent/confirmed/refused/cancelled</param>
+            <param name="page">页码，默认1</param>
+            <param name="pageSize">每页数量，默认20</param>
+            <returns>邀请列表</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.GetInvitation(System.Int32)">
+            <summary>
+            获取单个面试邀请详情
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>邀请详情</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.GetInvitationByToken(System.String)">
+            <summary>
+            通过Token获取面试邀请（候选人端，无需登录）
+            </summary>
+            <param name="token">邀请Token</param>
+            <returns>邀请详情</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.CreateInvitation(TalentPilot.Api.Models.DTOs.CreateInterviewInvitationRequest)">
+            <summary>
+            创建面试邀请
+            </summary>
+            <param name="request">创建邀请请求</param>
+            <returns>新创建的邀请</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.UpdateInvitation(System.Int32,TalentPilot.Api.Models.DTOs.UpdateInterviewInvitationRequest)">
+            <summary>
+            更新面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <param name="request">更新请求</param>
+            <returns>更新结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.DeleteInvitation(System.Int32)">
+            <summary>
+            删除面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>删除结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.SendInvitation(System.Int32)">
+            <summary>
+            发送面试邀请（生成链接并发送）
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>发送结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.ConfirmInvitation(System.Int32,TalentPilot.Api.Controllers.InvitationConfirmRequest)">
+            <summary>
+            候选人确认参加面试
+            </summary>
+            <param name="id">邀请ID</param>
+            <param name="request">确认请求（可选：调整面试时间）</param>
+            <returns>确认结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.RefuseInvitation(System.Int32)">
+            <summary>
+            候选人拒绝面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>拒绝结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewInvitationsController.CancelInvitation(System.Int32)">
+            <summary>
+            HR/管理员取消面试邀请
+            </summary>
+            <param name="id">邀请ID</param>
+            <returns>取消结果</returns>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.InterviewReportsController">
+            <summary>
+            InterviewReports
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewReportsController.GetReportBySessionForCandidate(System.Int32)">
+            <summary>
+            Candidate accesses their own report by session ID (no JWT required - uses session token pattern)
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.GetAllByJobPostId(System.Int32)">
+            <summary>获取职位所有渠道适配内容</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.GetByChannelType(System.Int32,System.String)">
+            <summary>按渠道类型获取适配内容</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.AdaptContent(TalentPilot.Api.Models.Entities.AdaptContentRequest)">
+            <summary>触发职位内容适配到各渠道</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.Update(System.Int32,TalentPilot.Api.Models.Entities.UpdateContentRequest)">
+            <summary>更新适配内容（手动编辑）</summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.Delete(System.Int32)">
+            <summary>删除适配内容</summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.JobPostsController">
+            <summary>
+            JobPosts
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.MatchesController">
+            <summary>
+            Matches
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.NotificationsController">
+            <summary>
+            通知管理接口
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.GetNotifications(System.String,System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            获取通知日志列表（分页）
+            </summary>
+            <param name="candidateName">候选人姓名筛选</param>
+            <param name="notificationType">通知类型筛选：InterviewInvitation, InterviewReminder, Offer</param>
+            <param name="status">状态筛选：Pending, Sent, Failed</param>
+            <param name="page">页码，默认1</param>
+            <param name="pageSize">每页数量，默认20</param>
+            <returns>通知日志列表</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.SendNotification(TalentPilot.Api.Models.DTOs.SendNotificationRequest)">
+            <summary>
+            发送通知
+            </summary>
+            <param name="request">发送通知请求</param>
+            <returns>发送结果</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.GetTemplates">
+            <summary>
+            获取通知模板列表
+            </summary>
+            <returns>模板列表</returns>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.NotificationsController.UpdateTemplate(System.Int32,TalentPilot.Api.Models.DTOs.UpdateNotificationTemplateRequest)">
+            <summary>
+            更新通知模板
+            </summary>
+            <param name="id">模板ID</param>
+            <param name="request">更新请求</param>
+            <returns>更新结果</returns>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.OperationLogsController">
+            <summary>
+            OperationLogs
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.PermissionsController">
+            <summary>
+            Permissions
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.ResumesController">
+            <summary>
+            Resumes
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.ResumesController.CollectNow(TalentPilot.Api.Controllers.CollectNowRequest)">
+            <summary>
+            触发立即采集
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.RolesController">
+            <summary>
+            Roles
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Controllers.UsersController">
+            <summary>
+            Users
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Data.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.BossPlatform">
+            <summary>
+            Boss 直聘平台采集适配器（按需采集模式）
+            流程：登录 → 职位搜索 → 截图识别 → 相关性过滤 → 详情采集 → 存入DB
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.EnsureLoggedInAsync">
+            <summary>
+            确保已登录（加载 cookies 或提示手动登录）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.SaveCurrentSessionAsync">
+            <summary>
+            保存当前浏览器 cookies
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.RunCollectionAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            按需采集：针对指定职位从 Boss 搜索并采集符合要求的简历
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.CollectResumeListAsync(System.Int32)">
+            <summary>
+            采集简历列表（原始模式，不做相关性过滤）
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager">
+            <summary>
+            Cookie/Session 持久化管理 - 保存和加载登录态
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.GetCookieFilePath(System.String)">
+            <summary>
+            获取指定平台的 Cookie 文件路径
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.GetSessionFilePath(System.String)">
+            <summary>
+            获取指定平台的 Session Storage 文件路径
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.HasCookies(System.String)">
+            <summary>
+            检查 Cookie 是否存在
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.SaveCookiesAsync(System.String,System.Collections.Generic.List{TalentPilot.Api.Services.BrowserAgent.CookieData})">
+            <summary>
+            保存 cookies 到文件
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.LoadCookiesAsync(System.String)">
+            <summary>
+            加载 cookies
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.DeleteCookies(System.String)">
+            <summary>
+            删除 cookies
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.ValidateCookiesAsync(System.String)">
+            <summary>
+            检查登录态是否有效
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager">
+            <summary>
+            Playwright 浏览器管理器 - 通过 CDP 连接到 Windows Chrome
+            注意：WSL 中通过 --remote-debugging-port=9222 连接到 Windows Chrome
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ConnectAsync(System.Threading.CancellationToken)">
+            <summary>
+            连接到 Windows Chrome CDP
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ScreenshotCurrentPageAsync(System.String,System.Boolean)">
+            <summary>
+            截图当前页面
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.NavigateAsync(System.String,System.Int32)">
+            <summary>
+            导航到 URL
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ClickAsync(System.String,System.Int32)">
+            <summary>
+            点击元素
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ScrollDownAsync(System.Int32)">
+            <summary>
+            滚动页面
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.WaitForSelectorAsync(System.String,System.Int32)">
+            <summary>
+            等待元素出现
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.NeedsLogin">
+            <summary>
+            检查是否需要登录（通过页面内容判断）
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.VisionParser">
+            <summary>
+            MiniMax Vision API 截图解析器 - 从简历截图中提取结构化数据
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.ParseResumeDetailAsync(System.Byte[])">
+            <summary>
+            解析简历详情页截图
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.ParseResumeListAsync(System.Byte[])">
+            <summary>
+            解析简历列表页截图 - 提取候选人卡片列表
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.EvaluateCandidateRelevanceAsync(TalentPilot.Api.Services.BrowserAgent.ResumeListItem,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            评估候选人与职位的匹配度（MiniMax LLM 判断）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.BuildSearchUrl(System.String,System.String,System.Int32)">
+            <summary>
+            根据 JD 关键词构建 Boss 搜索 URL
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.MiniMaxMessageResponse.GetFirstText">
+            <summary>
+            Extracts the actual text from the response, skipping MiniMax M2.7 thinking blocks.
+            M2.7 returns content blocks where block[0] is type=thinking (no Text field) and block[1+] is type=text.
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.ResumeCollectionScheduler">
+            <summary>
+            简历采集定时调度器 - 每6小时自动采集所有活跃渠道的新简历
+            </summary>
+        </member>
+    </members>
+</doc>

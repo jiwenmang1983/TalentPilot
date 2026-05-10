@@ -24,7 +24,7 @@ public class ResumeCollectionScheduler : IHostedService, IDisposable
         _logger.LogInformation("简历采集定时调度器启动，间隔: 6小时");
 
         // 立即执行一次，然后每6小时执行
-        _timer = new Timer(Execute, null, TimeSpan.Zero, TimeSpan.FromHours(6));
+        _timer = new Timer(Execute, null, TimeSpan.FromMinutes(1), TimeSpan.FromHours(6));
 
         return Task.CompletedTask;
     }

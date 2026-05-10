@@ -96,16 +96,15 @@ builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<CandidateConsentService>();
-builder.Services.AddScoped<JobPostService>();
-builder.Services.AddScoped<ResumeCollectionService>();
+builder.Services.AddScoped<IJobPostService, JobPostService>();
+builder.Services.AddScoped<IResumeCollectionService, ResumeCollectionService>();
 builder.Services.AddScoped<ResumeParsingService>();
 builder.Services.AddScoped<MatchingService>();
 builder.Services.AddScoped<AIInterviewSessionService>();
 builder.Services.AddScoped<IVoiceService, VoiceService>();
-builder.Services.AddScoped<InterviewReportService>();
 builder.Services.AddScoped<IInterviewReportService, InterviewReportService>();
 builder.Services.AddScoped<IExportService, ExportService>();
-builder.Services.AddScoped<ConversionFunnelService>();
+builder.Services.AddScoped<IConversionFunnelService, ConversionFunnelService>();
 builder.Services.AddScoped<InterviewInvitationService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddHttpClient("Feishu");
@@ -121,6 +120,9 @@ builder.Services.AddSingleton<PlaywrightBrowserManager>();
 builder.Services.AddSingleton<CookieSessionManager>();
 builder.Services.AddSingleton<VisionParser>();
 builder.Services.AddSingleton<BossPlatform>();
+
+// Force port to 5010 (avoid stale process on 5109)
+builder.WebHost.UseUrls("http://0.0.0.0:5010");
 
 var app = builder.Build();
 

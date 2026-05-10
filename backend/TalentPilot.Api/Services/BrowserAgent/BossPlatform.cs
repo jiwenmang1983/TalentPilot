@@ -14,20 +14,20 @@ public class BossPlatform
     private readonly PlaywrightBrowserManager _browser;
     private readonly VisionParser _visionParser;
     private readonly CookieSessionManager _cookieManager;
-    private readonly TalentPilotDbContext _dbContext;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BossPlatform> _logger;
 
     public BossPlatform(
         PlaywrightBrowserManager browser,
         VisionParser visionParser,
         CookieSessionManager cookieManager,
-        TalentPilotDbContext dbContext,
+        IServiceScopeFactory scopeFactory,
         ILogger<BossPlatform> logger)
     {
         _browser = browser;
         _visionParser = visionParser;
         _cookieManager = cookieManager;
-        _dbContext = dbContext;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -111,7 +111,9 @@ public class BossPlatform
         try
         {
             // 1. 加载职位信息
-            var jobPost = await _dbContext.JobPosts.AsNoTracking()
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<TalentPilotDbContext>();
+            var jobPost = await db.JobPosts.AsNoTracking()
                 .FirstOrDefaultAsync(j => j.Id == jobPostId, ct);
 
             if (jobPost == null)

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "SvcoZ1ORC5RJbfsNi4Y60TGRCMB14CKNzMZ8WSMgX8Y=",
+  "Source": "TalentPilot.Api",
+  "BasePath": "_content/TalentPilot.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
