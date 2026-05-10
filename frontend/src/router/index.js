@@ -157,6 +157,12 @@ const routes = [
     name: 'InterviewBooking',
     component: () => import('@/views/interview/InterviewBooking.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/interview/candidate-dashboard',
+    name: 'CandidateDashboard',
+    component: () => import('@/views/interview/CandidateDashboard.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 

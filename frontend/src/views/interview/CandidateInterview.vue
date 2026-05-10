@@ -72,6 +72,19 @@
           </a-button>
         </div>
       </a-modal>
+      <!-- Resume Session Modal (F-24) -->
+      <a-modal
+        :open="showResumeModal"
+        title="⏸️ 有未完成的面试"
+        @cancel="showResumeModal = false"
+        :footer="null"
+      >
+        <p>您有一场未完成的面试，是否继续？</p>
+        <div style="margin-top: 20px; text-align: right">
+          <a-button @click="resumeSession" type="primary" style="margin-right: 8px">继续</a-button>
+          <a-button @click="restartSession">重新开始</a-button>
+        </div>
+      </a-modal>
       <!-- Header -->
       <div class="interview-header">
         <div class="candidate-info">
@@ -95,7 +108,7 @@
 
       <!-- Question Area -->
       <div class="question-area" v-if="currentQuestion && !interviewCompleted">
-        <div class="countdown-circle">
+        <div class="countdown-circle" :class="{ 'countdown-urgent': countdown < 30 }">
           <a-progress
             type="circle"
             :percent="countdownPercent"
@@ -235,6 +248,8 @@ const countdownColor = computed(() => {
 
 const showEnvironmentModal = ref(false)
 const environmentChecked = ref(false)
+const showResumeModal = ref(false)
+const pendingSession = ref(null)
 
 async function verifyToken() {
   const token = tokenForm.value.token.trim() || route.query.token
@@ -274,6 +289,14 @@ async function verifyToken() {
 function confirmEnvironmentAndStart() {
   showEnvironmentModal.value = false
   sessionValid.value = true
+  // Save to localStorage for resume (F-24)
+  if (session.value?.sessionToken) {
+    localStorage.setItem('tp_pending_session', JSON.stringify({
+      sessionToken: session.value.sessionToken,
+      sessionId: sessionId.value,
+      currentQuestionIndex: currentQuestionIndex.value
+    }))
+  }
   loadNextQuestion()
 }
 
@@ -281,6 +304,25 @@ function confirmAbandon() {
   if (confirm('确定要退出面试吗？退出后您的面试将被标记为"主动放弃"。')) {
     abandonSession()
   }
+}
+
+function resumeSession() {
+  showResumeModal.value = false
+  if (pendingSession.value?.sessionToken) {
+    tokenForm.value.token = pendingSession.value.sessionToken
+    verifyToken()
+  }
+}
+
+function restartSession() {
+  showResumeModal.value = false
+  localStorage.removeItem('tp_pending_session')
+  pendingSession.value = null
+  sessionId.value = null
+  sessionValid.value = false
+  currentQuestionIndex.value = 0
+  answers.value = []
+  interviewCompleted.value = false
 }
 
 async function abandonSession() {
@@ -315,6 +357,7 @@ async function loadNextQuestion() {
       await loadQuestionAudio(res.data.questionId)
     } else {
       interviewCompleted.value = true
+      localStorage.removeItem('tp_pending_session')
       stopCountdown()
     }
   } catch (e) {
@@ -452,6 +495,7 @@ async function submitVoiceAnswer() {
         }, 1000)
       } else {
         interviewCompleted.value = true
+        localStorage.removeItem('tp_pending_session')
       }
     }
   } catch (e) {
@@ -503,6 +547,20 @@ function handleTimeUp() {
 }
 
 onMounted(() => {
+  // Check localStorage for pending session (F-24)
+  const saved = localStorage.getItem('tp_pending_session')
+  if (saved) {
+    try {
+      const data = JSON.parse(saved)
+      if (data.sessionToken || data.sessionId) {
+        pendingSession.value = data
+        showResumeModal.value = true
+      }
+    } catch (e) {
+      localStorage.removeItem('tp_pending_session')
+    }
+  }
+
   const urlToken = route.query.token
   if (urlToken) {
     tokenForm.value.token = urlToken
@@ -788,5 +846,16 @@ onUnmounted(() => {
 .completed-tips {
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
+}
+
+/* F-24: Countdown urgent animation */
+.countdown-urgent {
+  animation: countdownPulse 0.5s infinite;
+  color: #ff4d4f !important;
+}
+
+@keyframes countdownPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
 }
 </style>
