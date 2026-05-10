@@ -18,17 +18,20 @@ public class AIInterviewSessionsController : ControllerBase
     private readonly AIInterviewSessionService _sessionService;
     private readonly OperationLogService _logService;
     private readonly IFeishuNotificationService _feishuNotificationService;
+    private readonly IVoiceService _voiceService;
     private readonly TalentPilotDbContext _context;
 
     public AIInterviewSessionsController(
         AIInterviewSessionService sessionService,
         OperationLogService logService,
         IFeishuNotificationService feishuNotificationService,
+        IVoiceService voiceService,
         TalentPilotDbContext context)
     {
         _sessionService = sessionService;
         _logService = logService;
         _feishuNotificationService = feishuNotificationService;
+        _voiceService = voiceService;
         _context = context;
     }
 
@@ -289,6 +292,21 @@ public class AIInterviewSessionsController : ControllerBase
             return Ok(new ApiResponse<object>(true, "没有更多问题", new { questionId = (string?)null }));
 
         return Ok(new ApiResponse<object>(true, "获取成功", question));
+    }
+
+    [HttpGet("{id}/question-audio/{questionId}")]
+    [AllowAnonymous]
+    public async Task<ActionResult> GetQuestionAudio(int id, string questionId)
+    {
+        var question = await _sessionService.GetNextQuestionAsync(id);
+        if (question == null || question.QuestionId != questionId)
+            return NotFound(new ApiResponse<object>(false, "问题不存在", null));
+
+        var audioData = await _voiceService.GenerateSpeechAsync(question.QuestionText);
+        if (audioData == null)
+            return NoContent();
+
+        return File(audioData, "audio/mp3");
     }
 
     private int GetCurrentUserId()

@@ -3,7 +3,7 @@
   <div class="page-header">
     <div class="page-header-left">
       <h1>🎤 AI面试</h1>
-      <p>AI视频面试进行中</p>
+      <p>AI语音面试进行中</p>
     </div>
   </div>
 
@@ -74,23 +74,55 @@
           </p>
         </div>
 
-        <!-- Answer Input -->
-        <div class="answer-area">
-          <a-textarea
-            v-model:value="answerText"
-            placeholder="请输入您的回答..."
-            :rows="6"
-            :disabled="submitting"
-          />
-          <a-button
-            type="primary"
-            size="large"
-            :loading="submitting"
-            @click="submitAnswer"
-            :disabled="!answerText.trim()"
-          >
-            提交回答
+        <!-- TTS Audio Player -->
+        <div v-if="questionAudioUrl" class="audio-player">
+          <a-button type="primary" shape="round" @click="playQuestionAudio" :loading="playingAudio">
+            <template #icon><PlayCircleOutlined /></template>
+            {{ playingAudio ? '播放中...' : '播放题目' }}
           </a-button>
+        </div>
+
+        <!-- Voice Recorder Area -->
+        <div class="voice-recorder">
+          <div class="record-status" v-if="isRecording || recordedAnswer">
+            <span v-if="isRecording" class="recording-indicator">
+              <span class="pulse"></span>
+              录音中 {{ recordingTime }}s
+            </span>
+            <span v-else-if="recordedAnswer" class="recorded-text">
+              已录制的回答：{{ recordedAnswer }}
+            </span>
+          </div>
+
+          <button
+            class="record-btn"
+            :class="{ recording: isRecording, disabled: submitting || playingAudio }"
+            @mousedown="startRecording"
+            @mouseup="stopRecording"
+            @mouseleave="stopRecording"
+            :disabled="submitting || playingAudio"
+          >
+            <span v-if="!isRecording" class="mic-icon">🎤</span>
+            <span v-else class="stop-icon">🔴</span>
+            <span class="record-label">
+              {{ isRecording ? '松开结束' : (submitting ? '提交中...' : '按住说话') }}
+            </span>
+          </button>
+
+          <p class="record-hint">按住按钮开始说话，松开自动提交</p>
+
+          <!-- Submit button for re-recording -->
+          <div v-if="recordedAnswer && !isRecording" class="re-record-area">
+            <a-button @click="clearRecording" :disabled="submitting">重新录制</a-button>
+            <a-button
+              type="primary"
+              :loading="submitting"
+              @click="submitVoiceAnswer"
+              :disabled="!recordedAnswer.trim()"
+            >
+              提交回答
+            </a-button>
+          </div>
         </div>
       </div>
 
@@ -119,7 +151,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { VideoCameraOutlined, InfoCircleOutlined } from '@ant-design/icons-vue'
+import { VideoCameraOutlined, InfoCircleOutlined, PlayCircleOutlined } from '@ant-design/icons-vue'
 import { aiInterviewSessionApi } from '@/api/aiInterviewSession'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -132,12 +164,21 @@ const session = ref(null)
 const sessionId = ref(null)
 
 const currentQuestion = ref(null)
-const answerText = ref('')
 const submitting = ref(false)
 const loadingQuestion = ref(false)
 const interviewCompleted = ref(false)
 const currentProgress = ref(0)
 const totalQuestions = ref(5)
+
+// Voice recording state
+const isRecording = ref(false)
+const recordingTime = ref(0)
+const recordedAnswer = ref('')
+const questionAudioUrl = ref('')
+const playingAudio = ref(false)
+let mediaRecorder = null
+let audioChunks = []
+let recordingTimer = null
 
 const countdown = ref(0)
 const countdownTimer = ref(null)
@@ -190,12 +231,17 @@ async function verifyToken() {
 
 async function loadNextQuestion() {
   loadingQuestion.value = true
+  questionAudioUrl.value = ''
+  recordedAnswer.value = ''
   try {
     const res = await aiInterviewSessionApi.getNextQuestion(sessionId.value)
     if (res.success && res.data?.questionId) {
       currentQuestion.value = res.data
       countdown.value = res.data.timeLimit || TOTAL_TIME
       startCountdown()
+
+      // Try to get TTS audio for the question
+      await loadQuestionAudio(res.data.questionId)
     } else {
       interviewCompleted.value = true
       stopCountdown()
@@ -205,6 +251,156 @@ async function loadNextQuestion() {
   } finally {
     loadingQuestion.value = false
   }
+}
+
+async function loadQuestionAudio(questionId) {
+  try {
+    const res = await aiInterviewSessionApi.getQuestionAudio(sessionId.value, questionId)
+    if (res) {
+      const blob = new Blob([res], { type: 'audio/mp3' })
+      questionAudioUrl.value = URL.createObjectURL(blob)
+    }
+  } catch (e) {
+    // TTS failed, continue without audio - this is expected
+    questionAudioUrl.value = ''
+  }
+}
+
+async function playQuestionAudio() {
+  if (!questionAudioUrl.value || playingAudio.value) return
+
+  playingAudio.value = true
+  try {
+    const audio = new Audio(questionAudioUrl.value)
+    await audio.play()
+    audio.onended = () => {
+      playingAudio.value = false
+    }
+    audio.onerror = () => {
+      playingAudio.value = false
+    }
+  } catch (e) {
+    playingAudio.value = false
+  }
+}
+
+async function startRecording() {
+  if (isRecording.value || submitting.value || playingAudio.value) return
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    audioChunks = []
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunks.push(event.data)
+      }
+    }
+
+    mediaRecorder.start()
+    isRecording.value = true
+    recordingTime.value = 0
+
+    // Start timer
+    recordingTimer = setInterval(() => {
+      recordingTime.value++
+    }, 1000)
+  } catch (e) {
+    message.error('无法访问麦克风，请检查权限设置')
+  }
+}
+
+async function stopRecording() {
+  if (!isRecording.value || !mediaRecorder) return
+
+  clearInterval(recordingTimer)
+  recordingTimer = null
+
+  return new Promise((resolve) => {
+    mediaRecorder.onstop = async () => {
+      isRecording.value = false
+
+      if (audioChunks.length === 0) {
+        resolve()
+        return
+      }
+
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+
+      // For now, store a placeholder transcript since we don't have transcription
+      // In production, you'd send this to a speech-to-text service
+      recordedAnswer.value = `[语音回答 ${recordingTime.value}秒]`
+
+      // Auto-submit after short delay
+      setTimeout(async () => {
+        await submitVoiceAnswer()
+        resolve()
+      }, 500)
+    }
+
+    mediaRecorder.stop()
+    mediaRecorder.stream.getTracks().forEach(track => track.stop())
+  })
+}
+
+function clearRecording() {
+  recordedAnswer.value = ''
+  audioChunks = []
+}
+
+async function submitVoiceAnswer() {
+  if (!recordedAnswer.value.trim() && audioChunks.length === 0) return
+
+  submitting.value = true
+  stopCountdown()
+
+  try {
+    const audioBase64 = audioChunks.length > 0
+      ? await blobToBase64(new Blob(audioChunks, { type: 'audio/webm' }))
+      : null
+
+    const res = await aiInterviewSessionApi.submitAnswer(sessionId.value, {
+      questionId: currentQuestion.value?.questionId || 'Q0',
+      answer: recordedAnswer.value || '[语音回答]',
+      audioUrl: audioBase64 ? `data:audio/webm;base64,${audioBase64}` : null
+    })
+
+    if (res.success) {
+      currentProgress.value = res.data?.progress || currentProgress.value + 1
+      audioChunks = []
+      recordedAnswer.value = ''
+      questionAudioUrl.value = ''
+
+      if (res.data?.nextQuestion) {
+        setTimeout(async () => {
+          currentQuestion.value = res.data.nextQuestion
+          countdown.value = res.data.nextQuestion.timeLimit || TOTAL_TIME
+          startCountdown()
+          await loadQuestionAudio(res.data.nextQuestion.questionId)
+        }, 1000)
+      } else {
+        interviewCompleted.value = true
+      }
+    }
+  } catch (e) {
+    message.error('提交失败，请重试')
+    startCountdown()
+  } finally {
+    submitting.value = false
+  }
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64 = reader.result.split(',')[1]
+      resolve(base64)
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
 }
 
 function startCountdown() {
@@ -227,46 +423,11 @@ function stopCountdown() {
 
 function handleTimeUp() {
   stopCountdown()
-  if (answerText.value.trim()) {
-    submitAnswer()
+  if (recordedAnswer.value.trim()) {
+    submitVoiceAnswer()
   } else {
-    message.warning('答题时间已到，请提交空白回答')
-    submitAnswer()
-  }
-}
-
-async function submitAnswer() {
-  if (!answerText.value.trim() && !currentQuestion.value) return
-
-  submitting.value = true
-  stopCountdown()
-
-  try {
-    const res = await aiInterviewSessionApi.submitAnswer(sessionId.value, {
-      questionId: currentQuestion.value?.questionId || 'Q0',
-      answer: answerText.value.trim(),
-      audioUrl: null
-    })
-
-    if (res.success) {
-      currentProgress.value = res.data?.progress || currentProgress.value + 1
-      answerText.value = ''
-
-      if (res.data?.nextQuestion) {
-        setTimeout(async () => {
-          currentQuestion.value = res.data.nextQuestion
-          countdown.value = res.data.nextQuestion.timeLimit || TOTAL_TIME
-          startCountdown()
-        }, 3000)
-      } else {
-        interviewCompleted.value = true
-      }
-    }
-  } catch (e) {
-    message.error('提交失败，请重试')
-    startCountdown()
-  } finally {
-    submitting.value = false
+    message.warning('答题时间已到')
+    submitVoiceAnswer()
   }
 }
 
@@ -280,6 +441,13 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopCountdown()
+  if (recordingTimer) clearInterval(recordingTimer)
+  if (mediaRecorder && isRecording.value) {
+    mediaRecorder.stream.getTracks().forEach(track => track.stop())
+  }
+  if (questionAudioUrl.value) {
+    URL.revokeObjectURL(questionAudioUrl.value)
+  }
 })
 </script>
 
@@ -415,26 +583,108 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.answer-area {
-  width: 100%;
+.audio-player {
+  margin-bottom: 24px;
+}
+
+.voice-recorder {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
+  width: 100%;
+  max-width: 400px;
 }
 
-.answer-area :deep(.ant-input) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+.record-status {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.pulse {
+  width: 12px;
+  height: 12px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.recorded-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.record-btn {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
   color: white;
-  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(24, 144, 255, 0.4);
 }
 
-.answer-area :deep(.ant-input::placeholder) {
-  color: rgba(255, 255, 255, 0.4);
+.record-btn:hover:not(.disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(24, 144, 255, 0.5);
 }
 
-.answer-area :deep(.ant-btn-primary) {
-  align-self: flex-end;
+.record-btn.recording {
+  background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+  box-shadow: 0 8px 32px rgba(255, 77, 79, 0.4);
+  animation: pulse-shadow 1s ease-in-out infinite;
+}
+
+@keyframes pulse-shadow {
+  0%, 100% { box-shadow: 0 8px 32px rgba(255, 77, 79, 0.4); }
+  50% { box-shadow: 0 8px 48px rgba(255, 77, 79, 0.6); }
+}
+
+.record-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mic-icon, .stop-icon {
+  font-size: 32px;
+}
+
+.record-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.record-hint {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+}
+
+.re-record-area {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .loading-screen {
