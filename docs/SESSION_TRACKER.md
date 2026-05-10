@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-> **版本：** v1.14（Phase 12进行中：T-61✅ T-62⏳）
+> **版本：** v1.15（Phase 12完成：T-61✅ T-62✅）
 > **更新：** 2026-05-10
 
 ---
@@ -58,7 +58,7 @@
 | 46 | T-59 | ✅ 50678fe | CC+小P | 2026-05-10 | ✅ 完成 | **F-18实时语音面试**——VoiceService(MiniMax TTS speech-02-hd)✅；GET /question-audio/{id}/{qId}端点✅；CandidateInterview.vue全面改造(461→710行)：按住说话按钮+脉冲动画+录音计时+重录+音频预览✅；dot build+npm build 0 errors✅ |
 | 47 | T-60 | ✅ | 小P | 2026-05-10 | ✅ 完成 | **F-21报告自动生成**——CompleteSession自动触发GenerateReportAsync(background Task.Run)✅；IInterviewReportService注册✅；fire-and-forget不阻塞完成流程✅；实测200 OK+报告生成(score=65)✅ |
 | 48 | T-61 | ✅ 9328e59 | CC+小P | 2026-05-10 | ✅ 完成 | **F-22报告导出PDF/Excel**——QuestPDF+ClosedXML✅；ExportService(347行)✅；Controller端点(export-pdf/export-excel/export-excel-batch)✅；前端InterviewReports.vue导出按钮✅；路由{int}约束修复✅；实测PDF 16KB/Excel 8KB✅；commit 9328e59 |
-| 49 | T-62 | ⏳ | CC | 2026-05-10 | 待委派 | **F-23报告权限**——HR/管理员/面试官查看报告权限隔离 |
+| 49 | T-62 | ✅ a2155f1 | CC+小P | 2026-05-10 | ✅ 完成 | **F-23报告权限**——AIInterviewSession.InterviewerUserId+MySQL FK✅；StartSession记录面试官✅；行级过滤(hiring_manager只看自己报告)✅；GetReport(id)404无权限✅；by-session候选人报告入口(AllowAnonymous)✅；dotnet build+npm build 0 errors✅ |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取
