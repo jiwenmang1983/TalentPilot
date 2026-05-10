@@ -11,6 +11,7 @@ public interface IResumeCollectionService
     Task<Resume> CreateResumeAsync(string? candidateName, string? phone, string? email, string? source, string? rawFilePath, int? sourceJobPostId);
     Task<List<Resume>> MockCollectResumesAsync(string channel, int count = 5);
     Task<bool> UpdateResumeCandidateIdAsync(int resumeId, int candidateId);
+    Task<(List<object> Items, int Total)> ListResumesWithMatchAsync(int? jobPostId, string? channel, decimal? minScore, decimal? maxScore, int page, int pageSize);
 }
 
 public class ResumeCollectionService : IResumeCollectionService
@@ -103,6 +104,48 @@ public class ResumeCollectionService : IResumeCollectionService
         await _dbContext.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<(List<object> Items, int Total)> ListResumesWithMatchAsync(int? jobPostId, string? channel, decimal? minScore, decimal? maxScore, int page, int pageSize)
+    {
+        var query = from r in _dbContext.Resumes
+                    join m in _dbContext.MatchResults on r.Id equals m.ResumeId into matchGroup
+                    from m in matchGroup.DefaultIfEmpty()
+                    where (string.IsNullOrEmpty(channel) || r.Source == channel)
+                          && (!jobPostId.HasValue || m.JobPostId == jobPostId.Value)
+                          && (!minScore.HasValue || (m != null && m.Score >= minScore.Value))
+                          && (!maxScore.HasValue || (m != null && m.Score <= maxScore.Value))
+                    select new
+                    {
+                        Resume = r,
+                        Match = m
+                    };
+
+        var total = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.Match != null ? x.Match.Score : 0)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => (object)new
+            {
+                x.Resume.Id,
+                x.Resume.CandidateName,
+                x.Resume.Phone,
+                x.Resume.Email,
+                x.Resume.Source,
+                x.Resume.ParsedStatus,
+                x.Resume.CandidateId,
+                x.Resume.CreatedAt,
+                JobPostId = x.Match != null ? x.Match.JobPostId : (int?)null,
+                matchScore = x.Match != null ? x.Match.Score : (decimal?)null,
+                matchStatus = x.Match != null ? x.Match.Status : (string?)null,
+                matchThreshold = x.Match != null ? x.Match.MatchThreshold : (decimal?)null,
+                dimensionScores = x.Match != null ? x.Match.DimensionScores : (string?)null
+            })
+            .ToListAsync();
+
+        return (items, total);
     }
 
     private static List<Resume> GenerateMockResumes(string channel, int count)

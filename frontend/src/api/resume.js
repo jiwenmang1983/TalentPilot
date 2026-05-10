@@ -7,5 +7,7 @@ export const resumeApi = {
   mockCollect: (data) => api.post('/resumes/mock-collect', data),
   parse: (id) => api.post(`/resumes/${id}/parse`),
   parseText: (data) => api.post('/resumes/parse', data),
-  createCandidate: (data) => api.post('/candidates', data)
+  createCandidate: (data) => api.post('/candidates', data),
+  overrideMatchThreshold: (matchId, overrideThreshold) =>
+    api.patch(`/matches/${matchId}/threshold`, { overrideThreshold })
 }

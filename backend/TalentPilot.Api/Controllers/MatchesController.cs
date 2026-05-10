@@ -83,6 +83,16 @@ public class MatchesController : ControllerBase
 
         return Ok(new ApiResponse<object>(true, "状态更新成功", new { result.Id, result.Status }));
     }
+
+    [HttpPatch("{id}/threshold")]
+    public async Task<ActionResult<ApiResponse<object>>> OverrideMatchThreshold(int id, [FromBody] OverrideThresholdRequest request)
+    {
+        var match = await _matchingService.UpdateMatchThresholdAsync(id, request.OverrideThreshold);
+        if (match == null)
+            return NotFound(new ApiResponse<object>(false, "匹配结果不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "阈值更新成功", new { match.Id, match.MatchThreshold }));
+    }
 }
 
 public class CalculateMatchRequest
@@ -94,4 +104,9 @@ public class CalculateMatchRequest
 public class UpdateMatchStatusRequest
 {
     public string Status { get; set; } = string.Empty;
+}
+
+public class OverrideThresholdRequest
+{
+    public decimal? OverrideThreshold { get; set; }
 }

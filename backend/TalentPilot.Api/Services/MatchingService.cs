@@ -11,6 +11,7 @@ public interface IMatchingService
     Task<List<MatchResult>> BatchMatchAsync(int jobPostId);
     Task<(List<MatchResult> Items, int Total)> GetMatchResultsAsync(int? jobPostId, int page, int pageSize);
     Task<MatchResult?> UpdateMatchStatusAsync(int matchId, string status);
+    Task<MatchResult?> UpdateMatchThresholdAsync(int matchId, decimal? overrideThreshold);
 }
 
 public class MatchingService : IMatchingService
@@ -173,7 +174,8 @@ public class MatchingService : IMatchingService
             existing.MatchedSkills = JsonSerializer.Serialize(matchedSkills);
             existing.DimensionScores = JsonSerializer.Serialize(dimensionScores);
             existing.DimensionWeights = JsonSerializer.Serialize(weights);
-            existing.MatchThreshold = jobPost.MatchThreshold ?? 80;
+            if (existing.MatchThreshold == null)
+                existing.MatchThreshold = jobPost.MatchThreshold ?? 80;
             existing.Summary = summary;
             existing.CreatedAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
@@ -347,6 +349,16 @@ public class MatchingService : IMatchingService
         if (match == null) return null;
 
         match.Status = status;
+        await _dbContext.SaveChangesAsync();
+        return match;
+    }
+
+    public async Task<MatchResult?> UpdateMatchThresholdAsync(int matchId, decimal? overrideThreshold)
+    {
+        var match = await _dbContext.MatchResults.FindAsync(matchId);
+        if (match == null) return null;
+
+        match.MatchThreshold = overrideThreshold;
         await _dbContext.SaveChangesAsync();
         return match;
     }

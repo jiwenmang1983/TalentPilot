@@ -31,28 +31,21 @@ public class ResumesController : ControllerBase
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ApiResponse<object>>> GetResumes(
-        [FromQuery] string? source = null,
+        [FromQuery] int? jobPostId = null,
+        [FromQuery] string? channel = null,
+        [FromQuery] decimal? minScore = null,
+        [FromQuery] decimal? maxScore = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
-        var (items, total) = await _resumeService.ListResumesAsync(source, page, pageSize);
+        var (items, total) = await _resumeService.ListResumesWithMatchAsync(jobPostId, channel, minScore, maxScore, page, pageSize);
 
         return Ok(new ApiResponse<object>(true, "获取成功", new
         {
             total,
             page,
             pageSize,
-            items = items.Select(r => new
-            {
-                r.Id,
-                r.CandidateName,
-                r.Phone,
-                r.Email,
-                r.Source,
-                r.ParsedStatus,
-                r.CandidateId,
-                r.CreatedAt
-            })
+            items
         }));
     }
 
