@@ -195,11 +195,6 @@
             触发立即采集
             </summary>
         </member>
-        <member name="M:TalentPilot.Api.Controllers.ResumesController.GetSources">
-            <summary>
-            获取简历来源列表
-            </summary>
-        </member>
         <member name="T:TalentPilot.Api.Controllers.RolesController">
             <summary>
             Roles

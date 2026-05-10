@@ -49,6 +49,21 @@ public class ResumesController : ControllerBase
         }));
     }
 
+    [HttpGet("sources")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse<object>>> GetSources()
+    {
+        var sources = await _resumeService.GetSourcesAsync();
+        return Ok(new ApiResponse<object>(true, "获取成功", sources.Select(s => new
+        {
+            s.Id,
+            s.Channel,
+            s.IsActive,
+            s.LastSyncAt,
+            s.CreatedAt
+        })));
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ApiResponse<object>>> GetResume(int id)
     {
@@ -151,24 +166,6 @@ public class ResumesController : ControllerBase
     {
         await _resumeService.TriggerImmediateCollectionAsync(request?.JobPostId);
         return Ok(new ApiResponse<object>(true, "采集任务已触发", null));
-    }
-
-    /// <summary>
-    /// 获取简历来源列表
-    /// </summary>
-    [HttpGet("sources")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ApiResponse<object>>> GetSources()
-    {
-        var sources = await _resumeService.GetSourcesAsync();
-        return Ok(new ApiResponse<object>(true, "获取成功", sources.Select(s => new
-        {
-            s.Id,
-            s.Channel,
-            s.IsActive,
-            s.LastSyncAt,
-            s.CreatedAt
-        })));
     }
 }
 
