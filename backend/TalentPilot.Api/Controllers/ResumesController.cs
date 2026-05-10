@@ -49,6 +49,16 @@ public class ResumesController : ControllerBase
         }));
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ApiResponse<object>>> GetResume(int id)
+    {
+        var resume = await _resumeService.GetResumeByIdAsync(id);
+        if (resume == null)
+            return NotFound(new ApiResponse<object>(false, "简历不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", resume));
+    }
+
     [HttpGet("channels")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<object>>> GetSources()
@@ -62,16 +72,6 @@ public class ResumesController : ControllerBase
             s.LastSyncAt,
             s.CreatedAt
         })));
-    }
-
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<ApiResponse<object>>> GetResume(int id)
-    {
-        var resume = await _resumeService.GetResumeByIdAsync(id);
-        if (resume == null)
-            return NotFound(new ApiResponse<object>(false, "简历不存在", null));
-
-        return Ok(new ApiResponse<object>(true, "获取成功", resume));
     }
 
     [HttpPost("upload")]
