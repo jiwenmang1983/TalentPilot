@@ -58,7 +58,8 @@ public enum NotificationType
 {
     InterviewInvitation,
     InterviewReminder,
-    Offer
+    Offer,
+    InterviewStarted
 }
 
 public enum NotificationChannel

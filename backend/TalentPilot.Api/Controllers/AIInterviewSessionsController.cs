@@ -17,15 +17,18 @@ public class AIInterviewSessionsController : ControllerBase
 {
     private readonly AIInterviewSessionService _sessionService;
     private readonly OperationLogService _logService;
+    private readonly IFeishuNotificationService _feishuNotificationService;
     private readonly TalentPilotDbContext _context;
 
     public AIInterviewSessionsController(
         AIInterviewSessionService sessionService,
         OperationLogService logService,
+        IFeishuNotificationService feishuNotificationService,
         TalentPilotDbContext context)
     {
         _sessionService = sessionService;
         _logService = logService;
+        _feishuNotificationService = feishuNotificationService;
         _context = context;
     }
 
@@ -168,6 +171,17 @@ public class AIInterviewSessionsController : ControllerBase
         {
             await _logService.RecordLog(userId, "START", "AIInterviewSession", id, $"开始AI面试 {id}", HttpContext);
         }
+
+        _ = Task.Run(async () =>
+        {
+            var candidate = await _context.Candidates.FindAsync(session.CandidateId);
+            var jobPost = await _context.JobPosts.FindAsync(session.JobPostId);
+            await _feishuNotificationService.SendInterviewStartedNotificationAsync(
+                session.Id,
+                candidate?.Name ?? "Unknown",
+                jobPost?.Title ?? "Unknown",
+                session.StartTime ?? DateTime.UtcNow);
+        });
 
         return Ok(new ApiResponse<object>(true, "面试已开始", new { session.Id, session.Status, session.StartTime }));
     }
