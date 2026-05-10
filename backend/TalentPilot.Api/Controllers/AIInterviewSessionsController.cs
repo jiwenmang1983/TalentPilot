@@ -215,6 +215,12 @@ public class AIInterviewSessionsController : ControllerBase
         if (session == null)
             return BadRequest(new ApiResponse<object>(false, "开始失败，会话不存在或状态不允许", null));
 
+        // Record the interviewer for this session
+        var currentUserId = GetCurrentUserId();
+        session.InterviewerUserId = currentUserId;
+        _context.AIInterviewSessions.Update(session);
+        await _context.SaveChangesAsync();
+
         var userId = GetCurrentUserId();
         if (userId > 0)
         {

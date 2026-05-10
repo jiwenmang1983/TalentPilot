@@ -81,6 +81,12 @@ public class AIInterviewSession
 
     [ForeignKey(nameof(JobPostId))]
     public virtual JobPost? JobPost { get; set; }
+
+    [Column("InterviewerUserId")]
+    public long? InterviewerUserId { get; set; }
+
+    [ForeignKey(nameof(InterviewerUserId))]
+    public virtual User? Interviewer { get; set; }
 }
 
 public static class AIInterviewSessionStatus

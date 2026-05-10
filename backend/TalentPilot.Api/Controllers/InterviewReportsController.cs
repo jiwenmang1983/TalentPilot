@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TalentPilot.Api.Data;
 using TalentPilot.Api.Models.DTOs;
 using TalentPilot.Api.Services;
 
@@ -18,17 +20,20 @@ public class InterviewReportsController : ControllerBase
     private readonly OperationLogService _logService;
     private readonly IExportService _exportService;
     private readonly ILogger<InterviewReportsController> _logger;
+    private readonly TalentPilotDbContext _context;
 
     public InterviewReportsController(
         InterviewReportService reportService,
         OperationLogService logService,
         IExportService exportService,
-        ILogger<InterviewReportsController> logger)
+        ILogger<InterviewReportsController> logger,
+        TalentPilotDbContext context)
     {
         _reportService = reportService;
         _logService = logService;
         _exportService = exportService;
         _logger = logger;
+        _context = context;
     }
 
     [HttpGet]
@@ -50,6 +55,22 @@ public class InterviewReportsController : ControllerBase
             minScore, maxScore, dateFrom, dateTo,
             page, pageSize);
 
+        // Row-level security: hiring_manager can only see their own reports
+        var currentUserId = GetCurrentUserId();
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value
+                       ?? User.FindFirst("role")?.Value ?? "";
+
+        if (userRole == "hiring_manager")
+        {
+            var accessibleSessionIds = await _context.AIInterviewSessions
+                .Where(s => s.InterviewerUserId == currentUserId)
+                .Select(s => s.Id)
+                .ToListAsync();
+
+            items = items.Where(r => accessibleSessionIds.Contains(r.AIInterviewSessionId)).ToList();
+            total = items.Count;
+        }
+
         return Ok(new ApiResponse<object>(true, "获取成功", new
         {
             total,
@@ -68,13 +89,25 @@ public class InterviewReportsController : ControllerBase
         }));
     }
 
-    [HttpGet("{id}")]  // GET /api/interview-reports/{id} — 无int约束避免与子路由冲突
+    [HttpGet("{id}")]
     [Authorize(Roles = "admin,hr,hiring_manager")]
     public async Task<ActionResult<ApiResponse<object>>> GetReport(int id)
     {
         var report = await _reportService.GetByIdAsync(id);
         if (report == null)
             return NotFound(new ApiResponse<object>(false, "报告不存在", null));
+
+        // Row-level security for hiring_manager
+        var currentUserId = GetCurrentUserId();
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value
+                       ?? User.FindFirst("role")?.Value ?? "";
+        if (userRole == "hiring_manager")
+        {
+            var hasAccess = await _context.AIInterviewSessions
+                .AnyAsync(s => s.Id == report.AIInterviewSessionId && s.InterviewerUserId == currentUserId);
+            if (!hasAccess)
+                return NotFound(new ApiResponse<object>(false, "报告不存在", null));
+        }
 
         return Ok(new ApiResponse<object>(true, "获取成功", ConvertToResponse(report)));
     }
@@ -85,6 +118,24 @@ public class InterviewReportsController : ControllerBase
         var report = await _reportService.GetBySessionIdAsync(sessionId);
         if (report == null)
             return NotFound(new ApiResponse<object>(false, "该会话暂无报告", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", ConvertToResponse(report)));
+    }
+
+    /// <summary>
+    /// Candidate accesses their own report by session ID (no JWT required - uses session token pattern)
+    /// </summary>
+    [HttpGet("by-session/{sessionId}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<object>>> GetReportBySessionForCandidate(int sessionId)
+    {
+        var report = await _context.InterviewReports
+            .Include(r => r.Candidate)
+            .Include(r => r.JobPost)
+            .FirstOrDefaultAsync(r => r.AIInterviewSessionId == sessionId);
+
+        if (report == null)
+            return NotFound(new ApiResponse<object>(false, "报告不存在", null));
 
         return Ok(new ApiResponse<object>(true, "获取成功", ConvertToResponse(report)));
     }
