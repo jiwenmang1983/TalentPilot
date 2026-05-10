@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TalentPilot.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d68ff7c84e3cc5fa01ee4b558f02ea3bc9f3c1f3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f8c0973195070514c9ac4bffc369a3bc6dab5d1b")]
 [assembly: System.Reflection.AssemblyProductAttribute("TalentPilot.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TalentPilot.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

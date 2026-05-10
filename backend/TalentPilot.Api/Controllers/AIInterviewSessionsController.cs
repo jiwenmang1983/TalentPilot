@@ -136,6 +136,46 @@ public class AIInterviewSessionsController : ControllerBase
         }));
     }
 
+    /// <summary>
+    /// Candidate joins the interview session by token. Triggers HR notification.
+    /// </summary>
+    [HttpPost("by-token/{token}/join")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<object>>> JoinSessionByToken(string token)
+    {
+        var session = await _sessionService.GetByTokenAsync(token);
+        if (session == null)
+            return NotFound(new ApiResponse<object>(false, "会话不存在", null));
+
+        if (session.Status != "Pending")
+            return BadRequest(new ApiResponse<object>(false, $"当前状态不允许加入（当前: {session.Status}）", null));
+
+        var updated = await _sessionService.StartAsync(session.Id);
+        if (updated == null)
+            return BadRequest(new ApiResponse<object>(false, "加入失败", null));
+
+        // Fire-and-forget HR notification
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var candidate = await _context.Candidates.FindAsync(updated.CandidateId);
+                var jobPost = await _context.JobPosts.FindAsync(updated.JobPostId);
+                await _feishuNotificationService.SendInterviewStartedNotificationAsync(
+                    updated.Id,
+                    candidate?.Name ?? "Unknown",
+                    jobPost?.Title ?? "Unknown",
+                    updated.StartTime ?? DateTime.UtcNow);
+            }
+            catch (Exception ex)
+            {
+                // Log but don't fail the candidate's join
+            }
+        });
+
+        return Ok(new ApiResponse<object>(true, "加入成功", new { updated.Id, updated.Status, updated.StartTime }));
+    }
+
     [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

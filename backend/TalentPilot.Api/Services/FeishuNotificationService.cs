@@ -57,7 +57,7 @@ public class FeishuNotificationService : IFeishuNotificationService
 
         try
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("Feishu");
             var json = JsonSerializer.Serialize(card);
             var response = await client.PostAsJsonAsync(webhookUrl, card);
 

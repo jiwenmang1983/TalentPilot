@@ -6,6 +6,7 @@ export const aiInterviewSessionApi = {
   getByToken: (token) => api.get(`/ai-interview-sessions/by-token/${token}`),
   create: (data) => api.post('/ai-interview-sessions', data),
   start: (id) => api.put(`/ai-interview-sessions/${id}/start`),
+  joinByToken: (token) => api.post(`/ai-interview-sessions/by-token/${token}/join`),
   complete: (id) => api.put(`/ai-interview-sessions/${id}/complete`),
   cancel: (id) => api.put(`/ai-interview-sessions/${id}/cancel`),
   submitAnswer: (id, data) => api.post(`/ai-interview-sessions/${id}/submit-answer`, data),

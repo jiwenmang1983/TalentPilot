@@ -9,6 +9,11 @@
             AIInterviewSessions
             </summary>
         </member>
+        <member name="M:TalentPilot.Api.Controllers.AIInterviewSessionsController.JoinSessionByToken(System.String)">
+            <summary>
+            Candidate joins the interview session by token. Triggers HR notification.
+            </summary>
+        </member>
         <member name="T:TalentPilot.Api.Controllers.AuthController">
             <summary>
             Auth

@@ -168,7 +168,7 @@ async function verifyToken() {
       sessionId.value = res.data.id
 
       if (res.data.status === 'Pending') {
-        await aiInterviewSessionApi.start(res.data.id)
+        await aiInterviewSessionApi.joinByToken(token)
         session.value.status = 'InProgress'
       }
 

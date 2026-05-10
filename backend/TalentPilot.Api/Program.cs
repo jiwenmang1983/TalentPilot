@@ -104,6 +104,7 @@ builder.Services.AddScoped<InterviewReportService>();
 builder.Services.AddScoped<ConversionFunnelService>();
 builder.Services.AddScoped<InterviewInvitationService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddHttpClient("Feishu");
 builder.Services.AddScoped<IFeishuNotificationService, FeishuNotificationService>();
 builder.Services.AddScoped<ChannelCredentialService>();
 builder.Services.AddScoped<ContentAdaptationService>();
