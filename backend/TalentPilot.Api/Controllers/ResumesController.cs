@@ -49,10 +49,13 @@ public class ResumesController : ControllerBase
         }));
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<ApiResponse<object>>> GetResume(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ApiResponse<object>>> GetResume(string id)
     {
-        var resume = await _resumeService.GetResumeByIdAsync(id);
+        if (!int.TryParse(id, out int resumeId))
+            return BadRequest(new ApiResponse<object>(false, "简历ID无效", null));
+
+        var resume = await _resumeService.GetResumeByIdAsync(resumeId);
         if (resume == null)
             return NotFound(new ApiResponse<object>(false, "简历不存在", null));
 
@@ -114,11 +117,14 @@ public class ResumesController : ControllerBase
     }
 
     [HttpPost("{id}/parse")]
-    public async Task<ActionResult<ApiResponse<object>>> ParseResume(int id)
+    public async Task<ActionResult<ApiResponse<object>>> ParseResume(string id)
     {
+        if (!int.TryParse(id, out int resumeId))
+            return BadRequest(new ApiResponse<object>(false, "简历ID无效", null));
+
         try
         {
-            var result = await _parsingService.ParseResumeAsync(id);
+            var result = await _parsingService.ParseResumeAsync(resumeId);
             if (result == null)
             {
                 return NotFound(new ApiResponse<object>(false, "简历不存在", null));
