@@ -54,7 +54,7 @@
 | 42 | T-55 | ✅ | CC+小P | 2026-05-10 | ✅ 完成 | **F-07简历采集路由修复**——5次CC尝试，最终移除{id:int}约束+手动int.TryParse解决[ApiController]路由前验证问题；channels端点200 ✅；collect-now端点200 ✅；build 0 errors；commits: abdec62~e66b69c~新commit |
 | 43 | T-56 | ✅ | CC+小P | 2026-05-10 | ✅ 完成 | **F-15候选人自主预约**——API: GET /slots(200✅), POST /book, GET /booking-status(200✅)；DDL已补齐(ScheduledAt/BookingDeadline/InterviewDuration/AvailableSlots)；InterviewBooking.vue✅(fada60c)；前后端build 0 errors |
 | 44 | T-57 | ✅ f5ca13f | CC+小P | 2026-05-10 | ✅ 完成 | **F-17面试问题配置UI**——DDL: InterviewQuestions(TEXT)+InterviewDuration(INT NOT NULL DEFAULT 30)✅；Entity+DTO+Service映射✅；JobPostForm.vue面试设置(时长下拉+动态问题列表)✅；API验证: interviewDuration=60/interviewQuestions写入读取✅；后端+前端build 0 errors |
-| 45 | T-58 | 🔄 | CC | 2026-05-10 | 进行中 | **F-16 HR实时通知**——新增NotificationType.InterviewStarted；新建FeishuNotificationService发送飞书卡片消息；集成到StartSession action(fire-and-forget)；appsettings配置项 |
+| 45 | T-58 | ✅ 7a94279 | 小P+CC | 2026-05-10 | ✅ 完成 | **F-16 HR实时通知**——FeishuNotificationService(飞书卡片消息)✅；POST /by-token/{token}/join(AllowAnonymous)✅；join时fire-and-forget触发通知✅；前端joinByToken对接✅；NotificationType.InterviewStarted✅ |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取
