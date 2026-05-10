@@ -27,7 +27,7 @@ public class VisionParser
     public async Task<ResumeScreenshotResult?> ParseResumeDetailAsync(byte[] screenshotBytes)
     {
         var base64Image = Convert.ToBase64String(screenshotBytes);
-        
+
         var requestBody = new
         {
             model = "MiniMax-4k-Vision",
@@ -81,10 +81,9 @@ public class VisionParser
 
         try
         {
-            // 从响应中提取文本内容（参考 MiniMaxService 的实现）
             var respObj = JsonSerializer.Deserialize<JsonElement>(responseContent);
             var contentArray = respObj.TryGetProperty("content", out var ca) ? ca : default;
-            
+
             string? extractedText = null;
             if (contentArray.ValueKind == JsonValueKind.Array)
             {
@@ -104,9 +103,7 @@ public class VisionParser
                 return null;
             }
 
-            // 解析 JSON
             extractedText = extractedText.Trim();
-            // 去掉可能的markdown代码块
             if (extractedText.StartsWith("```"))
             {
                 var firstNewline = extractedText.IndexOf('\n');
@@ -137,7 +134,7 @@ public class VisionParser
     public async Task<List<ResumeListItem>> ParseResumeListAsync(byte[] screenshotBytes)
     {
         var base64Image = Convert.ToBase64String(screenshotBytes);
-        
+
         var requestBody = new
         {
             model = "MiniMax-4k-Vision",
@@ -227,6 +224,126 @@ public class VisionParser
             return new List<ResumeListItem>();
         }
     }
+
+    /// <summary>
+    /// 评估候选人与职位的匹配度（MiniMax LLM 判断）
+    /// </summary>
+    public async Task<CandidateRelevanceResult?> EvaluateCandidateRelevanceAsync(
+        ResumeListItem candidate,
+        string jobTitle,
+        string jobDescription,
+        CancellationToken ct = default)
+    {
+        var prompt = $@"你是一个专业的招聘HR。请根据以下信息，判断候选人是否符合职位要求。
+
+**职位信息：**
+- 职位名称：{jobTitle}
+- 职位描述：{jobDescription}
+
+**候选人信息：**
+- 姓名：{candidate.姓名 ?? "未知"}
+- 当前公司：{candidate.当前公司 ?? "未知"}
+- 期望职位：{candidate.期望职位 ?? "未知"}
+- 学历：{candidate.学历 ?? "未知"}
+- 工作年限：{candidate.工作年限 ?? "未知"}
+- 技能标签：{string.Join(", ", candidate.标签 ?? new List<string>())}
+
+请以JSON格式返回评估结果：
+{{
+  ""符合职位"": true或false,
+  ""匹配度"": 0-100的整数,
+  ""简要理由"": ""一句话说明原因""
+}}
+
+只返回JSON，不要其他文字。";
+
+        var requestBody = new
+        {
+            model = "MiniMax-M2.7",
+            max_tokens = 512,
+            messages = new object[]
+            {
+                new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new { type = "text", text = prompt }
+                    }
+                }
+            }
+        };
+
+        var client = _httpClientFactory.CreateClient("MiniMax");
+        client.DefaultRequestHeaders.Clear();
+        client.DefaultRequestHeaders.Add("x-api-key", _apiKey);
+        client.DefaultRequestHeaders.Add("anthropic-version", "2023-06-01");
+
+        var jsonContent = JsonSerializer.Serialize(requestBody);
+        var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync(_baseUrl, httpContent, ct);
+        var responseContent = await response.Content.ReadAsStringAsync(ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError("MiniMax relevance evaluation API error: {StatusCode}", response.StatusCode);
+            return null;
+        }
+
+        try
+        {
+            var respObj = JsonSerializer.Deserialize<JsonElement>(responseContent);
+            var contentArray = respObj.TryGetProperty("content", out var ca) ? ca : default;
+
+            string? extractedText = null;
+            if (contentArray.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in contentArray.EnumerateArray())
+                {
+                    if (item.TryGetProperty("type", out var type) && type.GetString() == "text")
+                    {
+                        extractedText = item.GetProperty("text").GetString();
+                        break;
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(extractedText))
+                return null;
+
+            extractedText = extractedText.Trim();
+            if (extractedText.StartsWith("```"))
+            {
+                var firstNewline = extractedText.IndexOf('\n');
+                if (firstNewline > 0) extractedText = extractedText[(firstNewline + 1)..];
+            }
+            if (extractedText.EndsWith("```"))
+                extractedText = extractedText[..^3];
+
+            return JsonSerializer.Deserialize<CandidateRelevanceResult>(extractedText, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to parse relevance evaluation response");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 根据 JD 关键词构建 Boss 搜索 URL
+    /// </summary>
+    public string BuildSearchUrl(string jobTitle, string? city = null, int page = 1)
+    {
+        var baseUrl = "https://www.zhipin.com/web/geek/jobs";
+        var query = Uri.EscapeDataString(jobTitle);
+        var pageParam = $"&page={page}";
+        var cityParam = !string.IsNullOrEmpty(city) ? $"&city={Uri.EscapeDataString(city)}" : "";
+        return $"{baseUrl}?query={query}{cityParam}{pageParam}";
+    }
 }
 
 public class ResumeScreenshotResult
@@ -271,4 +388,11 @@ public class ResumeListItem
     public string? 当前公司 { get; set; }
     public string? 期望职位 { get; set; }
     public List<string>? 标签 { get; set; }
+}
+
+public class CandidateRelevanceResult
+{
+    public bool 符合职位 { get; set; }
+    public int 匹配度 { get; set; }
+    public string? 简要理由 { get; set; }
 }

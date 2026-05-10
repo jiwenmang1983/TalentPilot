@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalentPilot.Api.Services.BrowserAgent;
+using TalentPilot.Api.Services;
 
 namespace TalentPilot.Api.Controllers;
 
 /// <summary>
-/// Browser Agent 控制器 - 浏览器自动化简历采集 API
+/// Browser Agent 控制器 - 浏览器自动化简历采集 API（按需采集）
 /// </summary>
 [ApiController]
 [Route("api/browser-agent")]
@@ -15,44 +16,89 @@ public class BrowserAgentController : ControllerBase
     private readonly BossPlatform _bossPlatform;
     private readonly PlaywrightBrowserManager _browserManager;
     private readonly CookieSessionManager _cookieManager;
+    private readonly IJobPostService _jobPostService;
     private readonly ILogger<BrowserAgentController> _logger;
 
     public BrowserAgentController(
         BossPlatform bossPlatform,
         PlaywrightBrowserManager browserManager,
         CookieSessionManager cookieManager,
+        IJobPostService jobPostService,
         ILogger<BrowserAgentController> logger)
     {
         _bossPlatform = bossPlatform;
         _browserManager = browserManager;
         _cookieManager = cookieManager;
+        _jobPostService = jobPostService;
         _logger = logger;
     }
 
     /// <summary>
-    /// 触发简历采集
+    /// 按需采集：针对指定职位从 Boss 搜索并采集符合要求的简历
     /// </summary>
+    /// <param name="request">必须传入 jobPostId</param>
     [HttpPost("collect")]
-    public async Task<ActionResult<ApiResponse<object>>> Collect([FromBody] BrowserAgentCollectRequest? request = null)
+    public async Task<ActionResult<ApiResponse<object>>> Collect(
+        [FromBody] BrowserAgentCollectRequest request,
+        CancellationToken ct = default)
     {
-        var platform = request?.Platform ?? "boss";
-        var maxCandidates = request?.MaxCandidates ?? 10;
+        if (request.JobPostId == null || request.JobPostId <= 0)
+        {
+            return BadRequest(new ApiResponse<object>(false, "jobPostId 是必填参数，用于指定采集目标职位", null));
+        }
 
-        _logger.LogInformation("收到采集请求: platform={Platform}, maxCandidates={Max}", platform, maxCandidates);
+        _logger.LogInformation("收到按需采集请求: jobPostId={JobPostId}", request.JobPostId);
 
-        if (platform != "boss")
-            return BadRequest(new ApiResponse<object>(false, "目前仅支持 boss 平台", null));
+        var result = await _bossPlatform.RunCollectionAsync(request.JobPostId.Value, ct);
 
-        var result = await _bossPlatform.RunCollectionAsync(maxCandidates);
+        var statusCode = result.Status switch
+        {
+            "Completed" => 200,
+            "NeedsManualLogin" => 401,
+            "Failed" => 500,
+            "Cancelled" => 499,
+            _ => 200
+        };
 
-        return Ok(new ApiResponse<object>(true, result.Message ?? "采集完成", result));
+        return StatusCode(statusCode, new ApiResponse<object>(
+            result.Status == "Completed",
+            result.Message ?? result.Status,
+            result));
+    }
+
+    /// <summary>
+    /// 获取职位列表（供 HR 选择要采集哪个职位）
+    /// </summary>
+    [HttpGet("job-posts")]
+    public async Task<ActionResult<ApiResponse<object>>> GetJobPosts(
+        [FromQuery] string? status = "open",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        var (items, total) = await _jobPostService.GetAllAsync(status, page, pageSize);
+
+        return Ok(new ApiResponse<object>(true, "获取成功", new
+        {
+            total,
+            page,
+            pageSize,
+            items = items.Select(j => new
+            {
+                j.Id,
+                j.Title,
+                j.Status,
+                j.CreatedAt,
+                j.Requirements
+            })
+        }));
     }
 
     /// <summary>
     /// 保存当前登录态（手动登录后调用）
     /// </summary>
     [HttpPost("save-session")]
-    public async Task<ActionResult<ApiResponse<object>>> SaveSession([FromBody] SaveSessionRequest request)
+    public async Task<ActionResult<ApiResponse<object>>> SaveSession(
+        [FromBody] SaveSessionRequest request)
     {
         var platform = request.Platform ?? "boss";
         await _bossPlatform.SaveCurrentSessionAsync();
@@ -63,7 +109,8 @@ public class BrowserAgentController : ControllerBase
     /// 检查登录态
     /// </summary>
     [HttpGet("login-status")]
-    public async Task<ActionResult<ApiResponse<object>>> CheckLoginStatus([FromQuery] string platform = "boss")
+    public async Task<ActionResult<ApiResponse<object>>> CheckLoginStatus(
+        [FromQuery] string platform = "boss")
     {
         var hasCookies = _cookieManager.HasCookies(platform);
         var isValid = await _cookieManager.ValidateCookiesAsync(platform);
@@ -73,7 +120,10 @@ public class BrowserAgentController : ControllerBase
             platform,
             hasCookies,
             isValid,
-            status = !hasCookies ? "NoCookies" : isValid ? "Valid" : "Expired"
+            status = !hasCookies ? "NoCookies" : isValid ? "Valid" : "Expired",
+            nextStep = !hasCookies ? "请先手动登录并调用 /api/browser-agent/save-session" :
+                       !isValid ? "Cookies 已过期，请重新登录并保存" :
+                       "登录态有效，可以开始采集"
         }));
     }
 
@@ -97,7 +147,8 @@ public class BrowserAgentController : ControllerBase
         return Ok(new ApiResponse<object>(true, connected ? "已连接到浏览器" : "连接失败", new
         {
             connected,
-            endpoint = "http://localhost:9222"
+            endpoint = "http://localhost:9222",
+            hint = !connected ? "请在 Windows CMD 中运行: chrome.exe --remote-debugging-port=9222 --user-data-dir=\"C:\\Users\\<USER>\\chrome-debug\"" : null
         }));
     }
 
@@ -135,8 +186,10 @@ public class BrowserAgentController : ControllerBase
 
 public class BrowserAgentCollectRequest
 {
-    public string Platform { get; set; } = "boss";
-    public int MaxCandidates { get; set; } = 10;
+    /// <summary>
+    /// 必填：目标职位 ID（从 /api/browser-agent/job-posts 获取列表）
+    /// </summary>
+    public int? JobPostId { get; set; }
 }
 
 public class SaveSessionRequest

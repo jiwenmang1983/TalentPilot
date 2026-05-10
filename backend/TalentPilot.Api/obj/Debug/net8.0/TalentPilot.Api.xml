@@ -21,12 +21,18 @@
         </member>
         <member name="T:TalentPilot.Api.Controllers.BrowserAgentController">
             <summary>
-            Browser Agent 控制器 - 浏览器自动化简历采集 API
+            Browser Agent 控制器 - 浏览器自动化简历采集 API（按需采集）
             </summary>
         </member>
-        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Collect(TalentPilot.Api.Controllers.BrowserAgentCollectRequest)">
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Collect(TalentPilot.Api.Controllers.BrowserAgentCollectRequest,System.Threading.CancellationToken)">
             <summary>
-            触发简历采集
+            按需采集：针对指定职位从 Boss 搜索并采集符合要求的简历
+            </summary>
+            <param name="request">必须传入 jobPostId</param>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.GetJobPosts(System.String,System.Int32,System.Int32)">
+            <summary>
+            获取职位列表（供 HR 选择要采集哪个职位）
             </summary>
         </member>
         <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.SaveSession(TalentPilot.Api.Controllers.SaveSessionRequest)">
@@ -57,6 +63,11 @@
         <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Screenshot">
             <summary>
             截图当前页面（调试用）
+            </summary>
+        </member>
+        <member name="P:TalentPilot.Api.Controllers.BrowserAgentCollectRequest.JobPostId">
+            <summary>
+            必填：目标职位 ID（从 /api/browser-agent/job-posts 获取列表）
             </summary>
         </member>
         <member name="T:TalentPilot.Api.Controllers.CandidatesController">
@@ -269,8 +280,8 @@
         </member>
         <member name="T:TalentPilot.Api.Services.BrowserAgent.BossPlatform">
             <summary>
-            Boss 直聘平台采集适配器
-            实现：登录 → 列表页 → 截图识别 → 详情页 → 截图识别 → 存入DB
+            Boss 直聘平台采集适配器（按需采集模式）
+            流程：登录 → 职位搜索 → 截图识别 → 相关性过滤 → 详情采集 → 存入DB
             </summary>
         </member>
         <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.EnsureLoggedInAsync">
@@ -283,19 +294,14 @@
             保存当前浏览器 cookies
             </summary>
         </member>
-        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.CollectResumeListAsync(System.Int32)">
-            <summary>
-            采集简历列表
-            </summary>
-        </member>
-        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.CollectResumeDetailAsync(System.String)">
-            <summary>
-            采集简历详情
-            </summary>
-        </member>
         <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.RunCollectionAsync(System.Int32,System.Threading.CancellationToken)">
             <summary>
-            完整的采集流程
+            按需采集：针对指定职位从 Boss 搜索并采集符合要求的简历
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.CollectResumeListAsync(System.Int32)">
+            <summary>
+            采集简历列表（原始模式，不做相关性过滤）
             </summary>
         </member>
         <member name="T:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager">
@@ -392,6 +398,16 @@
         <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.ParseResumeListAsync(System.Byte[])">
             <summary>
             解析简历列表页截图 - 提取候选人卡片列表
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.EvaluateCandidateRelevanceAsync(TalentPilot.Api.Services.BrowserAgent.ResumeListItem,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            评估候选人与职位的匹配度（MiniMax LLM 判断）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.BuildSearchUrl(System.String,System.String,System.Int32)">
+            <summary>
+            根据 JD 关键词构建 Boss 搜索 URL
             </summary>
         </member>
         <member name="M:TalentPilot.Api.Services.MiniMaxMessageResponse.GetFirstText">
