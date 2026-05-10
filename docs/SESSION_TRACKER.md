@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-> **版本：** v1.18（Phase 8-13测试完成：36个API端点全验证 ✅）
+> **版本：** v1.19（Browser Agent 实现：Playwright CDP + MiniMax Vision）
 > **更新：** 2026-05-10
 
 ---
@@ -244,3 +244,49 @@ node_modules/.bin/vite --host 0.0.0.0 --port 5173 &
 - **API:** http://localhost:5010
 - **前端:** http://localhost:5173
 - **登录凭据:** admin / TalentPilot2026
+
+---
+
+## Browser Agent（F-07b）
+
+**目标：** 通过 Playwright + MiniMax Vision 从 Boss 直聘截图采集简历，绕过 API 资质门槛。
+
+**架构：**
+
+```
+Windows Chrome --remote-debugging-port=9222
+         ↓ CDP WebSocket
+WSL Playwright C# Agent
+    ↓
+  Screenshot → MiniMax Vision (MiniMax-4k-Vision) → 结构化 JSON
+```
+
+**实现文件（commit b539629）：**
+
+| 文件 | 职责 |
+|---|---|
+| `Services/BrowserAgent/VisionParser.cs` | MiniMax Vision API 截图解析 |
+| `Services/BrowserAgent/PlaywrightBrowserManager.cs` | CDP 连接 + 浏览器控制 |
+| `Services/BrowserAgent/CookieSessionManager.cs` | Cookie/Session 持久化 |
+| `Services/BrowserAgent/BossPlatform.cs` | Boss 直聘平台适配器 |
+| `Controllers/BrowserAgentController.cs` | 6个 API 端点 |
+| `BROWSER_AGENT_SPEC.md` | 技术规格文档 |
+
+**API 端点：**
+
+| 端点 | 方法 | 说明 |
+|---|---|---|
+| `/api/browser-agent/collect` | POST | 触发简历采集 |
+| `/api/browser-agent/save-session` | POST | 手动登录后保存 Cookie |
+| `/api/browser-agent/login-status` | GET | 检查登录态 |
+| `/api/browser-agent/connection` | GET | CDP 连接状态 |
+| `/api/browser-agent/navigate` | POST | 导航到指定 URL（调试） |
+| `/api/browser-agent/screenshot` | POST | 截图（调试） |
+
+**待 Mark 上机验证（阻塞中）：**
+
+1. [ ] Windows CMD：`chrome.exe --remote-debugging-port=9222 --user-data-dir="C:\Users\<USER>\chrome-debug"`
+2. [ ] 手动登录 Boss 直聘一次（绕过滑块验证码）
+3. [ ] `POST /api/browser-agent/save-session` 保存 Cookie
+4. [ ] `POST /api/browser-agent/collect` 开始采集
+5. [ ] 验证截图解析准确率
