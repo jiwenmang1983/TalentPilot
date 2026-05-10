@@ -103,6 +103,12 @@ const routes = [
         meta: { title: '智能匹配', icon: 'TeamOutlined' }
       },
       {
+        path: 'matches/:id',
+        name: 'MatchResultDetail',
+        component: () => import('@/views/recruitment/MatchResultDetail.vue'),
+        meta: { title: '匹配详情', icon: 'TeamOutlined' }
+      },
+      {
         path: 'recruitment/interviews',
         name: 'InterviewInvitationList',
         component: () => import('@/views/recruitment/InterviewInvitationList.vue'),
