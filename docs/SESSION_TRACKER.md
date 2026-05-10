@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-> **版本：** v1.9（Phase 10进行中：T-56🔄,T-57⏳）
+> **版本：** v1.10（Phase 10进行中：T-57✅, F-16待开发）
 > **更新：** 2026-05-10
 
 ---
@@ -52,8 +52,8 @@
 | 40 | T-53 | ✅ f97a883(后端)+7790a5a(前端) | CC+小P | 2026-05-10 | ✅ 完成 | **8维度AI匹配引擎**——MatchingService重写(8维度评分)、JobPostsController新增阈值/权重API、MatchResultList/Detail Vue重写(维度条+权重配置滑块) |
 | 41 | T-54 | ✅ 4195318 | CC+小P | 2026-05-10 | ✅ 完成 | **F-10简历库管理**——ResumesController新增jobPostId/channel/minScore/maxScore筛选LEFT JOIN、MatchResult阈值override API、ResumeList重写(筛选+匹配度进度条+调整阈值弹窗) |
 | 42 | T-55 | ✅ | CC+小P | 2026-05-10 | ✅ 完成 | **F-07简历采集路由修复**——5次CC尝试，最终移除{id:int}约束+手动int.TryParse解决[ApiController]路由前验证问题；channels端点200 ✅；collect-now端点200 ✅；build 0 errors；commits: abdec62~e66b69c~新commit |
-| 43 | T-56 | 🔄 | CC | 2026-05-10 | 进行中 | **F-15候选人自主预约**——可用时段API(GET /slots, POST /book)+前端预约页面(InterviewBooking.vue) |
-| 44 | T-57 | ⏳ | CC | — | 待开发 | **F-17面试问题配置UI**——HR预设问题3-5题配置+面试时长设置 |
+| 43 | T-56 | ✅ | CC+小P | 2026-05-10 | ✅ 完成 | **F-15候选人自主预约**——API: GET /slots(200✅), POST /book, GET /booking-status(200✅)；DDL已补齐(ScheduledAt/BookingDeadline/InterviewDuration/AvailableSlots)；InterviewBooking.vue✅(fada60c)；前后端build 0 errors |
+| 44 | T-57 | ✅ f5ca13f | CC+小P | 2026-05-10 | ✅ 完成 | **F-17面试问题配置UI**——DDL: InterviewQuestions(TEXT)+InterviewDuration(INT NOT NULL DEFAULT 30)✅；Entity+DTO+Service映射✅；JobPostForm.vue面试设置(时长下拉+动态问题列表)✅；API验证: interviewDuration=60/interviewQuestions写入读取✅；后端+前端build 0 errors |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取

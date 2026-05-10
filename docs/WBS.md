@@ -22,7 +22,7 @@
 | Phase 7: 系统验收测试 | 6 | 🎯 **Phase 7 完成** — API 49/51 ✅，E2E 25/25 ✅，UI截图 ✅ |
 | **Phase 8: 跨渠道智能分发（§3.2）** | 5 | 🟢 5/5全部完成(T-48✅,T-49✅,T-50✅,T-51✅,T-52✅) |
 | **Phase 9: 智能匹配引擎（§3.4）** | 3 | 🟢 3/3全部完成(T-53✅,T-54✅,T-55✅) |
-| **Phase 10: 面试功能（§3.5~§3.6）** | 2 | 🟡 进行中(T-56🔄,T-57⏳) |
+| **Phase 10: 面试功能（§3.5~§3.6）** | 2 | 🟢 完成(T-56✅,T-57✅) |
 | **合计** | **43** | |
 
 ---
@@ -392,23 +392,29 @@
 ## Phase 10：面试功能（§3.5~§3.6 PRD）
 
 > PRD：§3.5 面试邀约与预约 / §3.6 AI实时视频面试
-> 状态：🟡 进行中
+> 状态: ✅ Phase 10完成
 
 **T-56: F-15 候选人自主预约时间**
   - 后端：AIInterviewSessionsController新增 `/slots` + `/book` + `/booking-status` 端点
   - 后端：可用时段生成逻辑（未来48小时工作时段）
   - 前端：`InterviewBooking.vue` 候选人预约页面
   - 候选人无需登录，使用URL中的sessionToken访问
-  - 状态: 🔄 进行中
+  - 状态: ✅ 完成(fada60c)
 
 **T-57: F-17 面试问题配置UI**
-  - 前端：JobPost编辑页/详情页新增面试问题配置区
-  - HR预设3-5题 + 面试时长配置
-  - 状态: ⏳ 待开发
+  - 后端：JobPost新增InterviewQuestions(TEXT NULL)+InterviewDuration(INT NOT NULL DEFAULT 30)字段
+  - 后端：JobPostService + DTO更新，支持CRUD
+  - 前端：JobPostForm.vue新增面试设置区块（时长选择+问题列表可增删）
+  - 前端：JobPostDetail.vue展示面试问题
+  - 状态: ✅ 完成(f5ca13f)
 
 ---
 
-## 开发顺序建议
+## 待开发：Phase 10 后续功能
+
+**F-16: AI实时视频面试**（PRD §3.6.2）
+  - 候选人进入AI视频面试房间
+  - AI实时追问与评估
 
 ```
 Phase 1（T-01 数据库）
