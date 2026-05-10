@@ -417,19 +417,21 @@ AI 对采集到的原始简历（Word / PDF / HTML / 文本）进行解析，提
 └─────────────────────────────────────────────┘
 ```
 
-**F-22：报告查看与导出**
+**F-22：报告查看与导出** ✅ 已完成（T-61）
 
-- HR / 用人经理在后台在线查看报告
-- 支持导出 PDF（带公司 logo）
-- 支持批量导出 Excel（适合周度招聘汇报）
+- [x] HR / 用人经理在后台在线查看报告
+- [x] 支持导出 PDF（带公司 logo）— QuestPDF 实现，专业排版
+- [x] 支持批量导出 Excel（适合周度招聘汇报）— ClosedXML 实现
+- API端点：`GET /api/interview-reports/{id}/export-pdf`、`GET /api/interview-reports/{id}/export-excel`、`POST /api/interview-reports/export-excel-batch`
+- 前端：InterviewReports.vue 导出按钮 + 批量选择
 
-**F-23：报告权限**
+**F-23：报告权限** ✅ 已完成（T-62）
 
-| 角色 | 可查看范围 |
-|---|---|
-| 管理员 | 所有报告 |
-| HR（职位创建人） | 自己创建的职位的所有报告 |
-| 用人经理 | 自己部门的职位的所有报告（待定：是否需要此角色） |
+- [x] 管理员 / HR：可查看所有报告
+- [x] 用人经理（hiring_manager）：只能查看自己参与面试的报告（通过 InterviewerUserId 关联）
+- [x] 候选人：通过 `/api/interview-reports/by-session/{sessionId}` 查看自己的报告（AllowAnonymous）
+- MySQL：AIInterviewSessions.InterviewerUserId 字段 + FK 约束
+- StartSession 自动记录当前用户为面试官
 
 ---
 
