@@ -67,7 +67,7 @@ public class AIInterviewSessionsController : ControllerBase
         }));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [Authorize(Roles = "admin,hr,hiring_manager")]
     public async Task<ActionResult<ApiResponse<object>>> GetSession(int id)
     {

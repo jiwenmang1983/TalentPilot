@@ -59,7 +59,7 @@ public class JobPostsController : ControllerBase
         }));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<ApiResponse<object>>> GetJobPost(int id)
     {
         var jobPost = await _jobPostService.GetByIdAsync(id);

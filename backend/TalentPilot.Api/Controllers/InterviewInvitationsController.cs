@@ -74,7 +74,7 @@ public class InterviewInvitationsController : ControllerBase
     /// </summary>
     /// <param name="id">邀请ID</param>
     /// <returns>邀请详情</returns>
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [Authorize(Roles = "admin,hr,hiring_manager")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

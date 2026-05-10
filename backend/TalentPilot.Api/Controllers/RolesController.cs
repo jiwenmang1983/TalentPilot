@@ -42,7 +42,7 @@ public class RolesController : ControllerBase
         return Ok(new ApiResponse<object>(true, "获取成功", result));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:long}")]
     public async Task<ActionResult<ApiResponse<object>>> GetRole(long id)
     {
         var role = await _roleService.GetRoleById(id);

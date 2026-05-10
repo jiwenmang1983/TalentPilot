@@ -60,7 +60,7 @@ public class InterviewReportsController : ControllerBase
         }));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [Authorize(Roles = "admin,hr,hiring_manager")]
     public async Task<ActionResult<ApiResponse<object>>> GetReport(int id)
     {

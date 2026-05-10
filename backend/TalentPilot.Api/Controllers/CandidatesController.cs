@@ -78,7 +78,7 @@ public class CandidatesController : ControllerBase
         }));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:long}")]
     public async Task<ActionResult<ApiResponse<object>>> GetCandidate(long id)
     {
         var candidate = await _dbContext.Candidates.FindAsync(id);

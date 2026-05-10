@@ -64,7 +64,7 @@ public class ResumesController : ControllerBase
         })));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<ApiResponse<object>>> GetResume(int id)
     {
         var resume = await _resumeService.GetResumeByIdAsync(id);

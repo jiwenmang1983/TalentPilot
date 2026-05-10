@@ -110,7 +110,7 @@ public class UsersController : ControllerBase
         }));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:long}")]
     public async Task<ActionResult<ApiResponse<object>>> GetUser(long id)
     {
         var user = await _dbContext.Users

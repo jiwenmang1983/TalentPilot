@@ -56,7 +56,7 @@ public class DepartmentsController : ControllerBase
         return Ok(new ApiResponse<object>(true, "获取成功", departments));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:long}")]
     public async Task<ActionResult<ApiResponse<object>>> GetDepartment(long id)
     {
         var department = await _departmentService.GetDepartmentById(id);

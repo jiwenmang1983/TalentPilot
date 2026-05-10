@@ -60,7 +60,7 @@ public class OperationLogsController : ControllerBase
         return Ok(new ApiResponse<object>(true, "获取成功", response));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<ApiResponse<object>>> GetLog(long id)
     {
         var log = await _logService.GetLogById(id);
