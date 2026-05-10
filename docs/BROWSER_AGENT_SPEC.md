@@ -70,19 +70,30 @@ BrowserAgent/
 - 每次启动检查 cookies 有效性（访问一个需登录的页面验证）
 - 失效则 API 返回 401 → 提示 Mark 重新手动登录
 
-### 3.4 Boss 直聘采集流程
+### 3.4 Boss 直聘采集流程（按需采集，2026-05-10 重构）
+
+**按需采集流程（默认）：**
 
 ```
-1. GET https://www.zhipin.com/webchat/  (简历列表页)
-2. 等待页面加载完成
-3. 滚动加载更多（懒加载）
-4. Screenshot 列表页
-5. MiniMax Vision 解析：识别每个候选人卡片（姓名/职位/年龄/学历）
-6. 点击进入详情页
-7. Screenshot 详情页
-8. MiniMax Vision 解析：工作经历/项目经历/自我介绍
-9. 保存到 DB → 触发 AI 匹配
-10. 返回列表页 → 重复直到无新数据
+1. HR 调用 POST /api/browser-agent/collect { "jobPostId": 3 }
+2. 系统从 DB 读取 JobPost.Title + Description
+3. 用职位名称构建 Boss 搜索 URL：/web/geek/jobs?query=职位名称
+4. 截图列表页 → MiniMax Vision 识别候选人卡片
+5. 对每个候选人 → MiniMax LLM 评估与 JD 的相关性（匹配度 0-100）
+6. 过滤：匹配度 ≥ 40 且 符合职位=true 才采集（避免无脑采集）
+7. 返回符合要求的候选人列表（HR 确认后再入库）
+```
+
+**旧模式（已废弃）：**直接访问 `/webchat/` 采集全部候选人，无 jobPostId 绑定，无相关性过滤。
+
+---
+
+### 3.6 相关性评估（MiniMax LLM）
+
+```csharp
+EvaluateCandidateRelevanceAsync(candidate, jobTitle, jobDescription)
+// 返回: { 符合职位: bool, 匹配度: 0-100, 简要理由: string }
+// 阈值: 匹配度 >= 40 且 符合职位=true 才采集
 ```
 
 ### 3.5 MiniMax Vision 截图解析
@@ -118,18 +129,38 @@ BrowserAgent/
 
 ## 4. API 接口
 
-### 4.1 触发采集
+### 4.1 触发采集（按需模式）
 
 ```
 POST /api/browser-agent/collect
 {
-  "platform": "boss",        // boss | lagou | liepin
-  "action": "resume_list",   // resume_list | resume_detail
-  "url": "可选，自定义URL"
+  "jobPostId": 3          // 必填：目标职位 ID
+}
+
+Response:
+{
+  "success": true,
+  "message": "职位「前端工程师」采集完成：筛选出 5 个符合要求的候选人",
+  "data": {
+    "status": "Completed",       // Running | Completed | NeedsManualLogin | Failed | Cancelled
+    "jobPostId": 3,
+    "jobPostTitle": "前端工程师",
+    "totalCandidates": 5,
+    "message": "职位「前端工程师」采集完成...",
+    "collectedCandidates": [...]
+  }
 }
 ```
 
-### 4.2 查询采集任务状态
+### 4.2 查询职位列表
+
+```
+GET /api/browser-agent/job-posts?status=open&page=1&pageSize=20
+
+Response: { "success": true, "data": { "items": [{ "id", "title", "status", "requirements" }] } }
+```
+
+### 4.3 查询采集任务状态
 
 ```
 GET /api/browser-agent/status/{taskId}

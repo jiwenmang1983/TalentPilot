@@ -276,12 +276,18 @@ WSL Playwright C# Agent
 
 | 端点 | 方法 | 说明 |
 |---|---|---|
-| `/api/browser-agent/collect` | POST | 触发简历采集 |
+| `/api/browser-agent/job-posts` | GET | 查看职位列表（选采集目标） |
+| `/api/browser-agent/collect` | POST | 按需采集（强制 jobPostId） |
 | `/api/browser-agent/save-session` | POST | 手动登录后保存 Cookie |
 | `/api/browser-agent/login-status` | GET | 检查登录态 |
 | `/api/browser-agent/connection` | GET | CDP 连接状态 |
 | `/api/browser-agent/navigate` | POST | 导航到指定 URL（调试） |
 | `/api/browser-agent/screenshot` | POST | 截图（调试） |
+
+**采集模式（2026-05-10 重构）：** 按需采集（jobPostId 绑定 + MiniMax LLM 过滤相关性 ≥ 40）
+- `EvaluateCandidateRelevanceAsync()`: 评估候选人与 JD 的相关性（匹配度 0-100）
+- `BuildSearchUrl()`: 根据职位名称构建 Boss 搜索 URL
+- `BossPlatform.RunCollectionAsync(jobPostId)`: 职位搜索 → 截图识别 → 相关性过滤 → 返回结果
 
 **待 Mark 上机验证（阻塞中）：**
 
