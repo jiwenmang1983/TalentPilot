@@ -61,6 +61,8 @@
           <a-space>
             <a @click="handleEdit(record)">编辑</a>
             <a-divider type="vertical" />
+            <a @click="openDistStatusDrawer(record)">分发状态</a>
+            <a-divider type="vertical" />
             <a-dropdown>
               <a>更多</a>
               <template #overlay>
@@ -88,6 +90,46 @@
         </template>
       </template>
     </a-table>
+
+    <!-- Distribution Status Drawer -->
+    <a-drawer
+      v-model:open="distStatusDrawerVisible"
+      :title="`${distStatusJobPost?.title || ''} 的分发状态`"
+      width="600"
+      @close="closeDistStatusDrawer"
+    >
+      <div class="dist-status-toolbar">
+        <a-button @click="loadDistStatusTasks" :loading="distStatusLoading">
+          <template #icon><ReloadOutlined /></template>
+          刷新
+        </a-button>
+      </div>
+      <a-spin :spinning="distStatusLoading">
+        <a-table
+          :columns="distStatusColumns"
+          :dataSource="distStatusTasks"
+          :pagination="false"
+          rowKey="id"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'channelType'">{{ getChannelName(record.channelType) }}</template>
+            <template v-else-if="column.key === 'taskStatus'">
+              <a-tag :color="getDistStatusColor(record.taskStatus)">{{ getDistStatusText(record.taskStatus) }}</a-tag>
+            </template>
+            <template v-else-if="column.key === 'scheduledAt'">{{ record.scheduledAt ? formatDate(record.scheduledAt) : '-' }}</template>
+            <template v-else-if="column.key === 'startedAt'">{{ record.startedAt ? formatDate(record.startedAt) : '-' }}</template>
+            <template v-else-if="column.key === 'failureReason'">{{ record.failureReason || '-' }}</template>
+            <template v-else-if="column.key === 'action'">
+              <a-space>
+                <a @click="retryDistStatusTask(record.id)">重新发布</a>
+                <a-divider type="vertical" />
+                <a @click="cancelDistStatusTask(record.id)" style="color: #ff4d4f">取消发布</a>
+              </a-space>
+            </template>
+          </template>
+        </a-table>
+      </a-spin>
+    </a-drawer>
 
     <!-- Content Adaptation Drawer -->
     <a-drawer
@@ -297,6 +339,20 @@ const distSelectedChannels = ref([])
 const distScheduleTime = ref(null)
 const distTasks = ref([])
 const distLoadingTasks = ref(false)
+
+const distStatusDrawerVisible = ref(false)
+const distStatusJobPost = ref(null)
+const distStatusTasks = ref([])
+const distStatusLoading = ref(false)
+
+const distStatusColumns = [
+  { title: '渠道名称', key: 'channelType', width: 120 },
+  { title: '任务状态', key: 'taskStatus', width: 100 },
+  { title: '计划发布时间', key: 'scheduledAt', width: 160 },
+  { title: '实际执行时间', key: 'startedAt', width: 160 },
+  { title: '失败原因', key: 'failureReason' },
+  { title: '操作', key: 'action', width: 160 }
+]
 
 const distPublishMode = ref('immediate')
 
@@ -560,6 +616,53 @@ async function startDistribution() {
   }
 }
 
+function openDistStatusDrawer(record) {
+  distStatusJobPost.value = record
+  distStatusDrawerVisible.value = true
+  loadDistStatusTasks()
+}
+
+function closeDistStatusDrawer() {
+  distStatusDrawerVisible.value = false
+  distStatusJobPost.value = null
+  distStatusTasks.value = []
+}
+
+async function loadDistStatusTasks() {
+  if (!distStatusJobPost.value) return
+  distStatusLoading.value = true
+  try {
+    const res = await jobDistributionApi.getByJob(distStatusJobPost.value.id)
+    distStatusTasks.value = res.data || []
+  } catch (e) {
+    console.error(e)
+  } finally {
+    distStatusLoading.value = false
+  }
+}
+
+async function retryDistStatusTask(taskId) {
+  try {
+    await jobDistributionApi.retry(taskId)
+    message.success('任务已重新排队')
+    await loadDistStatusTasks()
+  } catch (e) {
+    console.error(e)
+    message.error('重试失败')
+  }
+}
+
+async function cancelDistStatusTask(taskId) {
+  try {
+    await jobDistributionApi.cancel(taskId)
+    message.success('任务已取消')
+    await loadDistStatusTasks()
+  } catch (e) {
+    console.error(e)
+    message.error('取消失败')
+  }
+}
+
 function getDistStatusColor(status) {
   const colors = { pending: 'default', running: 'processing', succeed: 'success', failed: 'error', cancelled: 'default' }
   return colors[status] || 'default'
@@ -627,5 +730,20 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 8px;
+}
+
+.dist-expand-wrap {
+  padding: 8px 0;
+}
+
+.dist-expand-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dist-status-toolbar {
+  margin-bottom: 16px;
 }
 </style>
