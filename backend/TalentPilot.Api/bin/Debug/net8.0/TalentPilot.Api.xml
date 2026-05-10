@@ -118,6 +118,11 @@
             InterviewReports
             </summary>
         </member>
+        <member name="M:TalentPilot.Api.Controllers.InterviewReportsController.GetReportBySessionForCandidate(System.Int32)">
+            <summary>
+            Candidate accesses their own report by session ID (no JWT required - uses session token pattern)
+            </summary>
+        </member>
         <member name="M:TalentPilot.Api.Controllers.JobChannelContentsController.GetAllByJobPostId(System.Int32)">
             <summary>获取职位所有渠道适配内容</summary>
         </member>
