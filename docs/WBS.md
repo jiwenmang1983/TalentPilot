@@ -5,7 +5,7 @@
 
 **版本：** v1.9.3
 **日期：** 2026-05-10
-**状态：** 🎯 Phase 8 完成 — T-48~T-52 全部完成（定时发布后台调度+前端轮询）
+**状态：** 🎯 Phase 8 完成 + Phase 9 进行中（T-53 ✅）
 
 ---
 
@@ -352,7 +352,26 @@
 **T-51: 发布状态追踪前端（F-06）**
   - JobPostList 页面添加"分发状态"按钮 → Drawer 展示分发任务
   - 失败原因展示 + 重新发布/取消发布按钮
-  - 状态: 🔄 进行中（Drawer方案，SPEC已更新）
+  - 状态: ✅ 完成 (45066ad)
+
+**T-52: 定时发布后台调度**
+  - `DistributionTaskScheduler` (IHostedService, 每30秒轮询pending任务)
+  - `JobPostList.vue` 添加轮询 (setInterval 30s)
+  - 状态: ✅ 完成 (151ee12)
+
+---
+
+## Phase 9：智能匹配引擎（§3.4 PRD）
+
+> PRD：§3.4 匹配引擎（F-10~F-12）
+> 状态：🟢 进行中
+
+**T-53: 8维度AI匹配引擎**
+  - 后端：MatchingService重写（8维度JSON解析，权重可配置）
+  - 后端：JobPostsController新增 match-threshold/match-weights API
+  - 前端：MatchResultList重写（筛选+8维度条+展开详情）
+  - 前端：MatchResultDetail重写（维度条+阈值达标显示+权重配置滑块）
+  - 状态: ✅ 完成 (f97a883后端 + 7790a5a前端)
 
 ---
 

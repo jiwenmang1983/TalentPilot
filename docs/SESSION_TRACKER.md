@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-> **版本：** v1.6（Phase 8进行中：T-48✅，T-49✅，T-50✅，T-51✅，T-52✅）
+> **版本：** v1.7（Phase 9进行中：T-53 ✅）
 > **更新：** 2026-05-10
 
 ---
@@ -49,6 +49,7 @@
 | 36 | T-50 | ✅ def2190 | 小P | 2026-05-10 | ✅ 完成 | 跨渠道分发-后台任务+7端点+前端Drawer |
 | 37 | T-51 | ✅ 45066ad | 小P | 2026-05-10 | ✅ 完成 | **Drawer分发状态完整展示**——独立axios(baseURL=/api)+interceptor注Bearer token，5渠道任务状态正确显示；前端cancel()从PUT改为DELETE匹配后端 |
 | 38 | T-52 | ✅ 151ee12 | CC+小P | 2026-05-10 | ✅ 完成 | **定时发布后台调度+前端轮询**——DistributionTaskScheduler(IHostedService每30秒调度)+JobPostList.vue轮询 |
+| 39 | T-53 | ✅ f97a883(后端)+7790a5a(前端) | CC+小P | 2026-05-10 | ✅ 完成 | **8维度AI匹配引擎**——MatchingService重写(8维度评分)、JobPostsController新增阈值/权重API、MatchResultList/Detail Vue重写(维度条+权重配置滑块) |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取
