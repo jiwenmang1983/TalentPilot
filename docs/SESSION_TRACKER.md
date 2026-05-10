@@ -2,7 +2,7 @@
 
 > 本文件记录所有任务委派 + Agent 实时状态。小P 主动管理，Mark 全权审批。
 
-> **版本：** v1.12（Phase 11全完成：T-58✅ T-59✅ T-60✅）
+> **版本：** v1.13（Phase 12进行中：T-61🔄 F-22）
 > **更新：** 2026-05-10
 
 ---
@@ -57,6 +57,7 @@
 | 45 | T-58 | ✅ 7a94279 | 小P+CC | 2026-05-10 | ✅ 完成 | **F-16 HR实时通知**——FeishuNotificationService(飞书卡片消息)✅；POST /by-token/{token}/join(AllowAnonymous)✅；join时fire-and-forget触发通知✅；前端joinByToken对接✅；NotificationType.InterviewStarted✅ |
 | 46 | T-59 | ✅ 50678fe | CC+小P | 2026-05-10 | ✅ 完成 | **F-18实时语音面试**——VoiceService(MiniMax TTS speech-02-hd)✅；GET /question-audio/{id}/{qId}端点✅；CandidateInterview.vue全面改造(461→710行)：按住说话按钮+脉冲动画+录音计时+重录+音频预览✅；dot build+npm build 0 errors✅ |
 | 47 | T-60 | ✅ | 小P | 2026-05-10 | ✅ 完成 | **F-21报告自动生成**——CompleteSession自动触发GenerateReportAsync(background Task.Run)✅；IInterviewReportService注册✅；fire-and-forget不阻塞完成流程✅；实测200 OK+报告生成(score=65)✅ |
+| 48 | T-61 | 🔄 | CC | 2026-05-10 | 进行中 | **F-22报告导出PDF/Excel**——QuestPDF+ClosedXML依赖✅；ExportService✅；Controller端点(export-pdf/export-excel/export-excel-batch)✅；前端InterviewReports.vue导出按钮✅ |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取
