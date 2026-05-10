@@ -18,21 +18,27 @@ public class AIInterviewSessionsController : ControllerBase
     private readonly AIInterviewSessionService _sessionService;
     private readonly OperationLogService _logService;
     private readonly IFeishuNotificationService _feishuNotificationService;
+    private readonly IInterviewReportService _reportService;
     private readonly IVoiceService _voiceService;
     private readonly TalentPilotDbContext _context;
+    private readonly ILogger<AIInterviewSessionsController> _logger;
 
     public AIInterviewSessionsController(
         AIInterviewSessionService sessionService,
         OperationLogService logService,
         IFeishuNotificationService feishuNotificationService,
+        IInterviewReportService reportService,
         IVoiceService voiceService,
-        TalentPilotDbContext context)
+        TalentPilotDbContext context,
+        ILogger<AIInterviewSessionsController> logger)
     {
         _sessionService = sessionService;
         _logService = logService;
         _feishuNotificationService = feishuNotificationService;
+        _reportService = reportService;
         _voiceService = voiceService;
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -242,6 +248,20 @@ public class AIInterviewSessionsController : ControllerBase
         {
             await _logService.RecordLog(userId, "COMPLETE", "AIInterviewSession", id, $"完成AI面试 {id}", HttpContext);
         }
+
+        // Auto-generate report in background (fire-and-forget)
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var report = await _reportService.GenerateReportAsync(id);
+                _logger.LogInformation("Auto-generated report {ReportId} for session {SessionId}", report.Id, id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to auto-generate report for session {SessionId}", id);
+            }
+        });
 
         return Ok(new ApiResponse<object>(true, "面试已完成", new
         {

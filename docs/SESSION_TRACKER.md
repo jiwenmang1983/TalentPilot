@@ -55,6 +55,7 @@
 | 43 | T-56 | ✅ | CC+小P | 2026-05-10 | ✅ 完成 | **F-15候选人自主预约**——API: GET /slots(200✅), POST /book, GET /booking-status(200✅)；DDL已补齐(ScheduledAt/BookingDeadline/InterviewDuration/AvailableSlots)；InterviewBooking.vue✅(fada60c)；前后端build 0 errors |
 | 44 | T-57 | ✅ f5ca13f | CC+小P | 2026-05-10 | ✅ 完成 | **F-17面试问题配置UI**——DDL: InterviewQuestions(TEXT)+InterviewDuration(INT NOT NULL DEFAULT 30)✅；Entity+DTO+Service映射✅；JobPostForm.vue面试设置(时长下拉+动态问题列表)✅；API验证: interviewDuration=60/interviewQuestions写入读取✅；后端+前端build 0 errors |
 | 45 | T-58 | ✅ 7a94279 | 小P+CC | 2026-05-10 | ✅ 完成 | **F-16 HR实时通知**——FeishuNotificationService(飞书卡片消息)✅；POST /by-token/{token}/join(AllowAnonymous)✅；join时fire-and-forget触发通知✅；前端joinByToken对接✅；NotificationType.InterviewStarted✅ |
+| 46 | T-59 | ✅ 50678fe | CC+小P | 2026-05-10 | ✅ 完成 | **F-18实时语音面试**——VoiceService(MiniMax TTS speech-02-hd)✅；GET /question-audio/{id}/{qId}端点✅；CandidateInterview.vue全面改造(461→710行)：按住说话按钮+脉冲动画+录音计时+重录+音频预览✅；dot build+npm build 0 errors✅ |
 
 ## T-51 Debug Log（关键发现）
 1. Playwright抓包：`/api/distribution/tasks/job/1` 返回401，但token已通过localStorage.getItem('accessToken')获取
