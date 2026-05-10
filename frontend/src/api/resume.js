@@ -9,7 +9,7 @@ export const resumeApi = {
   parseText: (data) => api.post('/resumes/parse', data),
   createCandidate: (data) => api.post('/candidates', data),
   collectNow: (params) => api.post('/resumes/collect-now', params || {}),
-  getSources: () => api.get('/resumes/sources'),
+  getSources: () => api.get('/resumes/channels'),
   overrideMatchThreshold: (matchId, overrideThreshold) =>
     api.patch(`/matches/${matchId}/threshold`, { overrideThreshold })
 }

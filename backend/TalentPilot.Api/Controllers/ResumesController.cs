@@ -49,7 +49,7 @@ public class ResumesController : ControllerBase
         }));
     }
 
-    [HttpGet("sources")]
+    [HttpGet("channels")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<object>>> GetSources()
     {
