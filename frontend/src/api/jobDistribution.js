@@ -49,6 +49,6 @@ export const jobDistributionApi = {
   },
 
   cancel(taskId) {
-    return distApi.put(BASE + `/tasks/${taskId}/cancel`)
+    return distApi.delete(BASE + `/tasks/${taskId}`)
   }
 }
