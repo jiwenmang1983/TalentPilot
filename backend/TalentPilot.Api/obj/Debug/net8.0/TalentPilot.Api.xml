@@ -19,6 +19,46 @@
             Auth
             </summary>
         </member>
+        <member name="T:TalentPilot.Api.Controllers.BrowserAgentController">
+            <summary>
+            Browser Agent 控制器 - 浏览器自动化简历采集 API
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Collect(TalentPilot.Api.Controllers.BrowserAgentCollectRequest)">
+            <summary>
+            触发简历采集
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.SaveSession(TalentPilot.Api.Controllers.SaveSessionRequest)">
+            <summary>
+            保存当前登录态（手动登录后调用）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.CheckLoginStatus(System.String)">
+            <summary>
+            检查登录态
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.DeleteSession(System.String)">
+            <summary>
+            删除登录态
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.CheckConnection">
+            <summary>
+            连接状态检查
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Navigate(TalentPilot.Api.Controllers.NavigateRequest)">
+            <summary>
+            手动导航到 URL（调试用）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Controllers.BrowserAgentController.Screenshot">
+            <summary>
+            截图当前页面（调试用）
+            </summary>
+        </member>
         <member name="T:TalentPilot.Api.Controllers.CandidatesController">
             <summary>
             Candidates
@@ -226,6 +266,133 @@
         </member>
         <member name="M:TalentPilot.Api.Data.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.BossPlatform">
+            <summary>
+            Boss 直聘平台采集适配器
+            实现：登录 → 列表页 → 截图识别 → 详情页 → 截图识别 → 存入DB
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.EnsureLoggedInAsync">
+            <summary>
+            确保已登录（加载 cookies 或提示手动登录）
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.SaveCurrentSessionAsync">
+            <summary>
+            保存当前浏览器 cookies
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.CollectResumeListAsync(System.Int32)">
+            <summary>
+            采集简历列表
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.CollectResumeDetailAsync(System.String)">
+            <summary>
+            采集简历详情
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.BossPlatform.RunCollectionAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            完整的采集流程
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager">
+            <summary>
+            Cookie/Session 持久化管理 - 保存和加载登录态
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.GetCookieFilePath(System.String)">
+            <summary>
+            获取指定平台的 Cookie 文件路径
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.GetSessionFilePath(System.String)">
+            <summary>
+            获取指定平台的 Session Storage 文件路径
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.HasCookies(System.String)">
+            <summary>
+            检查 Cookie 是否存在
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.SaveCookiesAsync(System.String,System.Collections.Generic.List{TalentPilot.Api.Services.BrowserAgent.CookieData})">
+            <summary>
+            保存 cookies 到文件
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.LoadCookiesAsync(System.String)">
+            <summary>
+            加载 cookies
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.DeleteCookies(System.String)">
+            <summary>
+            删除 cookies
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.CookieSessionManager.ValidateCookiesAsync(System.String)">
+            <summary>
+            检查登录态是否有效
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager">
+            <summary>
+            Playwright 浏览器管理器 - 通过 CDP 连接到 Windows Chrome
+            注意：WSL 中通过 --remote-debugging-port=9222 连接到 Windows Chrome
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ConnectAsync(System.Threading.CancellationToken)">
+            <summary>
+            连接到 Windows Chrome CDP
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ScreenshotCurrentPageAsync(System.String,System.Boolean)">
+            <summary>
+            截图当前页面
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.NavigateAsync(System.String,System.Int32)">
+            <summary>
+            导航到 URL
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ClickAsync(System.String,System.Int32)">
+            <summary>
+            点击元素
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.ScrollDownAsync(System.Int32)">
+            <summary>
+            滚动页面
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.WaitForSelectorAsync(System.String,System.Int32)">
+            <summary>
+            等待元素出现
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.PlaywrightBrowserManager.NeedsLogin">
+            <summary>
+            检查是否需要登录（通过页面内容判断）
+            </summary>
+        </member>
+        <member name="T:TalentPilot.Api.Services.BrowserAgent.VisionParser">
+            <summary>
+            MiniMax Vision API 截图解析器 - 从简历截图中提取结构化数据
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.ParseResumeDetailAsync(System.Byte[])">
+            <summary>
+            解析简历详情页截图
+            </summary>
+        </member>
+        <member name="M:TalentPilot.Api.Services.BrowserAgent.VisionParser.ParseResumeListAsync(System.Byte[])">
+            <summary>
+            解析简历列表页截图 - 提取候选人卡片列表
+            </summary>
         </member>
         <member name="M:TalentPilot.Api.Services.MiniMaxMessageResponse.GetFirstText">
             <summary>

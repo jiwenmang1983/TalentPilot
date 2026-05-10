@@ -222,7 +222,61 @@ AI Agent 将 JD 内容自动适配为各渠道要求的格式：
 - **定时增量：** 职位发布期间，每 6 小时增量采集一次新投递
 - **手动触发：** HR 可随时点击"立即采集"
 
-采集方式优先级与分发策略一致（官方 API → 聚合平台 → 浏览器自动化）。
+采集方式优先级：官方 API → 聚合平台 → **Browser Agent 浏览器自动化**
+
+---
+
+**F-07b：Browser Agent 简历采集** ✅ *(2026-05-10 实现)*
+
+通过 AI Browser Agent 从 Boss 直聘等平台**截图采集**简历数据，绕过官方 API 资质门槛。
+
+**技术架构：**
+
+```
+Windows Chrome --remote-debugging-port=9222
+         ↓ CDP WebSocket
+WSL Playwright C# Agent
+    ↓
+  1. 加载已保存的登录 Cookie（绕过滑块验证码）
+  2. 导航到 Boss 简历列表/详情页
+  3. Screenshot → MiniMax Vision API (MiniMax-4k-Vision)
+  4. 解析结构化数据 → 存入 Resume 表 → 触发 AI 匹配
+```
+
+**核心组件：**
+
+| 文件 | 职责 |
+|---|---|
+| `Services/BrowserAgent/VisionParser.cs` | MiniMax Vision API 截图解析 |
+| `Services/BrowserAgent/PlaywrightBrowserManager.cs` | CDP 连接 + 浏览器控制 |
+| `Services/BrowserAgent/CookieSessionManager.cs` | Cookie/Session 持久化 |
+| `Services/BrowserAgent/BossPlatform.cs` | Boss 直聘平台适配器 |
+| `Controllers/BrowserAgentController.cs` | API 接口 |
+
+**API 端点：**
+
+| 端点 | 方法 | 说明 |
+|---|---|---|
+| `/api/browser-agent/collect` | POST | 触发简历采集 |
+| `/api/browser-agent/save-session` | POST | 手动登录后保存 Cookie |
+| `/api/browser-agent/login-status` | GET | 检查登录态 |
+| `/api/browser-agent/connection` | GET | CDP 连接状态 |
+| `/api/browser-agent/navigate` | POST | 导航到指定 URL（调试） |
+| `/api/browser-agent/screenshot` | POST | 截图（调试） |
+
+**Cookie 复用流程（解决滑块验证码）：**
+
+1. Mark 首次手动在 Chrome Debug 模式登录 Boss 直聘
+2. 调用 `POST /api/browser-agent/save-session` 保存 Cookie
+3. 后续采集自动加载 Cookie，无需重复登录
+4. Cookie 失效时重新手动登录一次
+
+**Mark 上机验证步骤：**
+
+1. Windows CMD：`chrome.exe --remote-debugging-port=9222 --user-data-dir="C:\Users\<USER>\chrome-debug"`
+2. 手动登录 Boss 直聘
+3. 调用 `POST /api/browser-agent/save-session`
+4. 调用 `POST /api/browser-agent/collect` 开始采集
 
 **F-08：简历解析** ✅
 

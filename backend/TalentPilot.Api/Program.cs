@@ -8,6 +8,7 @@ using TalentPilot.Api;
 using TalentPilot.Api.Data;
 using TalentPilot.Api.Middleware;
 using TalentPilot.Api.Services;
+using TalentPilot.Api.Services.BrowserAgent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,6 +115,12 @@ builder.Services.AddScoped<ContentAdaptationService>();
 builder.Services.AddScoped<JobDistributionService>();
 builder.Services.AddHostedService<DistributionTaskScheduler>();
 builder.Services.AddHostedService<ResumeCollectionScheduler>();
+
+// Browser Agent
+builder.Services.AddSingleton<PlaywrightBrowserManager>();
+builder.Services.AddSingleton<CookieSessionManager>();
+builder.Services.AddSingleton<VisionParser>();
+builder.Services.AddSingleton<BossPlatform>();
 
 var app = builder.Build();
 

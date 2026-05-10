@@ -11,6 +11,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    allowedHosts: ['.lhr.life', '.loca.lt', 'localhost.run', 'serveo.net'],
     proxy: {
       '/api': {
         target: 'http://localhost:5010',
