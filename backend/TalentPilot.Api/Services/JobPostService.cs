@@ -12,6 +12,8 @@ public interface IJobPostService
     Task<JobPost> CreateAsync(CreateJobPostRequest request, string createdBy);
     Task<JobPost?> UpdateAsync(int id, UpdateJobPostRequest request);
     Task<JobPost?> UpdateStatusAsync(int id, string status);
+    Task<JobPost?> UpdateMatchThresholdAsync(int id, decimal threshold);
+    Task<JobPost?> UpdateMatchWeightsAsync(int id, string weights);
     Task<bool> DeleteAsync(int id);
 }
 
@@ -114,5 +116,29 @@ public class JobPostService : IJobPostService
 
         await _dbContext.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<JobPost?> UpdateMatchThresholdAsync(int id, decimal threshold)
+    {
+        var jobPost = await _dbContext.JobPosts.FindAsync(id);
+        if (jobPost == null) return null;
+
+        jobPost.MatchThreshold = threshold;
+        jobPost.UpdatedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+        return jobPost;
+    }
+
+    public async Task<JobPost?> UpdateMatchWeightsAsync(int id, string weights)
+    {
+        var jobPost = await _dbContext.JobPosts.FindAsync(id);
+        if (jobPost == null) return null;
+
+        jobPost.MatchWeights = weights;
+        jobPost.UpdatedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+        return jobPost;
     }
 }

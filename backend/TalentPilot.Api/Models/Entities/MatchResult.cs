@@ -35,6 +35,15 @@ public class MatchResult
 
     [Column("CreatedAt")]
     public DateTime CreatedAt { get; set; }
+
+    [Column("DimensionScores")]
+    public string? DimensionScores { get; set; }
+
+    [Column("DimensionWeights")]
+    public string? DimensionWeights { get; set; }
+
+    [Column("MatchThreshold")]
+    public decimal? MatchThreshold { get; set; }
 }
 
 public enum MatchStatus

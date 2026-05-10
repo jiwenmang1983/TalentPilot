@@ -146,6 +146,71 @@ public class JobPostsController : ControllerBase
             })
         }));
     }
+
+    // ==================== T-53: 匹配阈值与权重配置 ====================
+
+    [HttpGet("{id}/match-threshold")]
+    [AllowAnonymous] // 让前端可读取
+    public async Task<ActionResult<ApiResponse<object>>> GetMatchThreshold(int id)
+    {
+        var jobPost = await _jobPostService.GetByIdAsync(id);
+        if (jobPost == null)
+            return NotFound(new ApiResponse<object>(false, "职位不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", new
+        {
+            jobPost.Id,
+            jobPost.MatchThreshold
+        }));
+    }
+
+    [HttpPut("{id}/match-threshold")]
+    public async Task<ActionResult<ApiResponse<object>>> SetMatchThreshold(int id, [FromBody] SetMatchThresholdRequest request)
+    {
+        if (request.Threshold < 0 || request.Threshold > 100)
+            return BadRequest(new ApiResponse<object>(false, "阈值必须在0-100之间", null));
+
+        var jobPost = await _jobPostService.UpdateMatchThresholdAsync(id, request.Threshold);
+        if (jobPost == null)
+            return NotFound(new ApiResponse<object>(false, "职位不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "阈值更新成功", new { jobPost.Id, jobPost.MatchThreshold }));
+    }
+
+    [HttpGet("{id}/match-weights")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<object>>> GetMatchWeights(int id)
+    {
+        var jobPost = await _jobPostService.GetByIdAsync(id);
+        if (jobPost == null)
+            return NotFound(new ApiResponse<object>(false, "职位不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", new
+        {
+            jobPost.Id,
+            jobPost.MatchWeights
+        }));
+    }
+
+    [HttpPut("{id}/match-weights")]
+    public async Task<ActionResult<ApiResponse<object>>> SetMatchWeights(int id, [FromBody] SetMatchWeightsRequest request)
+    {
+        var jobPost = await _jobPostService.UpdateMatchWeightsAsync(id, request.Weights);
+        if (jobPost == null)
+            return NotFound(new ApiResponse<object>(false, "职位不存在", null));
+
+        return Ok(new ApiResponse<object>(true, "权重更新成功", new { jobPost.Id, jobPost.MatchWeights }));
+    }
+}
+
+public class SetMatchThresholdRequest
+{
+    public decimal Threshold { get; set; }
+}
+
+public class SetMatchWeightsRequest
+{
+    public string Weights { get; set; } = "{}";
 }
 
 public class ApiResponse<T>

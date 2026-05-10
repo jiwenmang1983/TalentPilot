@@ -56,6 +56,12 @@ public class JobPost
 
     [Column("IsDeleted")]
     public bool IsDeleted { get; set; }
+
+    [Column("MatchThreshold")]
+    public decimal? MatchThreshold { get; set; }
+
+    [Column("MatchWeights")]
+    public string? MatchWeights { get; set; }
 }
 
 public enum JobPostStatus
