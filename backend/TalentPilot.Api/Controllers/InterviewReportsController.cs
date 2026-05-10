@@ -68,7 +68,7 @@ public class InterviewReportsController : ControllerBase
         }));
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("{id}")]  // GET /api/interview-reports/{id} — 无int约束避免与子路由冲突
     [Authorize(Roles = "admin,hr,hiring_manager")]
     public async Task<ActionResult<ApiResponse<object>>> GetReport(int id)
     {
