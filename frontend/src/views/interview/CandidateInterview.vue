@@ -37,6 +37,41 @@
 
     <!-- Interview Screen -->
     <div v-else class="interview-screen">
+      <!-- Environment Reminder Modal (F-19) -->
+      <a-modal
+        :open="showEnvironmentModal"
+        title="📋 面试环境提醒"
+        :footer="null"
+        :closable="false"
+        :maskClosable="false"
+        centered
+        width="420px"
+      >
+        <div class="environment-tips">
+          <a-alert
+            message="请在开始前确认以下环境要求"
+            type="info"
+            show-icon
+            style="margin-bottom: 16px"
+          />
+          <ul class="tips-list">
+            <li>🎤 请在安静、无干扰的环境中进行面试</li>
+            <li>📱 推荐使用手机或电脑，确保麦克风正常工作</li>
+            <li>🌐 请确保网络连接稳定</li>
+            <li>🚫 面试过程中请勿切换页面或打开其他应用</li>
+            <li>⏱️ 面试时长约20-30分钟，请预留充足时间</li>
+          </ul>
+          <a-checkbox v-model:checked="environmentChecked" style="margin-top: 16px">
+            我已阅读并确认环境符合要求
+          </a-checkbox>
+        </div>
+        <div style="margin-top: 20px; text-align: right">
+          <a-button @click="showEnvironmentModal = false" style="margin-right: 8px">稍后再说</a-button>
+          <a-button type="primary" :disabled="!environmentChecked" @click="confirmEnvironmentAndStart">
+            开始面试 ✓
+          </a-button>
+        </div>
+      </a-modal>
       <!-- Header -->
       <div class="interview-header">
         <div class="candidate-info">
@@ -194,6 +229,9 @@ const countdownColor = computed(() => {
   return '#1890ff'
 })
 
+const showEnvironmentModal = ref(false)
+const environmentChecked = ref(false)
+
 async function verifyToken() {
   const token = tokenForm.value.token.trim() || route.query.token
   if (!token) {
@@ -214,8 +252,8 @@ async function verifyToken() {
       }
 
       if (res.data.status === 'InProgress' || res.data.status === 'Pending') {
-        sessionValid.value = true
-        await loadNextQuestion()
+        // Show environment reminder before starting
+        showEnvironmentModal.value = true
       } else {
         message.error('该面试会话状态不允许开始')
       }
@@ -227,6 +265,12 @@ async function verifyToken() {
   } finally {
     verifying.value = false
   }
+}
+
+function confirmEnvironmentAndStart() {
+  showEnvironmentModal.value = false
+  sessionValid.value = true
+  loadNextQuestion()
 }
 
 async function loadNextQuestion() {
