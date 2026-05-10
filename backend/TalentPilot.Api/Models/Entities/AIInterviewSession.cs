@@ -61,6 +61,18 @@ public class AIInterviewSession
     [Column("UpdatedAt")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    [Column("BookingDeadline")]
+    public DateTime? BookingDeadline { get; set; }
+
+    [Column("InterviewDuration")]
+    public int InterviewDuration { get; set; } = 30;
+
+    [Column("AvailableSlots")]
+    public string? AvailableSlots { get; set; }
+
+    [Column("ScheduledAt")]
+    public DateTime? ScheduledAt { get; set; }
+
     [ForeignKey(nameof(InterviewInvitationId))]
     public virtual InterviewInvitation? InterviewInvitation { get; set; }
 
@@ -78,4 +90,5 @@ public static class AIInterviewSessionStatus
     public const string Completed = "Completed";
     public const string Cancelled = "Cancelled";
     public const string NoShow = "NoShow";
+    public const string Booked = "Booked";
 }

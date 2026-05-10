@@ -151,6 +151,12 @@ const routes = [
     name: 'CandidateInterview',
     component: () => import('@/views/interview/CandidateInterview.vue'),
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/interview-book/:sessionToken',
+    name: 'InterviewBooking',
+    component: () => import('@/views/interview/InterviewBooking.vue'),
+    meta: { requiresAuth: false }
   }
 ]
 

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TalentPilot.Api.Data;
 using TalentPilot.Api.Models.DTOs;
 using TalentPilot.Api.Models.Entities;
 using TalentPilot.Api.Services;
@@ -16,11 +17,16 @@ public class AIInterviewSessionsController : ControllerBase
 {
     private readonly AIInterviewSessionService _sessionService;
     private readonly OperationLogService _logService;
+    private readonly TalentPilotDbContext _context;
 
-    public AIInterviewSessionsController(AIInterviewSessionService sessionService, OperationLogService logService)
+    public AIInterviewSessionsController(
+        AIInterviewSessionService sessionService,
+        OperationLogService logService,
+        TalentPilotDbContext context)
     {
         _sessionService = sessionService;
         _logService = logService;
+        _context = context;
     }
 
     [HttpGet]
@@ -235,5 +241,72 @@ public class AIInterviewSessionsController : ControllerBase
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return int.TryParse(userIdClaim, out var userId) ? userId : 0;
+    }
+
+    [HttpGet("{id}/slots")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<object>>> GetAvailableSlots(int id)
+    {
+        var session = await _sessionService.GetByIdAsync(id);
+        if (session == null)
+            return NotFound(new ApiResponse<object>(false, "Session not found", null));
+
+        var slots = GenerateAvailableSlots();
+        return Ok(new ApiResponse<object>(true, "获取成功", new AvailableSlotsResponse
+        {
+            Slots = slots,
+            BookingDeadline = session.BookingDeadline,
+            InterviewDuration = session.InterviewDuration
+        }));
+    }
+
+    [HttpPost("{id}/book")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<object>>> BookSlot(int id, [FromBody] BookSlotRequest request)
+    {
+        var session = await _sessionService.GetByIdAsync(id);
+        if (session == null)
+            return NotFound(new ApiResponse<object>(false, "Session not found", null));
+
+        if (session.BookingDeadline.HasValue && DateTime.UtcNow > session.BookingDeadline.Value)
+            return BadRequest(new ApiResponse<object>(false, "预约已截止", null));
+
+        session.ScheduledAt = request.SlotTime;
+        session.Status = AIInterviewSessionStatus.Booked;
+        session.StartTime = request.SlotTime;
+        session.EndTime = request.SlotTime.AddMinutes(session.InterviewDuration);
+        await _context.SaveChangesAsync();
+
+        return Ok(new ApiResponse<object>(true, "预约成功", new { scheduledAt = session.ScheduledAt }));
+    }
+
+    [HttpGet("{id}/booking-status")]
+    public async Task<ActionResult<ApiResponse<object>>> GetBookingStatus(int id)
+    {
+        var session = await _sessionService.GetByIdAsync(id);
+        if (session == null)
+            return NotFound(new ApiResponse<object>(false, "Session not found", null));
+
+        return Ok(new ApiResponse<object>(true, "获取成功", new BookingStatusResponse
+        {
+            Status = session.Status,
+            ScheduledAt = session.ScheduledAt,
+            InterviewDuration = session.InterviewDuration,
+            JobPostTitle = session.JobPost?.Title
+        }));
+    }
+
+    private List<DateTime> GenerateAvailableSlots()
+    {
+        var slots = new List<DateTime>();
+        var start = DateTime.UtcNow.Date.AddHours(9);
+        var end = DateTime.UtcNow.Date.AddDays(2).AddHours(18);
+
+        for (var dt = start; dt <= end; dt = dt.AddHours(1))
+        {
+            if (dt.Hour >= 9 && dt.Hour < 12 || dt.Hour >= 14 && dt.Hour < 18)
+                slots.Add(dt);
+        }
+        return slots;
     }
 }

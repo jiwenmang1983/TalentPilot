@@ -48,3 +48,23 @@ public class SubmitAnswerResponse
     public int Progress { get; set; }
     public int TotalQuestions { get; set; }
 }
+
+public class BookSlotRequest
+{
+    public DateTime SlotTime { get; set; }
+}
+
+public class AvailableSlotsResponse
+{
+    public List<DateTime> Slots { get; set; } = new();
+    public DateTime? BookingDeadline { get; set; }
+    public int InterviewDuration { get; set; }
+}
+
+public class BookingStatusResponse
+{
+    public string Status { get; set; } = string.Empty;
+    public DateTime? ScheduledAt { get; set; }
+    public int InterviewDuration { get; set; }
+    public string? JobPostTitle { get; set; }
+}
