@@ -67,7 +67,7 @@ public class JobPost
     public string? InterviewQuestions { get; set; }
 
     [Column("InterviewDuration")]
-    public int InterviewDuration { get; set; } = 30;
+    public int InterviewDuration { get; set; } = 20;
 }
 
 public enum JobPostStatus

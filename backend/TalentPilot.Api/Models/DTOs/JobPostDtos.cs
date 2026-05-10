@@ -48,7 +48,7 @@ public class JobPostResponseDto
     public decimal? MatchThreshold { get; set; }
     public string? MatchWeights { get; set; }
     public string? InterviewQuestions { get; set; }
-    public int InterviewDuration { get; set; } = 30;
+    public int InterviewDuration { get; set; } = 20;
 }
 
 public class UpdateJobPostStatusRequest

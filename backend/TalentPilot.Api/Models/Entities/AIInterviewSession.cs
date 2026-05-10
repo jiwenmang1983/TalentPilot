@@ -65,7 +65,7 @@ public class AIInterviewSession
     public DateTime? BookingDeadline { get; set; }
 
     [Column("InterviewDuration")]
-    public int InterviewDuration { get; set; } = 30;
+    public int InterviewDuration { get; set; } = 20;
 
     [Column("AvailableSlots")]
     public string? AvailableSlots { get; set; }
@@ -97,4 +97,5 @@ public static class AIInterviewSessionStatus
     public const string Cancelled = "Cancelled";
     public const string NoShow = "NoShow";
     public const string Booked = "Booked";
+    public const string Abandoned = "Abandoned";
 }

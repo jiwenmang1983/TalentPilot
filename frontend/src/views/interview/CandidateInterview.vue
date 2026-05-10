@@ -86,6 +86,10 @@
             size="small"
             style="width: 120px"
           />
+          <a-button type="text" danger size="small" @click="confirmAbandon" title="退出面试">
+            <template #icon><CloseCircleOutlined /></template>
+            退出
+          </a-button>
         </div>
       </div>
 
@@ -186,7 +190,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { VideoCameraOutlined, InfoCircleOutlined, PlayCircleOutlined } from '@ant-design/icons-vue'
+import { VideoCameraOutlined, InfoCircleOutlined, PlayCircleOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
 import { aiInterviewSessionApi } from '@/api/aiInterviewSession'
 import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -271,6 +275,29 @@ function confirmEnvironmentAndStart() {
   showEnvironmentModal.value = false
   sessionValid.value = true
   loadNextQuestion()
+}
+
+function confirmAbandon() {
+  if (confirm('确定要退出面试吗？退出后您的面试将被标记为"主动放弃"。')) {
+    abandonSession()
+  }
+}
+
+async function abandonSession() {
+  try {
+    if (sessionId.value) {
+      await aiInterviewSessionApi.abandon(sessionId.value)
+    }
+  } catch (e) {
+    // Best effort
+  }
+  stopCountdown()
+  sessionValid.value = false
+  interviewCompleted.value = false
+  session.value = null
+  sessionId.value = null
+  currentQuestion.value = null
+  message.info('您已退出面试')
 }
 
 async function loadNextQuestion() {
@@ -481,9 +508,19 @@ onMounted(() => {
     tokenForm.value.token = urlToken
     verifyToken()
   }
+
+  // Handle browser tab close - call abandon if in progress
+  window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
+function handleBeforeUnload() {
+  if (sessionId.value && sessionValid.value && !interviewCompleted.value) {
+    abandonSession()
+  }
+}
+
 onUnmounted(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
   stopCountdown()
   if (recordingTimer) clearInterval(recordingTimer)
   if (mediaRecorder && isRecording.value) {

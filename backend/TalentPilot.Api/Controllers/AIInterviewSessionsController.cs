@@ -297,6 +297,17 @@ public class AIInterviewSessionsController : ControllerBase
         return Ok(new ApiResponse<object>(true, "已取消", new { session.Id, session.Status }));
     }
 
+    [HttpPut("{id}/abandon")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<object>>> AbandonSession(int id)
+    {
+        var session = await _sessionService.AbandonAsync(id);
+        if (session == null)
+            return BadRequest(new ApiResponse<object>(false, "放弃失败，会话不存在或已完成", null));
+
+        return Ok(new ApiResponse<object>(true, "已放弃面试", new { session.Id, session.Status }));
+    }
+
     [HttpPost("{id}/submit-answer")]
     [AllowAnonymous]
     public async Task<ActionResult<ApiResponse<object>>> SubmitAnswer(int id, [FromBody] SubmitAnswerRequest request)

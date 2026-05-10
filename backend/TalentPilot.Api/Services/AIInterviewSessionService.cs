@@ -15,6 +15,7 @@ public interface IAIInterviewSessionService
     Task<AIInterviewSession?> StartAsync(int id);
     Task<AIInterviewSession?> CompleteAsync(int id);
     Task<AIInterviewSession?> CancelAsync(int id);
+    Task<AIInterviewSession?> AbandonAsync(int id);
     Task<SubmitAnswerResponse> SubmitAnswerAsync(int id, SubmitAnswerRequest request);
     Task<QuestionResponse?> GetNextQuestionAsync(int id);
 }
@@ -271,6 +272,22 @@ public class AIInterviewSessionService : IAIInterviewSessionService
             return null;
 
         session.Status = AIInterviewSessionStatus.Cancelled;
+        session.EndTime = DateTime.UtcNow;
+        session.UpdatedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+        return session;
+    }
+
+    public async Task<AIInterviewSession?> AbandonAsync(int id)
+    {
+        var session = await _dbContext.AIInterviewSessions.FindAsync(id);
+        if (session == null) return null;
+
+        if (session.Status == AIInterviewSessionStatus.Completed)
+            return null;
+
+        session.Status = AIInterviewSessionStatus.Abandoned;
         session.EndTime = DateTime.UtcNow;
         session.UpdatedAt = DateTime.UtcNow;
 

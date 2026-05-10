@@ -67,7 +67,7 @@ public class JobPostService : IJobPostService
             CreatedAt = DateTime.UtcNow,
             IsDeleted = false,
             InterviewQuestions = request.InterviewQuestions,
-            InterviewDuration = request.InterviewDuration ?? 30
+            InterviewDuration = request.InterviewDuration ?? 20
         };
 
         _dbContext.JobPosts.Add(jobPost);
