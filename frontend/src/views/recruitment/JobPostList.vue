@@ -282,7 +282,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { PlusOutlined, AimOutlined, ReloadOutlined, SendOutlined } from '@ant-design/icons-vue'
 import { jobPostApi } from '@/api/jobpost'
@@ -294,6 +294,7 @@ const router = useRouter()
 const loading = ref(false)
 const filterStatus = ref(null)
 const dataSource = ref([])
+let pollTimer = null
 const pagination = ref({
   current: 1,
   pageSize: 20,
@@ -680,6 +681,11 @@ function formatDate(dt) {
 
 onMounted(() => {
   fetchData()
+  pollTimer = setInterval(fetchData, 30000)
+})
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer)
 })
 </script>
 
