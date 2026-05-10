@@ -387,9 +387,25 @@ AI 对采集到的原始简历（Word / PDF / HTML / 文本）进行解析，提
 
 **F-21：报告生成** ✅
 
+- 每场面试结束后，AI 自动生成结构化报告（CompleteSession 触发，Task.Run 后台异步执行）
+- 报告结构：候选人信息 + JD匹配回顾 + 面试过程记录 + AI评估结果（综合评分 + 各维度 + 推荐度）
+- API端点：`POST /api/interview-reports`（由 CompleteSession 自动触发生成）
+- 服务：InterviewReportService.GenerateReportAsync()
+- 报告存储：MySQL InterviewReports 表
+
 **F-22：报告导出** ✅
 
+- HR / 用人经理在后台在线查看报告
+- 支持导出 **PDF**（QuestPDF实现，专业排版）—— `GET /api/interview-reports/{id}/export-pdf`
+- 支持批量导出 **Excel**（ClosedXML实现）—— `POST /api/interview-reports/export-excel-batch`
+- 前端：InterviewReports.vue 导出按钮 + 批量选择
+
 **F-23：报告权限管理** ✅
+
+- 管理员/HR：可查看所有报告
+- 用人经理（hiring_manager）：只能查看自己参与面试的报告（通过 InterviewerUserId 关联）
+- 候选人：通过 `/api/interview-reports/by-session/{sessionId}` 查看自己的报告（AllowAnonymous）
+- MySQL：AIInterviewSessions.InterviewerUserId 字段 + FK 约束
 
 ---
 
@@ -400,58 +416,6 @@ AI 对采集到的原始简历（Word / PDF / HTML / 文本）进行解析，提
 - **面试进度续接：** 候选人中途关闭页面后，再次打开可续接进度 ✅ **小P完成**（21645b1）
 - **候选人仪表板：** 候选人可查看自己的面试历史和报告 ✅ **小P完成**（21645b1）
 - **倒计时警告：** 面试时间剩余<30秒时红色脉冲警告 ✅ **小P完成**（21645b1）
-
----
-
-### 3.7 结构化面试报告
-
-**F-21：报告生成**
-
-每场面试结束后，AI 自动生成结构化报告，生成时间 ≤ 5 分钟。
-
-**报告结构：**
-
-```
-┌─────────────────────────────────────────────┐
-│           TalentPilot 面试评估报告            │
-├─────────────────────────────────────────────┤
-│ 【候选人基础信息】                             │
-│ 姓名 │ 学历 │ 工作年限 │ 应聘职位 │ 面试时间  │
-├─────────────────────────────────────────────┤
-│ 【JD 匹配度回顾】                            │
-│ 技能 85 │ 年限 78 │ 学历 90 │ 行业 60 │ ... │
-├─────────────────────────────────────────────┤
-│ 【面试过程记录】                              │
-│ 总时长：18分32秒 │ 问题数：4题 │ 追问数：7次  │
-│ 回答完整度：92%（各问题回答长度分析）           │
-├─────────────────────────────────────────────┤
-│ 【AI 评估结果】                              │
-│ 综合评分：78/100                             │
-│ 各维度：技术深度 80 │ 沟通表达 85 │ 逻辑思维 75│
-│ AI 关键点评语（200字以内）                    │
-├─────────────────────────────────────────────┤
-│ 【结论】                                     │
-│ 亮点：...                                   │
-│ 风险点：...                                 │
-│ 推荐度：推荐 / 待观察 / 不推荐                 │
-└─────────────────────────────────────────────┘
-```
-
-**F-22：报告查看与导出** ✅ 已完成（T-61）
-
-- [x] HR / 用人经理在后台在线查看报告
-- [x] 支持导出 PDF（带公司 logo）— QuestPDF 实现，专业排版
-- [x] 支持批量导出 Excel（适合周度招聘汇报）— ClosedXML 实现
-- API端点：`GET /api/interview-reports/{id}/export-pdf`、`GET /api/interview-reports/{id}/export-excel`、`POST /api/interview-reports/export-excel-batch`
-- 前端：InterviewReports.vue 导出按钮 + 批量选择
-
-**F-23：报告权限** ✅ 已完成（T-62）
-
-- [x] 管理员 / HR：可查看所有报告
-- [x] 用人经理（hiring_manager）：只能查看自己参与面试的报告（通过 InterviewerUserId 关联）
-- [x] 候选人：通过 `/api/interview-reports/by-session/{sessionId}` 查看自己的报告（AllowAnonymous）
-- MySQL：AIInterviewSessions.InterviewerUserId 字段 + FK 约束
-- StartSession 自动记录当前用户为面试官
 
 ---
 
