@@ -65,7 +65,9 @@ public class JobPostService : IJobPostService
             Status = request.Status,
             CreatedBy = createdBy,
             CreatedAt = DateTime.UtcNow,
-            IsDeleted = false
+            IsDeleted = false,
+            InterviewQuestions = request.InterviewQuestions,
+            InterviewDuration = request.InterviewDuration ?? 30
         };
 
         _dbContext.JobPosts.Add(jobPost);
@@ -88,6 +90,10 @@ public class JobPostService : IJobPostService
         jobPost.Experience = request.Experience;
         jobPost.Education = request.Education;
         jobPost.Status = request.Status;
+        if (request.InterviewQuestions != null)
+            jobPost.InterviewQuestions = request.InterviewQuestions;
+        if (request.InterviewDuration.HasValue)
+            jobPost.InterviewDuration = request.InterviewDuration.Value;
         jobPost.UpdatedAt = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();

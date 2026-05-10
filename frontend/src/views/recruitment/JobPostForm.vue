@@ -85,6 +85,31 @@
           </a-select>
         </a-form-item>
 
+        <a-divider>面试设置</a-divider>
+
+        <a-form-item label="面试时长" name="interviewDuration">
+          <a-select v-model:value="formState.interviewDuration">
+            <a-select-option :value="15">15分钟</a-select-option>
+            <a-select-option :value="20">20分钟</a-select-option>
+            <a-select-option :value="30">30分钟</a-select-option>
+            <a-select-option :value="45">45分钟</a-select-option>
+            <a-select-option :value="60">60分钟</a-select-option>
+          </a-select>
+        </a-form-item>
+
+        <a-form-item label="预设面试问题" name="interviewQuestions">
+          <div v-for="(q, idx) in formState.interviewQuestions" :key="idx" class="question-item">
+            <a-input v-model:value="formState.interviewQuestions[idx]" placeholder="请输入问题" />
+            <a-button type="text" danger @click="removeQuestion(idx)" v-if="formState.interviewQuestions.length > 1">
+              删除
+            </a-button>
+          </div>
+          <a-button type="dashed" block @click="addQuestion" v-if="formState.interviewQuestions.length < 5">
+            + 添加问题
+          </a-button>
+          <div class="tip">最多5题，至少1题</div>
+        </a-form-item>
+
         <a-form-item :wrapper-col="{ offset: 4 }">
           <a-space>
             <a-button type="primary" @click="handleSubmit" :loading="loading">
@@ -122,8 +147,19 @@ const formState = reactive({
   salaryMax: null,
   experience: undefined,
   education: undefined,
-  status: 'Draft'
+  status: 'Draft',
+  interviewDuration: 30,
+  interviewQuestions: ['']
 })
+
+function addQuestion() {
+  if (formState.interviewQuestions.length < 5)
+    formState.interviewQuestions.push('')
+}
+
+function removeQuestion(idx) {
+  formState.interviewQuestions.splice(idx, 1)
+}
 
 async function fetchData() {
   if (!jobPostId.value) return
@@ -139,7 +175,9 @@ async function fetchData() {
       salaryMax: data.salaryMax || null,
       experience: data.experience || undefined,
       education: data.education || undefined,
-      status: data.status || 'Draft'
+      status: data.status || 'Draft',
+      interviewDuration: data.interviewDuration || 30,
+      interviewQuestions: data.interviewQuestions ? JSON.parse(data.interviewQuestions) : ['']
     })
   } catch (e) {
     console.error(e)
@@ -151,11 +189,15 @@ async function handleSubmit() {
   try {
     await formRef.value.validate()
     loading.value = true
+    const submitData = {
+      ...formState,
+      interviewQuestions: JSON.stringify(formState.interviewQuestions.filter(q => q.trim()))
+    }
     if (isEdit.value) {
-      await jobPostApi.update(jobPostId.value, formState)
+      await jobPostApi.update(jobPostId.value, submitData)
       message.success('更新成功')
     } else {
-      await jobPostApi.create(formState)
+      await jobPostApi.create(submitData)
       message.success('创建成功')
     }
     router.push('/jobposts')
@@ -182,5 +224,16 @@ onMounted(() => {
 <style scoped>
 .job-post-form {
   padding: 24px;
+}
+.question-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.tip {
+  color: #999;
+  font-size: 12px;
+  margin-top: 4px;
 }
 </style>

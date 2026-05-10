@@ -62,6 +62,12 @@ public class JobPost
 
     [Column("MatchWeights")]
     public string? MatchWeights { get; set; }
+
+    [Column("InterviewQuestions")]
+    public string? InterviewQuestions { get; set; }
+
+    [Column("InterviewDuration")]
+    public int InterviewDuration { get; set; } = 30;
 }
 
 public enum JobPostStatus
