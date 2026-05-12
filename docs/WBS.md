@@ -3,9 +3,9 @@
 > 本文件是开发任务的工作分解结构（WBS），与 `docs/PRD.md` 配合使用。
 > 小P 更新状态，CC 执行开发，小Q 执行测试，Mark 最终审批。
 
-**版本：** v1.12
-**日期：** 2026-05-10
-**状态：** 🟢 Phase 13完成，全部Feature完成！
+**版本：** v1.13
+**日期：** 2026-05-11
+**状态：** 🟢 Phase 13完成全部完成，Phase 14-19（Vue→React迁移）待开发
 
 ---
 
@@ -26,7 +26,13 @@
 | **Phase 11: 面试增强+报告（§3.5~§3.7）** | 3 | 🟢 T-58✅,T-59✅,T-60✅ |
 | **Phase 12: 报告与权限（§3.7）** | 2 | 🟢 T-61✅,T-62✅ |
 | **Phase 13: 体验优化（§3.5/§3.8）** | 1 | 🟢 T-63✅ |
-| **合计** | **49** | |
+| **Phase 14: 基础设施（API/Auth/路由）** | 4 | 🔴 待开发 |
+| **Phase 15: Layout骨架** | 3 | 🔴 待开发 |
+| **Phase 16: 招聘核心流程** | 9 | 🔴 待开发 |
+| **Phase 17: 其他功能页面** | 7 | 🔴 待开发 |
+| **Phase 18: 候选人端+收尾** | 3 | 🔴 待开发 |
+| **Phase 19: React版E2E验收** | 1 | 🔴 待开发 |
+| **合计** | **76** | |
 
 ---
 
@@ -430,20 +436,237 @@
   - 状态: ⏳ 待开发
 
 **T-60: F-21 报告生成**
-  - AI分析面试内容→结构化报告（OverallScore/DimensionScores/AiComments/Highlights/Concerns/Recommendation）
-  - InterviewReport实体已存在，服务层待实现
-  - 状态: ⏳ 待开发
+---
+
+## Phase 14：基础设施 — API层 / Auth / 路由 / 工具函数
+
+> 前端 React 项目基础架构搭建，1:1 移植 Vue 原版能力，不改变后端 API 契约
+> 分支：`feature/react-shadcn`，目录：`frontend-react/src/`
+> 状态: 🔴 待开发
+
+**T-64: API Service 层**
+  - `src/services/api.ts` — 完整 Axios 实例（baseURL `/api`、interceptors、401重试刷新Token逻辑）
+  - 14个模块 API 导出：authApi、userApi、roleApi、departmentApi、permissionApi、operationLogApi、notificationApi、channelApi、jobpostApi、resumeApi、candidateApi、matchApi、interviewApi、reportApi
+  - 与 Vue 版 `frontend/src/api/index.js` 1:1 对齐
+
+**T-65: Auth Store（Zustand）**
+  - `src/stores/authStore.ts` — Zustand store（token、userInfo、isLoggedIn、login、logout、setUserInfo）
+  - localStorage 持久化（accessToken / refreshToken / userInfo）
+  - LoginPage 对接 AuthStore，401 错误由 api interceptor 处理
+
+**T-66: React Router 路由**
+  - `src/router/index.tsx` — 23条路由完整映射（与 `frontend/src/router/index.js` 1:1）
+  - 路由守卫：requiresAuth 时检查 isLoggedIn，未登录 redirect `/login`
+  - lazy loading 各页面组件
+  - 候选人公开路由（confirm/candidate/booking）无需认证
+
+**T-67: 工具函数库**
+  - `src/lib/utils.ts` — cn()（clsx + tailwind-merge）
+  - `src/lib/constants.ts` — routeTitleMap 等常量
+  - 补充缺失的通用工具函数（dateFormat、debounce 等）
+
+---
+
+## Phase 15：Layout 骨架 — 侧边栏 / Header / MainLayout
+
+> 等同于 Vue 的 `MainLayout.vue`，React + shadcn/ui 实现，样式 1:1 还原
+> 状态: 🔴 待开发
+
+**T-68: Sidebar 侧边栏**
+  - `src/components/layout/Sidebar.tsx`
+  - 三组菜单（职位与简历管理 / 面试与评估 / 系统管理），flat menu 结构
+  - 折叠态（collapsed）切换：icon-only 模式，居中显示 icon
+  - Logo区（`/talentpilot-logo.svg` + "TalentPilot" + "AI 智能招聘平台"）
+  - active 状态高亮（左侧3px border-left + 背景色 + 字体色）
+  - scroll 纵向滚动，max-height: calc(100vh - 60px)
+
+**T-69: Header 头部**
+  - `src/components/layout/Header.tsx`
+  - 左侧：collapse toggle button + Breadcrumb（当前页面标题）
+  - 右侧：通知铃铛 Badge（count=0）+ 用户下拉（Avatar首字母 + 用户名 + DownOutlined）
+  - 用户下拉：个人中心 + 退出登录
+
+**T-70: MainLayout 整合**
+  - `src/components/layout/MainLayout.tsx`
+  - 整合 Sidebar + Header + `<Outlet />` 内容区
+  - App.tsx 更新为 MainLayout 包裹路由（与 Vue router outlet 行为一致）
+  - 样式与 Vue 版 1:1（背景色 #0D3D92、字体色系统、阴影等）
+
+---
+
+## Phase 16：招聘核心流程（9个页面）
+
+> 对应 Vue `frontend/src/views/recruitment/` 下全部页面，React + shadcn 实现
+> 状态: 🔴 待开发
+
+**T-71: JobPostListPage 职位列表**
+  - `src/views/recruitment/JobPostListPage.tsx`
+  - Table 展示职位（标题/部门/状态/创建时间），分页
+  - 状态筛选（Draft/Published/Paused/Closed）+ 关键词搜索
+  - 操作：新建职位按钮（→ `/jobposts/new`）、编辑（→ `/jobposts/:id`）、AI内容适配按钮、渠道分发按钮
+
+**T-72: JobPostFormPage 职位表单（新建/编辑）**
+  - `src/views/recruitment/JobPostFormPage.tsx`（路由 `/:id` 和 `/new` 共用）
+  - 表单字段：职位名称、所属部门（下拉）、职位描述（Textarea）、任职要求、薪资范围、职位类型
+  - 面试设置区块：时长选择（15/30/45/60min）+ 问题列表（可增删）
+  - 表单验证（必填项）
+  - 保存后 redirect `/jobposts`
+
+**T-73: ResumeListPage 简历列表**
+  - `src/views/recruitment/ResumeListPage.tsx`
+  - Table（姓名/邮箱/手机/投递职位/匹配度/状态），分页
+  - 筛选：职位下拉 + 匹配度滑块（阈值筛选）+ 渠道
+  - 匹配度进度条可视化，达标/不达标状态标签
+  - 操作：查看详情、调整阈值弹窗
+  - 采集管理：立即采集按钮 + 渠道状态表格
+
+**T-74: ResumeParsePage 简历解析**
+  - `src/views/recruitment/ResumeParsePage.tsx`
+  - 上传组件（拖拽上传 + 点击上传）
+  - 解析结果展示区（姓名/邮箱/手机/工作经历/教育经历）
+  - 手动录入表单兜底
+
+**T-75: CandidateListPage 候选人列表**
+  - `src/views/recruitment/CandidateListPage.tsx`
+  - Table（姓名/邮箱/手机/来源/创建时间），分页
+  - 筛选：来源渠道 + 创建日期范围
+  - 操作：查看详情（→ `/candidates/:id`）
+
+**T-76: CandidateDetailPage 候选人详情**
+  - `src/views/recruitment/CandidateDetailPage.tsx`
+  - Tabs：基本信息 / 投递记录 / 面试记录
+  - 基本信息：头像、姓名、联系方式、工作经历、教育经历
+  - 投递记录列表 + 面试记录列表
+
+**T-77: MatchResultListPage 智能匹配列表**
+  - `src/views/recruitment/MatchResultListPage.tsx`
+  - Table（候选人/职位/匹配度/状态），分页
+  - 匹配度降序排列，进度条可视化
+  - 操作：查看详情（→ `/matches/:id`）
+
+**T-78: MatchResultDetailPage 匹配详情**
+  - `src/views/recruitment/MatchResultDetailPage.tsx`
+  - 候选人信息卡片 + 职位信息卡片
+  - 8维度评分展示（雷达图或条形图）
+  - AI评价摘要 + 推荐结论
+
+**T-79: InterviewInvitationPage 面试邀约**
+  - `src/views/recruitment/InterviewInvitationPage.tsx`
+  - Table（候选人/职位/面试时间/状态），分页
+  - 操作：发起邀约、发送提醒、取消邀约
+
+---
+
+## Phase 17：其他功能页面（7个页面）
+
+> Dashboard / Interview / Notification / System 四大模块
+> 状态: 🔴 待开发
+
+**T-80: DashboardPage 数据看板**
+  - `src/views/analytics/DashboardPage.tsx`
+  - 4个 KPI 卡片（总职位数/在招职位/简历投递数/面试邀约数）
+  - 招聘漏斗图表（ECharts 或 Recharts）
+  - 月度趋势折线图
+  - 最近动态列表
+
+**T-81: InterviewSessionsPage AI面试会话**
+  - `src/views/interview/InterviewSessionsPage.tsx`
+  - Table（候选人/职位/开始时间/状态），分页
+  - 操作：进入面试（WebRTC房间入口）、查看报告
+
+**T-82: InterviewReportsPage 面试报告列表**
+  - `src/views/interview/InterviewReportsPage.tsx`
+  - Table（候选人/职位/综合评分/生成时间），分页
+  - 操作：查看报告详情
+
+**T-83: NotificationListPage 通知日志**
+  - `src/views/notification/NotificationListPage.tsx`
+  - Table（类型/内容/时间/状态），分页
+  - 筛选：通知类型 + 时间范围
+
+**T-84: NotificationTemplatesPage 通知模板**
+  - `src/views/notification/NotificationTemplatesPage.tsx`
+  - 模板列表（名称/类型/内容预览）
+  - 新建/编辑模板表单弹窗
+
+**T-85: SystemPages 系统管理（4合一）**
+  - `src/views/system/UserManagementPage.tsx` — 用户CRUD + 状态切换
+  - `src/views/system/RoleManagementPage.tsx` — 角色CRUD + 权限配置
+  - `src/views/system/DepartmentTreePage.tsx` — 树形部门管理
+  - `src/views/system/OperationLogsPage.tsx` — 操作日志分页列表
+
+**T-86: ChannelCredentialPage 渠道账号管理**
+  - `src/views/system/ChannelCredentialPage.tsx`
+  - 渠道列表（名称/类型/凭证状态/最后同步时间）
+  - 新增/编辑渠道凭证表单
+
+---
+
+## Phase 18：候选人端 + 收尾
+
+> 候选人公开流程（无需登录）+ shadcn 组件补充 + 全局样式调优
+> 状态: 🔴 待开发
+
+**T-87: 候选人公开页面（3个）**
+  - `src/views/public/CandidateConfirmPage.tsx` — 面试确认页（路由 `/interview/confirm/:token`）
+  - `src/views/public/CandidateInterviewPage.tsx` — AI视频面试房间（路由 `/interview/candidate`）
+  - `src/views/public/InterviewBookingPage.tsx` — 候选人预约页面（路由 `/interview-book/:sessionToken`）
+  - 以上三个路由无需 AuthGuard
+
+**T-88: shadcn 组件补充安装**
+  - 按 Phase 16-17 需求补充安装：Table、Dialog、Sheet、Select、Form/Tabs、Badge、Toast/Sonner、Avatar、Dropdown Menu、Pagination、Breadcrumb、Skeleton、Popover、Calendar、Chart（Recharts）
+  - 集中安装：`npx shadcn@latest add table dialog sheet select tabs badge toast avatar dropdown-menu pagination breadcrumb skeleton popover calendar -y`
+
+**T-89: 全局样式调优 + 响应式**
+  - `src/index.css` — 全局 CSS 变量覆盖（与 Vue 版 Ant Design 色彩体系对应：#0D3D92 主色、#F5F7FA 背景）
+  - 响应式：Sidebar 在小屏幕下 Drawer 模式
+  - 字体、间距、圆角全局统一
+  - 加载骨架（Skeleton）替代 Spinner
+  - 深色模式基础支持（dark: 变量覆盖）
+
+---
+
+## Phase 依赖关系
 
 ```
-Phase 1（T-01 数据库）
-    ↓
-Phase 2（T-02 到 T-08 后端API）
-    ↓
-Phase 3（T-09 到 T-15 前端）
-    ↓
-Phase 4（T-16 到 T-18 测试）← 小Q执行
-Phase 5（T-19 到 T-25 招聘核心）← CC并行执行
+Phase 14 基础设施（T-64 → T-67）
+           ↓
+Phase 15 Layout骨架（T-68 → T-70）
+           ↓
+Phase 16 招聘核心（T-71 → T-79）← CC 并行开发
+           ↓
+Phase 17 其他功能（T-80 → T-86）← CC 并行开发
+           ↓
+Phase 18 收尾（T-87 → T-89）
 ```
+
+---
+
+## Phase 19：React 版 E2E 验收测试
+
+> React 前端功能验收，对标 Vue 版 Phase 4/Phase 7 测试用例
+> 状态: 🔴 待开发
+
+**T-90: React 版 E2E 测试**
+  - Playwright 测试脚本（复用 `frontend/test/e2e/` 结构）
+  - 核心流程：登录 → Dashboard → 职位列表 → 新建职位 → 候选人列表 → 智能匹配 → 面试邀约
+  - 目标：核心功能通过率 ≥ 90%
+  - 执行：`cd frontend-react && npm run test:e2e`
+
+---
+
+## 任务统计
+
+| 阶段 | 任务数 | 状态 |
+|---|---|---|
+| Phase 1-13: 原有功能 | 49 | 🟢 全部完成 |
+| **Phase 14: 基础设施** | 4 | 🔴 待开发 |
+| **Phase 15: Layout骨架** | 3 | 🔴 待开发 |
+| **Phase 16: 招聘核心** | 9 | 🔴 待开发 |
+| **Phase 17: 其他功能** | 7 | 🔴 待开发 |
+| **Phase 18: 候选人端+收尾** | 3 | 🔴 待开发 |
+| **Phase 19: E2E验收** | 1 | 🔴 待开发 |
+| **合计** | **76** | |
 
 ---
 
